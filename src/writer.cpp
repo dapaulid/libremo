@@ -9,7 +9,6 @@
 //------------------------------------------------------------------------------
 #include "writer.h"
 
-#include <stdio.h>
 
 //------------------------------------------------------------------------------
 namespace remo {
@@ -22,7 +21,6 @@ Writer::Writer(Packet& a_packet):
 
 void Writer::write(unsigned char byte)
 {
-	printf("Writing byte %02x\n", byte);
 	m_packet.append(byte);
 }
 
@@ -57,12 +55,11 @@ int BinaryWriter::write_value(bool a_bool)
 int BinaryWriter::write_value(arraysize_t a_size)
 {
 	if (has_arraysize_) {
-		// TODO exception
-		printf("ERROR: arraysize after arraysize\n");
+		throw error(ErrorCode::ERR_POINTER_NEEDS_SIZE, 
+			"arraysize_t parameter required before pointer type");
 	}
 	arraysize_ = a_size;
 	has_arraysize_ = true;
-	printf("arraysize_t\n");
 	return 0;
 }
 

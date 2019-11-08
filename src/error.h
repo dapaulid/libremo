@@ -20,7 +20,8 @@ enum ErrorCode {
 	ERR_BAD_PACKET_ACCESS = 2,
 	ERR_PARAM_TYPE_INVALID = 3,
 	ERR_PARAM_NUM_MISMATCH = 4,
-	ERR_FUNC_NAME_MISSING = 5
+	ERR_FUNC_NAME_MISSING = 5,
+	ERR_POINTER_NEEDS_SIZE = 6,
 };
 
 class error: public std::runtime_error
