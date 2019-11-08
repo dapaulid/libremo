@@ -9,9 +9,11 @@
 //------------------------------------------------------------------------------
 #include "packet.h"
 #include "error.h"
+#include "reader.h"
 
 #include <iostream>
 #include <iomanip>
+#include <sstream>
 
 //------------------------------------------------------------------------------
 namespace remo {
@@ -42,7 +44,7 @@ void Packet::append(char a_byte)
 
 //------------------------------------------------------------------------------
 
-char Packet::get_byte(size_t a_offset)
+char Packet::get_byte(size_t a_offset) const
 {
     if (a_offset < m_size) {
         return m_buffer[a_offset];
@@ -61,6 +63,14 @@ void Packet::log() const
         std::cerr << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << (m_buffer[i] & 0xFF) << " ";
     }
     std::cerr << "]" << std::endl;
+    std::cerr << "=> " << to_string() << std::endl;
+}
+
+//------------------------------------------------------------------------------
+
+std::string Packet::to_string() const
+{
+    return BinaryReader(*this).to_string();
 }
 
 //------------------------------------------------------------------------------

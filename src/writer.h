@@ -37,8 +37,10 @@ public:
 	template<typename... Args>
 	void write_call(const std::string a_function, Args... args)
 	{
-		int dummy[] = { write_value(args)... };
-		(void) dummy;
+		// write function name
+		write_value(a_function.c_str());
+		// write arguments
+		int dummy[] = { write_value(args)... };	(void) dummy;
 	}
 
 	// write scalar value

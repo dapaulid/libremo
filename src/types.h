@@ -75,9 +75,9 @@ struct TypeInfo<double> {
 
 // TODO better place
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-	#define LITTLE_ENDIAN_FOR(i, size) for (int i = 0; i < size; i++)
+	#define LITTLE_ENDIAN_FOR(i, size) for (int i = 0; i < (int)size; i++)
 #else
-	#define LITTLE_ENDIAN_FOR(i, size) for (int i = size-1; i >= 0; i--)
+	#define LITTLE_ENDIAN_FOR(i, size) for (int i = (int)size-1; i >= 0; i--)
 #endif
 
 

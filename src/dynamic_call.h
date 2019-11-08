@@ -14,6 +14,7 @@
 */
 
 #include "types.h"
+#include "error.h"
 
 #include <iostream>
 #include <any>
@@ -67,9 +68,10 @@ struct any_ref_cast<const X&>
 template <typename Ret, typename...Arg>
 Ret dynamic_call (Ret (*func)(Arg...), ArgList args)
 {
-    if (sizeof...(Arg) != args.size())
-        throw "Argument number mismatch!";
-
+    if (sizeof...(Arg) != args.size()) {
+        throw error(ErrorCode::ERR_PARAM_NUM_MISMATCH, "Parameter number mismatch: expected %zu, got %zu",
+            sizeof...(Arg), args.size());
+    }
     return func(any_ref_cast<Arg>().do_cast(fetch_back(args))...);
 }
 
@@ -77,9 +79,10 @@ Ret dynamic_call (Ret (*func)(Arg...), ArgList args)
 template <typename Class, typename Ret, typename...Arg>
 Ret dynamic_call (Ret (Class::*func)(Arg...), Class* obj, ArgList args)
 {
-    if (sizeof...(Arg) != args.size())
-        throw "Argument number mismatch!";
-
+    if (sizeof...(Arg) != args.size()) {
+        throw error(ErrorCode::ERR_PARAM_NUM_MISMATCH, "Parameter number mismatch: expected %zu, got %zu",
+            sizeof...(Arg), args.size());
+    }
     return (obj->*func)(any_ref_cast<Arg>().do_cast(fetch_back(args))...);
 }
 

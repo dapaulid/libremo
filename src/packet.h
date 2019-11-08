@@ -25,13 +25,13 @@ public:
 
     void append(char a_byte);
 
-    char get_byte(size_t a_offset);
+    char get_byte(size_t a_offset) const;
 
     template<typename T>
-    T* get_ptr(size_t a_offset) {
+    const T* get_ptr(size_t a_offset) const {
         // TODO check alignment
         if (a_offset + sizeof(T) <= m_size) {
-            return reinterpret_cast<T*>(&m_buffer[a_offset]);
+            return reinterpret_cast<const T*>(&m_buffer[a_offset]);
         } else {
             throw error(ErrorCode::ERR_BAD_PACKET_ACCESS, "Bad packet access: size=%zu, offset=%zu, ptrsize=%zu", 
                 m_size, a_offset, sizeof(T));
@@ -42,6 +42,8 @@ public:
     size_t get_size() const { return m_size;  }
 
     void log() const;
+
+    std::string to_string() const;
 
 private:
     char m_buffer [1024];

@@ -38,17 +38,20 @@ int BinaryWriter::write_value(const char* a_string)
 
 	// output terminating NUL character
 	write(0);
+
+	return 0;
 }
 
 int BinaryWriter::write_value(char* a_string)
 {
-	write_value((const char*)a_string);
+	return write_value((const char*)a_string);
 }
 
 int BinaryWriter::write_value(bool a_bool)
 {
 	// header: combine value and type id
 	write(((a_bool & 1) << 4) | TypeId::type_bool);
+	return 0;
 }
 
 int BinaryWriter::write_value(arraysize_t a_size)
@@ -60,6 +63,7 @@ int BinaryWriter::write_value(arraysize_t a_size)
 	arraysize_ = a_size;
 	has_arraysize_ = true;
 	printf("arraysize_t\n");
+	return 0;
 }
 
 //------------------------------------------------------------------------------

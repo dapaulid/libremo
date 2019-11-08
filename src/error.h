@@ -18,7 +18,9 @@ namespace remo {
 enum ErrorCode {
 	ERR_PACKET_FULL = 1,
 	ERR_BAD_PACKET_ACCESS = 2,
-	ERR_PARAM_TYPE_INVALID = 3
+	ERR_PARAM_TYPE_INVALID = 3,
+	ERR_PARAM_NUM_MISMATCH = 4,
+	ERR_FUNC_NAME_MISSING = 5
 };
 
 class error: public std::runtime_error

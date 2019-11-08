@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <iostream>
 
-int hansli(uint32_t a1, char* a2, double a3, bool a4) {
+int hansli(uint32_t a1, const char* a2, double a3, bool a4) {
     std::cout << "called hansli with " << a1 << " " << a2 << " " << a3 << " " << a4 << std::endl;
 }
 
