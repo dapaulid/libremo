@@ -14,10 +14,22 @@ uint32_t simple_func(uint32_t a1)
     return 4321;
 }
 
+uint32_t multiple_params_func(uint32_t a1, double a2, const char* a3, bool a4)
+{
+    EXPECT_EQ(a1, 1234);
+    EXPECT_EQ(a2, 123.456);
+    EXPECT_STREQ(a3, "hello world");
+    EXPECT_EQ(a4, true);
+    func_called = true;
+    return 1000;
+}
+
 void no_params_func()
 {
     func_called = true;
 }
+
+//------------------------------------------------------------------------------
 
 TEST(serialization, simple)
 {
@@ -36,6 +48,8 @@ TEST(serialization, simple)
     ASSERT_EQ(4321, result);
 }
 
+//------------------------------------------------------------------------------
+
 TEST(serialization, no_params)
 {
     remo::Packet packet;
@@ -51,3 +65,24 @@ TEST(serialization, no_params)
     remo::dynamic_call(&no_params_func, reader.get_args());
     ASSERT_TRUE(func_called);
 }
+
+//------------------------------------------------------------------------------
+
+TEST(serialization, multiple_params)
+{
+    remo::Packet packet;
+    remo::BinaryWriter writer(packet);
+    remo::BinaryReader reader(packet);
+
+    writer.write_call("multiple_params", (uint32_t)1234, 123.456, "hello world", true);
+    // ... transmit packet ...
+    reader.read_call();
+
+    func_called = false;
+    TEST_PRINTF("calling %s\n", packet.to_string().c_str());
+    uint32_t result = remo::dynamic_call(&multiple_params_func, reader.get_args());
+    ASSERT_TRUE(func_called);
+    ASSERT_EQ(1000, result);
+}
+
+//------------------------------------------------------------------------------
