@@ -1,8 +1,7 @@
 add_executable(
     unit_tests
-    example_add.cpp
-    example_subtract.cpp
-    )
+    serialization.test.cpp
+)
 
 target_link_libraries(
     unit_tests
