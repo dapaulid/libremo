@@ -33,6 +33,23 @@ const char* get_type_name(TypeId id)
 		case type_double     : return "double";
 		case type_error      : return "error";
 		case type_float      : return "float";
+	// pointer types
+		case type_uint8_ptr      : return "uint8_t*";
+		case type_uint16_ptr     : return "uint16_t*";
+		case type_uint32_ptr     : return "uint32_t*";
+		case type_uint64_ptr     : return "uint64_t*";
+		case type_int8_ptr       : return "int8_t*";
+		case type_int16_ptr      : return "int16_t*";
+		case type_int32_ptr      : return "int32_t*";
+		case type_int64_ptr      : return "int64_t*";
+		case type_void_ptr       : return "void*";
+		case type_any_ptr        : return "any*";
+		case type_bool_ptr       : return "bool*";
+		case type_cstr_ptr       : return "char**";
+		case type_double_ptr     : return "double*";
+		case type_error_ptr      : return "error*";
+		case type_float_ptr      : return "float*";
+	// unknown
 		default              : return "(unknown)";
 	}
 }

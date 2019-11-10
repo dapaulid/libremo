@@ -49,10 +49,22 @@ public:
         }
     }
 
+    template<typename T>
+    T* get_ptr(size_t a_offset) {
+        // TODO check alignment
+        if (a_offset + sizeof(T) <= m_size) {
+            return reinterpret_cast<T*>(&m_buffer[a_offset]);
+        } else {
+            throw error(ErrorCode::ERR_BAD_PACKET_ACCESS, "Bad packet access: size=%zu, offset=%zu, ptrsize=%zu", 
+                m_size, a_offset, sizeof(T));
+        }
+    }
+
+
     char* get_buffer() { return m_buffer; }
     size_t get_size() const { return m_size;  }
 
-    std::string to_string() const;
+    std::string to_string(); //const;
     std::string to_hex() const;
 
     void recycle() override;
@@ -64,7 +76,7 @@ private:
 
 //------------------------------------------------------------------------------
 
-std::ostream& operator<<(std::ostream& os, const Packet& a_packet);
+std::ostream& operator<<(std::ostream& os, /*const*/ Packet& a_packet);
 
 
 //------------------------------------------------------------------------------

@@ -80,14 +80,15 @@ std::string Packet::to_hex() const
 
 //------------------------------------------------------------------------------
 
-std::string Packet::to_string() const
+std::string Packet::to_string() //const
 {
+    // TODO refactor to other class that can take const reference
     return BinaryReader(*this).to_string();
 }
 
 //------------------------------------------------------------------------------
 
-std::ostream& operator<<(std::ostream& os, const Packet& a_packet)
+std::ostream& operator<<(std::ostream& os, /*const*/ Packet& a_packet)
 {
     os << a_packet.to_string();
     return os;

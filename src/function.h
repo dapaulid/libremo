@@ -23,7 +23,9 @@ public:
 	function(const std::string& a_name, const TypeList& a_param_types);
 	virtual ~function();
 
-	virtual any call(ArgList args) = 0;
+	virtual TypedValue call(ArgList args) = 0;
+
+	std::string to_string() const;
 
 	static bool is_valid_name(const std::string& a_name);
 
@@ -46,9 +48,10 @@ public:
 	{
 	}
 
-	virtual any call(ArgList args) override
+	virtual TypedValue call(ArgList args) override
 	{
-		return dynamic_call(m_func, args);
+		check_args(args);
+		return TypedValue(TypeInfo<Ret>::id(), dynamic_call(m_func, args));
 	}
 
 private:

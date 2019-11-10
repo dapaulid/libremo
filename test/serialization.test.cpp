@@ -41,14 +41,14 @@ TEST(serialization, simple)
     // generate packet...
     writer.write_call("simple_func", (uint32_t)1234);
     // ... transmit packet ...
-    TEST_COUT << packet << std::endl;    
+    TEST_COUT << packet.to_string() << std::endl;    
     // ... and parse it back
     reader.read_call();
 
     // call function based on parsed packet
     func_called = false;
     remo::bound_function func("simple_func", &simple_func);
-    uint32_t result = std::any_cast<uint32_t>(func.call(reader.get_args()));
+    uint32_t result = std::any_cast<uint32_t>(func.call(reader.get_args()).value);
     ASSERT_TRUE(func_called);
     ASSERT_EQ(4321, result);
 }
@@ -64,7 +64,7 @@ TEST(serialization, no_params)
     // generate packet...
     writer.write_call("no_params");
     // ... transmit packet ...
-    TEST_COUT << packet << std::endl;    
+    TEST_COUT << packet.to_string() << std::endl;    
     // ... and parse it back
     reader.read_call();
 
@@ -85,7 +85,7 @@ TEST(serialization, multiple_params)
     // generate packet...
     writer.write_call("multiple_params", (uint32_t)1234, 123.456, "hello world", true);
     // ... transmit packet ...
-    TEST_COUT << packet << std::endl;    
+    TEST_COUT << packet.to_string() << std::endl;    
     // ... and parse it back
     reader.read_call();
 

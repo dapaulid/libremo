@@ -27,6 +27,8 @@ enum ErrorCode {
 	ERR_OUT_OF_PACKETS = 9,
 	ERR_BAD_PACKET = 10,
 	ERR_INVALID_FUNC_NAME = 11,
+	ERR_INVALID_ARRAY_LENGTH = 12,
+	ERR_INVALID_VALUE_TYPE = 13,
 };
 
 class error: public std::runtime_error

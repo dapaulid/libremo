@@ -28,9 +28,9 @@ namespace remo {
 static_assert(__cplusplus >= 201703L, "The following code requires -std=c++17 to compile");
 
 template <typename T>
-auto fetch_back(T& t) -> typename std::remove_reference<decltype(t.back())>::type
+auto fetch_back(T& t) -> typename std::remove_reference<decltype(t.back().value)>::type
 {
-    typename std::remove_reference<decltype(t.back())>::type ret = t.back();
+    typename std::remove_reference<decltype(t.back().value)>::type ret = t.back().value;
     t.pop_back();
     return ret;
 }

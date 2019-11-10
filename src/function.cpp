@@ -11,6 +11,8 @@
 
 #include "error.h"
 
+#include <sstream>
+
 //------------------------------------------------------------------------------
 namespace remo {
 //------------------------------------------------------------------------------
@@ -33,6 +35,23 @@ function::function(const std::string& a_name, const TypeList& a_param_types):
 
 function::~function()
 {
+}
+
+//------------------------------------------------------------------------------
+
+std::string function::to_string() const
+{
+    std::stringstream ss;
+    ss << m_name << '(';
+    for (size_t i = 0; i < m_param_types.size(); i++) {
+        if (i > 0) {
+            ss << ", ";
+        }
+        ss << get_type_name(m_param_types[i]);
+    }
+    ss << ')';
+    
+    return ss.str();
 }
 
 //------------------------------------------------------------------------------
