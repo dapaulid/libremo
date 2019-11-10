@@ -22,6 +22,11 @@ namespace remo {
 function::function(const std::string& a_name, const TypeList& a_param_types):
     m_name(a_name), m_param_types(a_param_types)
 {
+    // check function name
+    if (!is_valid_name(m_name)) {
+        throw error(ErrorCode::ERR_INVALID_FUNC_NAME, 
+            "invalid function name: \"%s\"", m_name.c_str());
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -38,6 +43,39 @@ void function::check_args(const ArgList& args)
         throw error(ErrorCode::ERR_PARAM_NUM_MISMATCH, "Parameter number mismatch: expected %zu, got %zu",
             m_param_types.size(), args.size());
     }
+}
+
+//------------------------------------------------------------------------------
+
+bool function::is_valid_name(const std::string& a_name)
+{
+    // must not be empty
+    if (a_name.empty()) {
+        return false;
+    }
+
+    // must start with a letter
+    if (!(
+        (a_name[0] >= 'a' && a_name[0] <= 'z') ||
+        (a_name[0] >= 'A' && a_name[0] <= 'Z')
+    )) {
+        return false;
+    }
+
+    // remainer must be alphanumeric or '_'
+    for (size_t i = 1; i < a_name.size(); i++) {
+        if (!(
+            (a_name[i] >= 'a' && a_name[i] <= 'z') ||
+            (a_name[i] >= 'A' && a_name[i] <= 'Z') ||
+            (a_name[i] >= '0' && a_name[i] <= '9') ||
+            (a_name[i] == '_')
+        )) {
+            return false;
+        }        
+    }
+
+    // valid
+    return true;
 }
 
 //------------------------------------------------------------------------------

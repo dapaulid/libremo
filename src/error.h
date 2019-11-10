@@ -26,6 +26,7 @@ enum ErrorCode {
 	ERR_CANNOT_RECYCLE = 8,
 	ERR_OUT_OF_PACKETS = 9,
 	ERR_BAD_PACKET = 10,
+	ERR_INVALID_FUNC_NAME = 11,
 };
 
 class error: public std::runtime_error

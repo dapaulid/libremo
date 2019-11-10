@@ -25,6 +25,8 @@ public:
 
 	virtual any call(ArgList args) = 0;
 
+	static bool is_valid_name(const std::string& a_name);
+
 protected:
 	void check_args(const ArgList& args);
 
