@@ -66,14 +66,16 @@ char Packet::get_byte(size_t a_offset) const
 
 //------------------------------------------------------------------------------
 
-void Packet::log() const
+std::string Packet::to_hex() const
 {
-    std::cerr << "packet of size " << m_size << ": [ ";
+    std::stringstream ss;
     for (size_t i = 0; i < m_size; i++) {
-        std::cerr << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << (m_buffer[i] & 0xFF) << " ";
+        if (i > 0) {
+            ss << ' ';
+        }
+        ss << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << (m_buffer[i] & 0xFF);
     }
-    std::cerr << "]" << std::endl;
-    std::cerr << "=> " << to_string() << std::endl;
+    return ss.str();
 }
 
 //------------------------------------------------------------------------------
@@ -82,6 +84,15 @@ std::string Packet::to_string() const
 {
     return BinaryReader(*this).to_string();
 }
+
+//------------------------------------------------------------------------------
+
+std::ostream& operator<<(std::ostream& os, const Packet& a_packet)
+{
+    os << a_packet.to_string();
+    return os;
+}
+
 
 //------------------------------------------------------------------------------
 } // end namespace remo

@@ -37,6 +37,8 @@ public:
 	template<typename... Args>
 	void write_call(const std::string a_function, Args... args)
 	{
+		// write packet type
+		write(PacketType::packet_call);
 		// write function name
 		write_value(a_function.c_str());
 		// write arguments

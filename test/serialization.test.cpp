@@ -38,12 +38,15 @@ TEST(serialization, simple)
     remo::BinaryWriter writer(packet);
     remo::BinaryReader reader(packet);
 
+    // generate packet...
     writer.write_call("simple_func", (uint32_t)1234);
     // ... transmit packet ...
+    TEST_COUT << packet << std::endl;    
+    // ... and parse it back
     reader.read_call();
 
+    // call function based on parsed packet
     func_called = false;
-    TEST_PRINTF("calling %s\n", packet.to_string().c_str());
     remo::bound_function func("simple_func", &simple_func);
     uint32_t result = std::any_cast<uint32_t>(func.call(reader.get_args()));
     ASSERT_TRUE(func_called);
@@ -58,12 +61,15 @@ TEST(serialization, no_params)
     remo::BinaryWriter writer(packet);
     remo::BinaryReader reader(packet);
 
+    // generate packet...
     writer.write_call("no_params");
     // ... transmit packet ...
+    TEST_COUT << packet << std::endl;    
+    // ... and parse it back
     reader.read_call();
 
+    // call function based on parsed packet
     func_called = false;
-    TEST_PRINTF("calling %s\n", packet.to_string().c_str());
     remo::dynamic_call(&no_params_func, reader.get_args());
     ASSERT_TRUE(func_called);
 }
@@ -76,12 +82,15 @@ TEST(serialization, multiple_params)
     remo::BinaryWriter writer(packet);
     remo::BinaryReader reader(packet);
 
+    // generate packet...
     writer.write_call("multiple_params", (uint32_t)1234, 123.456, "hello world", true);
     // ... transmit packet ...
+    TEST_COUT << packet << std::endl;    
+    // ... and parse it back
     reader.read_call();
 
+    // call function based on parsed packet
     func_called = false;
-    TEST_PRINTF("calling %s\n", packet.to_string().c_str());
     uint32_t result = remo::dynamic_call(&multiple_params_func, reader.get_args());
     ASSERT_TRUE(func_called);
     ASSERT_EQ(1000, result);

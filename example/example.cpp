@@ -23,7 +23,7 @@ int main(int argc, char** argv)
         remo::BinaryWriter writer(packet);
         writer.write_call("Hansli", 0xAABBCCDD, "gugus", 12.34, true, buffer, (remo::arraysize_t)1234);
 
-        packet.log();
+        std::cout << packet << std::endl;
 
         remo::BinaryReader reader(packet);
         reader.read_call();

@@ -13,11 +13,20 @@
 #include "error.h"
 
 #include <stddef.h>
+#include <iostream>
 
 //------------------------------------------------------------------------------
 namespace remo {
 //------------------------------------------------------------------------------	
 
+enum PacketType: uint8_t
+{
+    packet_ack     = 0x3A, // ':'
+    packet_call    = 0x3E, // '>'
+    packet_result  = 0x3C, // '<'
+    packet_query   = 0x3F, // '?'
+    packet_info    = 0x21, // '!'
+};
 
 class Packet: public Recyclable<Packet>
 {
@@ -43,9 +52,8 @@ public:
     char* get_buffer() { return m_buffer; }
     size_t get_size() const { return m_size;  }
 
-    void log() const;
-
     std::string to_string() const;
+    std::string to_hex() const;
 
     void recycle() override;
 
@@ -53,6 +61,11 @@ private:
     char m_buffer [1024];
     size_t m_size;
 };
+
+//------------------------------------------------------------------------------
+
+std::ostream& operator<<(std::ostream& os, const Packet& a_packet);
+
 
 //------------------------------------------------------------------------------
 } // end namespace remo

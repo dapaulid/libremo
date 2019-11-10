@@ -50,6 +50,11 @@ void BinaryReader::read_call()
 	// locals
 	uint8_t modifier = 0;
 
+	// expect 'call' packet
+	if (read() != PacketType::packet_call) {
+		throw error(ErrorCode::ERR_BAD_PACKET, "not a 'call' packet");
+	}
+
 	// expect function name
 	if (read_type(modifier) != TypeId::type_cstr) {
 		throw error(ErrorCode::ERR_FUNC_NAME_MISSING, "Function name missing");
@@ -116,6 +121,26 @@ void BinaryReader::read_call()
 }
 
 std::string BinaryReader::to_string()
+{
+	if (m_packet.get_size() > 0) {
+		// check packet type
+		switch (read()) {
+		case PacketType::packet_call:
+			// call
+			return "call: " + format_call();
+		default:
+			// unknown packet type
+			std::stringstream ss;
+			ss << "unknown packet of size " << m_packet.get_size() << ": ";
+			ss << '[' << m_packet.to_hex() << ']';
+			return ss.str();
+		}
+	} else {
+		return "(empty packet)";
+	}
+}
+
+std::string BinaryReader::format_call()
 {
 	// locals
 	std::stringstream ss;

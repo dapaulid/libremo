@@ -81,6 +81,7 @@ public:
 	}
 
 	std::string to_string();
+	std::string format_call();
 
 	const std::string& get_function() { return m_function; }
 	const ArgList& get_args() const { return m_args; }
