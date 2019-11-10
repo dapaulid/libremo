@@ -82,6 +82,7 @@ public:
 
 	std::string to_string();
 
+	const std::string& get_function() { return m_function; }
 	const ArgList& get_args() const { return m_args; }
 
 private:

@@ -39,6 +39,8 @@ enum TypeId: uint8_t {
 	type_float      = 0x0F,
 };
 
+typedef std::vector<TypeId> TypeList;
+
 const char* get_type_name(TypeId id);
 
 template <typename T>
@@ -81,7 +83,8 @@ struct TypeInfo<double> {
 #endif
 
 
-typedef std::vector<std::any> ArgList;
+typedef std::any any;
+typedef std::vector<any> ArgList;
 
 //------------------------------------------------------------------------------
 } // end namespace remo

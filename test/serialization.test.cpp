@@ -3,6 +3,7 @@
 #include "packet.h"
 #include "reader.h"
 #include "writer.h"
+#include "function.h"
 #include "dynamic_call.h"
 
 static bool func_called = false;
@@ -43,7 +44,8 @@ TEST(serialization, simple)
 
     func_called = false;
     TEST_PRINTF("calling %s\n", packet.to_string().c_str());
-    uint32_t result = remo::dynamic_call(&simple_func, reader.get_args());
+    remo::bound_function func("simple_func", &simple_func);
+    uint32_t result = std::any_cast<uint32_t>(func.call(reader.get_args()));
     ASSERT_TRUE(func_called);
     ASSERT_EQ(4321, result);
 }

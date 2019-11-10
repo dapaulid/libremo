@@ -14,6 +14,7 @@ target_sources(
         packet.cpp
         reader.cpp
         writer.cpp
+        function.cpp
         error.cpp
     PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/remo.h
