@@ -22,6 +22,9 @@ enum ErrorCode {
 	ERR_PARAM_NUM_MISMATCH = 4,
 	ERR_FUNC_NAME_MISSING = 5,
 	ERR_POINTER_NEEDS_SIZE = 6,
+	ERR_MUST_RECYCLE = 7,
+	ERR_CANNOT_RECYCLE = 8,
+	ERR_OUT_OF_PACKETS = 9,
 };
 
 class error: public std::runtime_error

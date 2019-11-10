@@ -12,15 +12,10 @@
 #include "writer.h"
 #include "dynamic_call.h"
 #include "packet.h"
+#include "recycling.h"
 
 #include <string>
 
-
-double add_numbers(const double f1, const double f2);
-
-double subtract_numbers(const double f1, const double f2);
-
-double multiply_numbers(const double f1, const double f2);
 
 //------------------------------------------------------------------------------
 namespace remo {
@@ -29,13 +24,27 @@ namespace remo {
 
 class Controller {
 public:
+	Controller();
+	virtual ~Controller();
+
 	template<typename... Args>
 	void call(const std::string a_function, Args... args)
 	{
 	}
 
-private:
+protected:
 
+	Packet* take_packet() {
+		Packet* packet = m_packet_pool.take();
+		if (!packet) {
+			throw error(ErrorCode::ERR_OUT_OF_PACKETS, 
+				"out of packets. maybe some transport plugin leaking?");
+		}
+		return packet;
+	}
+
+private:
+	RecyclingPool<Packet> m_packet_pool;
 };
 
 //------------------------------------------------------------------------------

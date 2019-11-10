@@ -33,6 +33,16 @@ Packet::~Packet()
 
 //------------------------------------------------------------------------------
 
+void Packet::recycle()
+{
+    // reset state
+    m_size = 0;
+    // call base
+    Recyclable::recycle();
+}
+
+//------------------------------------------------------------------------------
+
 void Packet::append(char a_byte)
 {
     if (m_size < sizeof(m_buffer)) {

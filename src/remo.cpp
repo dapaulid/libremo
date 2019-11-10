@@ -9,17 +9,43 @@
 //------------------------------------------------------------------------------
 #include "remo.h"
 
-double add_numbers(const double f1, const double f2)
+
+//------------------------------------------------------------------------------
+namespace remo {
+//------------------------------------------------------------------------------	
+
+
+//------------------------------------------------------------------------------	
+// constants
+//------------------------------------------------------------------------------	
+//
+//! maximum number of packets available
+//! NOTE: this was selected as an arbitrary value and probably depends
+//!       on the "concurrencyness" of the system (e.g. max. number of threads)
+const size_t PACKET_POOL_SIZE = 16;
+
+
+//------------------------------------------------------------------------------	
+// class Controller
+//------------------------------------------------------------------------------	
+//
+Controller::Controller():
+    m_packet_pool()
 {
-    return f1 + f2;
+    // pre-allocate packets
+    for (size_t i = 0; i < PACKET_POOL_SIZE; i++) {
+        m_packet_pool.add(new Packet());
+    }
+
 }
 
-double subtract_numbers(const double f1, const double f2)
+//------------------------------------------------------------------------------	
+
+Controller::~Controller()
 {
-    return f1 - f2;
+  
 }
 
-double multiply_numbers(const double f1, const double f2)
-{
-    return f1 * f2;
-}
+//------------------------------------------------------------------------------
+} // end namespace remo
+//------------------------------------------------------------------------------

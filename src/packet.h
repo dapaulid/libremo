@@ -9,6 +9,7 @@
 //------------------------------------------------------------------------------
 #pragma once
 
+#include "recycling.h"
 #include "error.h"
 
 #include <stddef.h>
@@ -18,7 +19,8 @@ namespace remo {
 //------------------------------------------------------------------------------	
 
 
-class Packet {
+class Packet: public Recyclable<Packet>
+{
 public:
     Packet();
     virtual ~Packet();
@@ -44,6 +46,8 @@ public:
     void log() const;
 
     std::string to_string() const;
+
+    void recycle() override;
 
 private:
     char m_buffer [1024];
