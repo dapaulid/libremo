@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <sstream>
+#include <iomanip>
 
 //------------------------------------------------------------------------------
 namespace remo {
@@ -180,7 +181,7 @@ std::string BinaryReader::to_string()
 			ss << (modifier != 0 ? "true" : "false");
 			break;
 		case type_cstr:
-			ss << '"' << read_cstr() << '"'; // TODO escaping
+			ss << std::quoted(read_cstr()); // TODO escaping
 			break;
 		case type_double:
 			ss << '(' << get_type_name(type) << ')';
