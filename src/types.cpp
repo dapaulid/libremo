@@ -18,14 +18,14 @@ const char* get_type_name(TypeId id)
 {
 	switch (id) {
 		case type_null       : return "null";
-		case type_uint8      : return "uint8";
-		case type_uint16     : return "uint16";
-		case type_uint32     : return "uint32";
-		case type_uint64     : return "uint64";
-		case type_int8       : return "int8";
-		case type_int16      : return "int16";
-		case type_int32      : return "int32";
-		case type_int64      : return "int64";
+		case type_uint8      : return "uint8_t";
+		case type_uint16     : return "uint16_t";
+		case type_uint32     : return "uint32_t";
+		case type_uint64     : return "uint64_t";
+		case type_int8       : return "int8_t";
+		case type_int16      : return "int16_t";
+		case type_int32      : return "int32_t";
+		case type_int64      : return "int64_t";
 		case type_void       : return "void";
 		case type_any        : return "any";
 		case type_bool       : return "bool";
