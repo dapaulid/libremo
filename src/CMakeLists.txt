@@ -1,11 +1,5 @@
 add_library(remo "")
 
-if(MSVC)
-  target_compile_options(remo PRIVATE /W4 /WX)
-else()
-  target_compile_options(remo PRIVATE -Wall -Wextra -pedantic -Werror)
-endif()
-
 target_sources(
     remo
     PRIVATE
