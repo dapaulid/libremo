@@ -10,15 +10,15 @@ static bool func_called = false;
 
 uint32_t simple_func(uint32_t a1)
 {
-    EXPECT_EQ(a1, 1234);
+    EXPECT_EQ(a1, (uint32_t)1234);
     func_called = true;
     return 4321;
 }
 
 uint32_t multiple_params_func(uint32_t a1, double a2, const char* a3, bool a4)
 {
-    EXPECT_EQ(a1, 1234);
-    EXPECT_EQ(a2, 123.456);
+    EXPECT_EQ(a1, (uint32_t)1234);
+    EXPECT_EQ(a2, (double)123.456);
     EXPECT_STREQ(a3, "hello world");
     EXPECT_EQ(a4, true);
     func_called = true;
@@ -50,7 +50,7 @@ TEST(serialization, simple)
     remo::bound_function func("simple_func", &simple_func);
     uint32_t result = std::any_cast<uint32_t>(func.call(reader.get_args()).value);
     ASSERT_TRUE(func_called);
-    ASSERT_EQ(4321, result);
+    ASSERT_EQ(result, (uint32_t)4321);
 }
 
 //------------------------------------------------------------------------------
@@ -93,7 +93,7 @@ TEST(serialization, multiple_params)
     func_called = false;
     uint32_t result = remo::dynamic_call(&multiple_params_func, reader.get_args());
     ASSERT_TRUE(func_called);
-    ASSERT_EQ(1000, result);
+    ASSERT_EQ(result, (uint32_t)1000);
 }
 
 //------------------------------------------------------------------------------

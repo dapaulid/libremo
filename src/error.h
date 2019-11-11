@@ -29,6 +29,8 @@ enum ErrorCode {
 	ERR_INVALID_FUNC_NAME = 11,
 	ERR_INVALID_ARRAY_LENGTH = 12,
 	ERR_INVALID_VALUE_TYPE = 13,
+	ERR_RESULT_TYPE_MISMATCH = 14,
+	ERR_OUTPARAM_TYPE_MISMATCH = 14,
 };
 
 class error: public std::runtime_error

@@ -28,10 +28,19 @@ class Reader
 public:
 	Reader(Packet& a_packet);
 
-	unsigned char read();
-	void skip_array(size_t a_arraylength, size_t a_item_size);
+	unsigned char peek() {
+		return m_packet.get_byte(m_offset);
+	}
 
-	bool has_more() const;
+	unsigned char read() {
+		return m_packet.get_byte(m_offset++);
+	}
+
+	bool has_more() const {
+		return m_offset < m_packet.get_size();
+	}
+
+	void skip_array(size_t a_arraylength, size_t a_item_size);
 
 protected:
 	Packet& m_packet;
@@ -50,9 +59,62 @@ public:
 
 	void read_call();
 
+	template<typename Ret, typename... Args>
+	Ret read_result(Args... args)
+	{
+		// expect 'call' packet
+		if (read() != PacketType::packet_result) {
+			throw error(ErrorCode::ERR_BAD_PACKET, "not a 'result' packet");
+		}
+
+		// check if result type matches
+		uint8_t modifier = 0;
+		TypeId actual_type = read_type(modifier);
+		TypeId expected_type = TypeInfo<Ret>::id();
+		if (actual_type != expected_type) {
+			throw error(ErrorCode::ERR_RESULT_TYPE_MISMATCH, 
+				"result type mismatch: expected %s, got %s", 
+				get_type_name(expected_type), get_type_name(actual_type));
+		}
+		// read actual result
+		Ret result = read_value<Ret>(modifier);
+		// read "out" parameters
+		REMO_FOREACH_ARG(args, read_outparam);
+
+		return result;
+	}
+
+	// read "out" parameter
+	template<typename T>
+	int read_outparam(T* arg)
+	{
+		TypeId expected_type = TypeInfo<T*>::id();
+
+		// check if out parameter type matches
+		uint8_t modifier = 0;
+		TypeId actual_type = read_type(modifier);
+		if (actual_type != expected_type) {
+			throw error(ErrorCode::ERR_OUTPARAM_TYPE_MISMATCH, 
+				"out parameter type mismatch: expected %s, got %s", 
+				get_type_name(expected_type), get_type_name(actual_type));
+		}
+
+		copy_to_ptr(arg, 1); // TODO handle array length
+		return 1;
+	}
+
+	// template used to filter out non-pointer types in "out" parameters
+	template<typename T>
+	int read_outparam(T arg)
+	{
+		(void)arg;
+		return 1;
+	}	
+
 	// read type id
 	TypeId read_type(uint8_t& o_modifier)
 	{
+		// TODO use modifier constant
 		unsigned char h = read();
 		o_modifier = (h >> 4) & 0xF;
 		if (o_modifier < 0xA) {
@@ -60,8 +122,7 @@ public:
 			h &= 0xF;
 		} else {
 			// pointer type
-			// TODO fake size
-			o_modifier = 4;
+			o_modifier = get_type_size(static_cast<TypeId>(h & 0xF));
 		}
 		return static_cast<TypeId>(h);
 	}
@@ -91,6 +152,19 @@ public:
 		skip_array(a_arraylength, sizeof(T));
 		return ptr;
 	}
+
+	// read pointer type
+	template<typename T>
+	void copy_to_ptr(T a_dest, size_t a_arraylength)
+	{
+		unsigned char* p = reinterpret_cast<unsigned char*>(a_dest);
+		// read actual bytes
+		for (size_t i = 0; i < a_arraylength; i++) {
+			LITTLE_ENDIAN_FOR(i, sizeof(*a_dest)) {
+				p[i] = read();
+			} // end for
+		} // end for
+	}	
 
 	// read string
 	const char* read_cstr()

@@ -9,11 +9,13 @@
 
 uint32_t hansli(uint32_t a1, const char* a2, double a3, bool a4) {
     std::cout << "called hansli with " << a1 << " " << a2 << " " << a3 << " " << a4 << std::endl;
+    return 333;
 }
 
-double fritzli(uint32_t* a1) {
-    std::cout << "called hansli with " << *a1 << std::endl;
-    (*a1)++;
+double fritzli(uint32_t a1, int32_t* o1, double a2, double* o2) {
+    std::cout << "called fritzli with " << a1 << ' ' << *o1 << ' ' << a2 << ' ' << *o2 << std::endl;
+    *o1 = -*o1;
+    *o2 = -*o2;
     return 0.5;
 }
 
@@ -22,7 +24,7 @@ std::any bar(uint32_t* a) {
     return a;
 }
 
-int main(int argc, char** argv)
+int main(int, char**)
 {
 
     uint32_t foo = 100000;
@@ -41,19 +43,19 @@ int main(int argc, char** argv)
 
         remo::Packet packet;
         remo::BinaryWriter writer(packet);
-        uint32_t x = 5555;
-        writer.write_call("fritzli", &x);
+        uint32_t a1 = 100;
+        int32_t o1 = 200;
+        double a2 = 300.1;
+        double o2 = 400.5;
+        writer.write_call("fritzli", a1, &o1, a2, &o2);
 
-        std::cout << packet.to_hex() << std::endl;
         std::cout << packet << std::endl;
+        std::cout << "wire: " << packet.to_hex() << std::endl;        
 
         remo::BinaryReader reader(packet);
         reader.read_call();
 
-        std::cout << "Params: " << reader.get_args().size() << std::endl;
         remo::TypedValue result = bound_fritzli.call(reader.get_args());
-
-        std::cout << packet << std::endl;
 
         remo::Packet reply;
         remo::BinaryWriter reply_writer(reply);
@@ -61,8 +63,18 @@ int main(int argc, char** argv)
         remo::ArgList args = reader.get_args(); // TODO const? separate variable;
         reply_writer.write_result(result, args);
 
-        std::cout << reply.to_hex() << std::endl;
         std::cout << reply << std::endl;
+        std::cout << "wire: " << reply.to_hex() << std::endl;        
+
+        remo::BinaryReader reply_reader(reply);
+        
+        uint32_t a1_2{};
+        int32_t o1_2{};
+        double a2_2{};
+        double o2_2{};
+        double ret = reply_reader.read_result<double>(a1_2, &o1_2, a2_2, &o2_2);
+
+        std::cout << "ret=" << ret << ", o1=" << o1_2 << ", o2=" << o2_2 << std::endl;
 
         /*
         BinaryWriter writer;

@@ -28,13 +28,6 @@ Reader::Reader(Packet& a_packet):
 
 //------------------------------------------------------------------------------
 
-unsigned char Reader::read()
-{
-	return m_packet.get_byte(m_offset++);
-}
-
-//------------------------------------------------------------------------------
-
 void Reader::skip_array(size_t a_arraylength, size_t a_item_size)
 {
 	size_t total_size = a_arraylength * a_item_size;
@@ -43,13 +36,6 @@ void Reader::skip_array(size_t a_arraylength, size_t a_item_size)
 			"invalid array length: %zu", a_arraylength);
 	}
 	m_offset += total_size;
-}
-
-//------------------------------------------------------------------------------
-
-bool Reader::has_more() const
-{
-	return m_offset < m_packet.get_size();
 }
 
 

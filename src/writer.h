@@ -42,7 +42,7 @@ public:
 		// write function name
 		write_value(a_function.c_str());
 		// write arguments
-		int dummy[] = { write_value(args)... };	(void) dummy;
+		REMO_FOREACH_ARG(args, write_value);
 	}
 
 	void write_result(const TypedValue& a_result, ArgList& a_args)
@@ -53,7 +53,9 @@ public:
 		write_value(a_result);
 		// write output parameters
 		for (TypedValue& arg : a_args) {
-			write_value(arg);
+			if (is_ptr_type(arg.type)) {
+				write_value(arg);
+			}
 		}
 	}
 

@@ -19,6 +19,9 @@
 namespace remo {
 //------------------------------------------------------------------------------	
 
+enum TypeModifier {
+	modifier_ptr = 0xA0
+};
 
 enum TypeId: uint8_t {
 	type_null       = 0x00,
@@ -39,27 +42,29 @@ enum TypeId: uint8_t {
 	type_float      = 0x0F,
 
 // pointer types
-	type_uint8_ptr      = 0xA1,
-	type_uint16_ptr     = 0xA2,
-	type_uint32_ptr     = 0xA3,
-	type_uint64_ptr     = 0xA4,
-	type_int8_ptr       = 0xA5,
-	type_int16_ptr      = 0xA6,
-	type_int32_ptr      = 0xA7,
-	type_int64_ptr      = 0xA8,
-	type_void_ptr       = 0xA9,	
-	type_any_ptr        = 0xAA,
-	type_bool_ptr       = 0xAB,
-	type_cstr_ptr       = 0xAC,
-	type_double_ptr     = 0xAD,
-	type_error_ptr      = 0xAE,	
-	type_float_ptr      = 0xAF,
+	type_uint8_ptr      = type_uint8   | modifier_ptr,
+	type_uint16_ptr     = type_uint16  | modifier_ptr,
+	type_uint32_ptr     = type_uint32  | modifier_ptr,
+	type_uint64_ptr     = type_uint64  | modifier_ptr,
+	type_int8_ptr       = type_int8    | modifier_ptr,
+	type_int16_ptr      = type_int16   | modifier_ptr,
+	type_int32_ptr      = type_int32   | modifier_ptr,
+	type_int64_ptr      = type_int64   | modifier_ptr,
+	type_void_ptr       = type_void    | modifier_ptr,	
+	type_any_ptr        = type_any     | modifier_ptr,
+	type_bool_ptr       = type_bool    | modifier_ptr,
+	type_cstr_ptr       = type_cstr    | modifier_ptr,
+	type_double_ptr     = type_double  | modifier_ptr,
+	type_error_ptr      = type_error   | modifier_ptr,	
+	type_float_ptr      = type_float   | modifier_ptr,
 
 };
 
 typedef std::vector<TypeId> TypeList;
 
 const char* get_type_name(TypeId id);
+size_t get_type_size(TypeId id);
+bool is_ptr_type(TypeId id);
 
 template <typename T>
 struct dependent_false { static constexpr bool value = false; };
@@ -204,6 +209,9 @@ struct TypeInfo<const char*> {
 	#define LITTLE_ENDIAN_FOR(i, size) for (int i = (int)size-1; i >= 0; i--)
 #endif
 
+// TODO better place
+// NOTE: the +1 avoids the "ISO C++ forbids zero-size array" pendantic warning
+#define REMO_FOREACH_ARG(args, what) { int dummy[sizeof...(args)+1] = { what(args)... }; (void)dummy; }
 
 typedef std::any any;
 

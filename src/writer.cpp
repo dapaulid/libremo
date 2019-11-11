@@ -123,9 +123,9 @@ int BinaryWriter::write_value(const TypedValue& a_value)
 	case type_int16_ptr:
 		return write_value(std::any_cast<int16_t*>(a_value.value));
 	case type_int32_ptr:
-		return write_value(std::any_cast<int32_t>(a_value.value));
+		return write_value(std::any_cast<int32_t*>(a_value.value));
 	case type_int64_ptr:
-		return write_value(std::any_cast<int64_t>(a_value.value));
+		return write_value(std::any_cast<int64_t*>(a_value.value));
 //			case type_void:
 //			case type_any:
 	case type_bool_ptr:
