@@ -27,6 +27,10 @@ namespace remo {
 
 static_assert(__cplusplus >= 201703L, "The following code requires -std=c++17 to compile");
 
+//------------------------------------------------------------------------------
+// helper functions
+//------------------------------------------------------------------------------	
+//
 template <typename T>
 auto fetch_back(T& t) -> typename std::remove_reference<decltype(t.back().value)>::type
 {
@@ -35,6 +39,8 @@ auto fetch_back(T& t) -> typename std::remove_reference<decltype(t.back().value)
     return ret;
 }
 
+//------------------------------------------------------------------------------	
+//
 template <typename X>
 struct any_ref_cast
 {
@@ -44,6 +50,8 @@ struct any_ref_cast
     }
 };
 
+//------------------------------------------------------------------------------	
+//
 template <typename X>
 struct any_ref_cast<X&>
 {
@@ -54,6 +62,8 @@ struct any_ref_cast<X&>
     }
 };
 
+//------------------------------------------------------------------------------	
+//
 template <typename X>
 struct any_ref_cast<const X&>
 {
@@ -64,14 +74,30 @@ struct any_ref_cast<const X&>
     }
 };
 
-// free function
+//------------------------------------------------------------------------------
+// functions
+//------------------------------------------------------------------------------	
+//
+/*
+    call free function with dynamic arguments.
+
+    IMPORTANT: caller is responsible to check argument types, otherwise 
+    this function will throw cryptic exceptions or even core dump.
+*/
 template <typename Ret, typename...Arg>
 Ret dynamic_call (Ret (*func)(Arg...), ArgList args)
 {
     return func(any_ref_cast<Arg>().do_cast(fetch_back(args))...);
 }
 
-// member function
+//------------------------------------------------------------------------------	
+//
+/*
+    call member function with dynamic arguments.
+
+    IMPORTANT: caller is responsible to check argument types, otherwise 
+    this function will throw cryptic exceptions or even core dump.
+*/
 template <typename Class, typename Ret, typename...Arg>
 Ret dynamic_call (Ret (Class::*func)(Arg...), Class* obj, ArgList args)
 {
