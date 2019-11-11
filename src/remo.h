@@ -9,8 +9,8 @@
 //------------------------------------------------------------------------------
 #pragma once
 
+#include "reader.h"
 #include "writer.h"
-#include "dynamic_call.h"
 #include "packet.h"
 #include "recycling.h"
 
@@ -27,12 +27,28 @@ public:
 	Controller();
 	virtual ~Controller();
 
-	template<typename... Args>
-	void call(const std::string a_function, Args... args)
+	template<typename Ret, typename... Args>
+	Ret call(const std::string& a_function, Args... args)
 	{
+        Packet packet;
+        remo::BinaryWriter writer(packet);
+        writer.write_call(a_function, args...);
+
+		send_packet(&packet);
+		receive_packet(&packet);
+
+		remo::BinaryReader reader(packet);
+        return reader.read_result<Ret>(args...);
 	}
 
 protected:
+
+	void send_packet(Packet* a_packet);
+	void receive_packet(Packet* a_packet);
+
+	void handle_packet(Packet* a_packet);
+	void handle_call(Packet* a_packet);
+	void handle_result(Packet* a_packet);
 
 	Packet* take_packet() {
 		Packet* packet = m_packet_pool.take();

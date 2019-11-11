@@ -16,7 +16,7 @@ double fritzli(uint32_t a1, int32_t* o1, double a2, double* o2) {
     std::cout << "called fritzli with " << a1 << ' ' << *o1 << ' ' << a2 << ' ' << *o2 << std::endl;
     *o1 = -*o1;
     *o2 = -*o2;
-    return 0.5;
+    return *o2 * 2;
 }
 
 
@@ -92,6 +92,9 @@ int main(int, char**)
 
         //uint8_t buffer [8] = {0x66};
         //writer.write_value(buffer);
+
+        ret = ctrl.call<double>("fritzli", a1, &o1, a2, &o2);
+        std::cout << "ret=" << ret << ", o1=" << o1_2 << ", o2=" << o2_2 << std::endl;
 
         return 0;
     } catch (const std::exception& e) {
