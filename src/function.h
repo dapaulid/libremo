@@ -20,7 +20,7 @@ namespace remo {
 
 class function {
 public:
-	function(const std::string& a_name, const TypeList& a_param_types);
+	function(const std::string& a_name, TypeId a_result_type, const TypeList& a_param_types);
 	virtual ~function();
 
 	virtual TypedValue call(ArgList args) = 0;
@@ -34,6 +34,7 @@ protected:
 
 private:
 	std::string m_name;
+	TypeId m_result_type;
 	TypeList m_param_types;
 };
 
@@ -43,7 +44,7 @@ template <typename Ret, typename...Arg>
 class bound_function: public function {
 public:
 	bound_function(const std::string& a_name, Ret (*a_func)(Arg...)):
-		function(a_name, { TypeInfo<Arg>::id()... }), 
+		function(a_name, TypeInfo<Ret>::id(), { TypeInfo<Arg>::id()... }), 
 		m_func(a_func)
 	{
 	}
