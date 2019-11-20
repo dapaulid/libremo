@@ -1,14 +1,15 @@
 #!/bin/bash -e
 
-BUILDDIR="build"
+BUILDTYPE="Debug"
+BUILDDIR="build/$BUILDTYPE"
 
 if [ ! -d "$BUILDDIR" ]; then
 	echo -e "\e[1;36m================================================================================\e[0m"
 	echo -e "\e[1;36m                             P R E B U I L D                                    \e[0m"
 	echo -e "\e[1;36m================================================================================\e[0m"
- 	mkdir $BUILDDIR
+ 	mkdir -p $BUILDDIR
 	cd $BUILDDIR
-	cmake ..
+	cmake -DCMAKE_BUILD_TYPE=$BUILDTYPE ../..
 else
 	cd $BUILDDIR
 fi
@@ -16,17 +17,19 @@ fi
 echo -e "\e[1;36m================================================================================\e[0m"
 echo -e "\e[1;36m                                B U I L D                                       \e[0m"
 echo -e "\e[1;36m================================================================================\e[0m"
-make
+cmake --build .
 
 echo -e "\e[1;36m================================================================================\e[0m"
 echo -e "\e[1;36m                            U N I T   T E S T                                   \e[0m"
 echo -e "\e[1;36m================================================================================\e[0m"
+rm coverage.info
+lcov --zerocounters --directory src
 bin/unit_tests
 
 echo -e "\e[1;36m================================================================================\e[0m"
 echo -e "\e[1;36m                              C O V E R A G E                                   \e[0m"
 echo -e "\e[1;36m================================================================================\e[0m"
-lcov --capture --directory . --quiet --output-file coverage.info
+lcov --capture --quiet --directory src --output-file coverage.info
 lcov --summary coverage.info
 
 echo -e "\e[1;36m================================================================================\e[0m"
