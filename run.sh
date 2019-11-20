@@ -22,15 +22,15 @@ cmake --build .
 echo -e "\e[1;36m================================================================================\e[0m"
 echo -e "\e[1;36m                            U N I T   T E S T                                   \e[0m"
 echo -e "\e[1;36m================================================================================\e[0m"
-rm coverage.info
+rm -f coverage.info
 lcov --zerocounters --directory src
 bin/unit_tests
 
 echo -e "\e[1;36m================================================================================\e[0m"
 echo -e "\e[1;36m                              C O V E R A G E                                   \e[0m"
 echo -e "\e[1;36m================================================================================\e[0m"
-lcov --capture --quiet --directory src --output-file coverage.info
-lcov --summary coverage.info
+lcov --capture --quiet --directory src --output-file coverage.info --rc lcov_branch_coverage=1
+lcov --summary coverage.info --rc lcov_branch_coverage=1
 
 echo -e "\e[1;36m================================================================================\e[0m"
 echo -e "\e[1;36m                              E X A M P L E                                     \e[0m"
