@@ -9,31 +9,26 @@
 //------------------------------------------------------------------------------
 #pragma once
 
+#include "item.h"
 #include "dynamic_call.h"
-#include "types.h"
-
-#include <string>
 
 //------------------------------------------------------------------------------
 namespace remo {
 //------------------------------------------------------------------------------	
 
-class function {
+class function: public Item {
 public:
 	function(const std::string& a_name, TypeId a_result_type, const TypeList& a_param_types);
 	virtual ~function();
 
-	virtual TypedValue call(ArgList args) = 0;
-
-	std::string to_string() const;
-
-	static bool is_valid_name(const std::string& a_name);
+	std::string to_string() const override;
 
 protected:
 	void check_args(const ArgList& args);
 
+	virtual const char* item_type() override { return "function"; }
+
 private:
-	std::string m_name;
 	TypeId m_result_type;
 	TypeList m_param_types;
 };

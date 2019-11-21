@@ -34,6 +34,7 @@ const size_t PACKET_POOL_SIZE = 16;
 //------------------------------------------------------------------------------	
 //
 Controller::Controller():
+    m_items(),
     m_packet_pool()
 {
     // pre-allocate packets
@@ -44,42 +45,130 @@ Controller::Controller():
 }
 
 //------------------------------------------------------------------------------	
-
+//
 Controller::~Controller()
 {
-  
 }
 
 //------------------------------------------------------------------------------	
+//
+void Controller::register_item(Item* a_item)
+{
+    // item exists?
+    if (!a_item) {
+        // no -> nothing to do
+        return;
+    }
 
+    // already registered at some controller?
+    if (a_item->get_ctrl()) {
+        // yes -> not allowed
+        throw error(ErrorCode::ERR_ITEM_ALREADY_REGISTERED, "%s is already registered: '%s'",
+            a_item->item_type(), a_item->get_full_name().c_str());
+    } // end if
+
+    // try to insert item
+    auto ret = m_items.insert(std::pair<std::string, Item*>(a_item->get_full_name(), a_item));
+    // inserted?
+    if (ret.second) {
+        // yes -> remember us
+        a_item->set_ctrl(this);
+    } else {
+        // no -> item with same name already existing
+        throw error(ErrorCode::ERR_ITEM_ALREADY_EXISTING, "%s with same name already exists: '%s'",
+            ret.first->second->item_type(), ret.first->first.c_str());
+    } // end if
+}
+
+//------------------------------------------------------------------------------	
+//
+void Controller::unregister_item(Item* a_item)
+{
+    // item exists?
+    if (!a_item) {
+        // no -> nothing to do
+        return;
+    }
+
+    // try to remove item
+    size_t count = m_items.erase(a_item->get_full_name());
+    // removed?
+    if (count == 1) {
+        // yes -> forget us
+        a_item->set_ctrl(nullptr);
+    } else {
+        // no -> item not found
+        throw error(ErrorCode::ERR_ITEM_NOT_FOUND, "%s not found for unregistration: '%s'",
+            a_item->item_type(), a_item->get_full_name().c_str());
+    }
+}
+
+//------------------------------------------------------------------------------	
+//
+Item* Controller::find_item(const std::string& a_full_name)
+{
+    auto it = m_items.find(a_full_name);
+    return it != m_items.end() ? it->second : nullptr;
+}
+
+//------------------------------------------------------------------------------	
+//
 void Controller::send_packet(Packet* a_packet)
 {
     logger.info(">> %s", a_packet->to_string().c_str());
+
+    // "loopback"
+    handle_packet(a_packet);
 }
 
 //------------------------------------------------------------------------------	
-
+//
 void Controller::receive_packet(Packet* a_packet)
 {
     logger.info("<< %s", a_packet->to_string().c_str());
 }
 
 //------------------------------------------------------------------------------	
-
+//
 void Controller::handle_packet(Packet* a_packet)
 {
-    (void)a_packet;
+    if (a_packet->get_size() == 0) {
+        logger.warning("ignoring packet of size 0");
+        return;
+    }
+
+    uint8_t type = a_packet->get_byte(0);
+    switch (type) {
+    case PacketType::packet_call:
+        handle_call(a_packet);
+        break;
+    default:
+        logger.warning("ignoring packet of unknown type 0x02X", type);
+    }
 }
 
 //------------------------------------------------------------------------------	
-
+//
 void Controller::handle_call(Packet* a_packet)
 {
-    (void)a_packet;
+    BinaryReader reader(*a_packet);
+    reader.read_call();
+
+    std::string function_name = reader.get_function();
+    
+    // get function item
+    Item* item = find_item(function_name);
+    if (!item) {
+        throw error(ErrorCode::ERR_RPC_NOT_FOUND, "remote procedure not found: '%s'",
+            function_name.c_str());
+    }
+    item->call(reader.get_args());
+    logger.warning("TODO handle_call");
+    
 }
 
 //------------------------------------------------------------------------------	
-
+//
 void Controller::handle_result(Packet* a_packet)
 {
     (void)a_packet;

@@ -9,12 +9,13 @@
 //------------------------------------------------------------------------------
 #pragma once
 
+#include "packet.h"
 #include "reader.h"
 #include "writer.h"
-#include "packet.h"
-#include "recycling.h"
+#include "item.h"
 
 #include <string>
+#include <unordered_map>
 
 
 //------------------------------------------------------------------------------
@@ -42,7 +43,12 @@ public:
 	}
 
 protected:
+	friend class Item;
+	void register_item(Item* a_item);
+	void unregister_item(Item* a_item);
+	Item* find_item(const std::string& a_full_name);
 
+protected:
 	void send_packet(Packet* a_packet);
 	void receive_packet(Packet* a_packet);
 
@@ -60,7 +66,11 @@ protected:
 	}
 
 private:
-	RecyclingPool<Packet> m_packet_pool;
+	//! container for looking up items by full name
+	// TODO use smart pointer?
+	std::unordered_map<std::string, Item*> m_items;
+	//! packet pool to avoid heap allocations
+	RecyclingPool<Packet> m_packet_pool;	
 };
 
 //------------------------------------------------------------------------------

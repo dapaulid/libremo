@@ -8,6 +8,7 @@ target_sources(
         packet.cpp
         reader.cpp
         writer.cpp
+        item.cpp
         function.cpp
         error.cpp
         logger.cpp
