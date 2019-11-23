@@ -13,13 +13,15 @@ else()
 endif()
 
 # set compiler options specific for debug build
-if(CMAKE_BUILD_TYPE MATCHES "Debug")
-  # instrument code for coverage analysis
-  if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")
-  endif()
-endif()
 
+# instrument code for coverage analysis
+if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} --coverage")
+endif()
+# enable memory checks
+if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
+endif()
 
 # place binaries and libraries according to GNU standards
 include(GNUInstallDirs)
