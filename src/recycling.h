@@ -19,6 +19,20 @@ namespace remo {
 template<typename Recyclable>
 class RecyclingPool {
 public:
+	RecyclingPool():
+		m_first(nullptr)
+	{
+	}
+
+	virtual ~RecyclingPool()
+	{
+		Recyclable* obj = m_first;
+		while (obj) {
+			Recyclable* tmp = obj;
+			obj = obj->get_next();
+			delete tmp;
+		}
+	}
 
 	void add(Recyclable* a_object) 
 	{
