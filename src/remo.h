@@ -38,16 +38,17 @@ public:
 	template<typename Ret, typename... Args>
 	Ret call(const std::string& a_function, Args... args)
 	{
-        Packet packet;
-        remo::BinaryWriter writer(packet);
+        Packet* packet = take_packet();
+        BinaryWriter writer(*packet);
         writer.write_call(a_function, args...);
 
-		send_packet(&packet);
+		send_packet(packet);
+		packet->recycle();
 		//receive_packet(&packet);
 
 		Packet* reply = m_received_result;
 
-		remo::BinaryReader reader(*reply);
+		BinaryReader reader(*reply);
         Ret result = reader.read_result<Ret>(args...);
 
 		reply->recycle();
@@ -78,6 +79,9 @@ protected:
 		}
 		return packet;
 	}
+
+private:
+	void alloc_packets();
 
 private:
 	//! container for looking up items by full name

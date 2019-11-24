@@ -37,11 +37,7 @@ Controller::Controller():
     m_items(),
     m_packet_pool()
 {
-    // pre-allocate packets
-    for (size_t i = 0; i < PACKET_POOL_SIZE; i++) {
-        m_packet_pool.add(new Packet());
-    }
-
+    alloc_packets();
 }
 
 //------------------------------------------------------------------------------	
@@ -130,7 +126,7 @@ void Controller::send_packet(Packet* a_packet)
     logger.info(">> %s", a_packet->to_string().c_str());
 
     // "loopback"
-    handle_packet(a_packet);
+    receive_packet(a_packet);
 }
 
 //------------------------------------------------------------------------------	
@@ -138,6 +134,7 @@ void Controller::send_packet(Packet* a_packet)
 void Controller::receive_packet(Packet* a_packet)
 {
     logger.info("<< %s", a_packet->to_string().c_str());
+    handle_packet(a_packet);
 }
 
 //------------------------------------------------------------------------------	
@@ -197,6 +194,16 @@ void Controller::handle_result(Packet* a_packet)
 {
     // TODO use some data structure
     m_received_result = a_packet;
+}
+
+//------------------------------------------------------------------------------	
+//
+void Controller::alloc_packets()
+{
+    // pre-allocate packets
+    for (size_t i = 0; i < PACKET_POOL_SIZE; i++) {
+        m_packet_pool.add(new Packet());
+    }
 }
 
 //------------------------------------------------------------------------------
