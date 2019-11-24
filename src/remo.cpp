@@ -142,8 +142,11 @@ void Controller::handle_packet(Packet* a_packet)
     case PacketType::packet_call:
         handle_call(a_packet);
         break;
+    case PacketType::packet_result:
+        handle_result(a_packet);
+        break;
     default:
-        logger.warning("ignoring packet of unknown type 0x02X", type);
+        logger.warning("ignoring packet of unknown type 0x%02X", type);
     }
 }
 
@@ -162,8 +165,17 @@ void Controller::handle_call(Packet* a_packet)
         throw error(ErrorCode::ERR_RPC_NOT_FOUND, "remote procedure not found: '%s'",
             function_name.c_str());
     }
-    item->call(reader.get_args());
-    logger.warning("TODO handle_call");
+
+    // call it
+    TypedValue result = item->call(reader.get_args());
+
+    Packet* reply = take_packet();
+    BinaryWriter reply_writer(*reply);
+
+    ArgList args = reader.get_args(); // TODO const? separate variable;
+    reply_writer.write_result(result, args);
+
+    send_packet(reply);
     
 }
 
@@ -171,7 +183,8 @@ void Controller::handle_call(Packet* a_packet)
 //
 void Controller::handle_result(Packet* a_packet)
 {
-    (void)a_packet;
+    // TODO use some data structure
+    m_received_result = a_packet;
 }
 
 //------------------------------------------------------------------------------

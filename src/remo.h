@@ -13,6 +13,7 @@
 #include "reader.h"
 #include "writer.h"
 #include "item.h"
+#include "function.h"
 
 #include <string>
 #include <unordered_map>
@@ -28,6 +29,12 @@ public:
 	Controller();
 	virtual ~Controller();
 
+	template <typename Ret, typename...Arg>
+	void bind(const std::string& a_name, Ret (*a_func)(Arg...))
+	{
+		register_item(new bound_function<Ret, Arg...>(a_name, a_func));
+	}
+
 	template<typename Ret, typename... Args>
 	Ret call(const std::string& a_function, Args... args)
 	{
@@ -36,10 +43,16 @@ public:
         writer.write_call(a_function, args...);
 
 		send_packet(&packet);
-		receive_packet(&packet);
+		//receive_packet(&packet);
 
-		remo::BinaryReader reader(packet);
-        return reader.read_result<Ret>(args...);
+		Packet* reply = m_received_result;
+
+		remo::BinaryReader reader(*reply);
+        Ret result = reader.read_result<Ret>(args...);
+
+		reply->recycle();
+
+		return result;
 	}
 
 protected:
@@ -70,7 +83,9 @@ private:
 	// TODO use smart pointer?
 	std::unordered_map<std::string, Item*> m_items;
 	//! packet pool to avoid heap allocations
-	RecyclingPool<Packet> m_packet_pool;	
+	RecyclingPool<Packet> m_packet_pool;
+	//! TODO use some data structure
+	Packet* m_received_result = nullptr;
 };
 
 //------------------------------------------------------------------------------
