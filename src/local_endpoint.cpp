@@ -9,6 +9,8 @@
 //------------------------------------------------------------------------------
 #include "local_endpoint.h"
 
+#include "remote_endpoint.h"
+
 
 //------------------------------------------------------------------------------
 namespace remo {
@@ -20,7 +22,8 @@ namespace remo {
 //
 LocalEndpoint::LocalEndpoint():
 	Endpoint(),
-	m_items()
+	m_items(),
+	m_remotes()
 {
 }
 
@@ -29,6 +32,18 @@ LocalEndpoint::LocalEndpoint():
 LocalEndpoint::~LocalEndpoint()
 {
 	clear_items();
+	clear_remotes();
+}
+
+//------------------------------------------------------------------------------	
+//
+RemoteEndpoint* LocalEndpoint::connect(const std::string& a_remote)
+{
+	// TODO handle address
+	(void)a_remote;
+	RemoteEndpoint* remote = new RemoteEndpoint(this);
+	add_remote(remote);
+	return remote;
 }
 
 //------------------------------------------------------------------------------	
@@ -117,6 +132,24 @@ TypedValue LocalEndpoint::call(const std::string& a_func_name, ArgList args)
     // call it
     return item->call(args);	
 }
+
+//------------------------------------------------------------------------------
+//
+void LocalEndpoint::add_remote(RemoteEndpoint* a_remote)
+{
+	m_remotes.push_back(a_remote);
+}
+
+//------------------------------------------------------------------------------
+//
+void LocalEndpoint::clear_remotes()
+{
+    for (auto it = m_remotes.begin(); it != m_remotes.end(); it++) {
+        delete *it;
+    }
+    m_remotes.clear();
+}
+
 
 //------------------------------------------------------------------------------
 } // end namespace remo

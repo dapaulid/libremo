@@ -25,17 +25,18 @@ std::any bar(uint32_t* a) {
 int main(int, char**)
 {
     try {
-        remo::LocalEndpoint local;
-        remo::RemoteEndpoint remote(&local);
+        remo::LocalEndpoint endpoint;
 
-        local.bind("fritzli", &fritzli);
+        endpoint.bind("fritzli", &fritzli);
 
         uint32_t a1 = 100;
         int32_t o1 = 200;
         double a2 = 300.1;
         double o2 = 400.5;
 
-        double ret = remote.call<double>("fritzli", a1, &o1, a2, &o2);
+        remo::RemoteEndpoint* remote = endpoint.connect(".");
+
+        double ret = remote->call<double>("fritzli", a1, &o1, a2, &o2);
         std::cout << "fritzli returned ret=" << ret << ", o1=" << o1 << ", o2=" << o2 << std::endl;
 
         return 0;
