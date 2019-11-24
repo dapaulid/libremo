@@ -9,52 +9,47 @@
 //------------------------------------------------------------------------------
 #pragma once
 
-#include "types.h"
+#include "endpoint.h"
+#include "item.h"
 
-#include <string>
+#include <unordered_map>
 
 //------------------------------------------------------------------------------
 namespace remo {
 //------------------------------------------------------------------------------	
 
-// forward declaration
-class LocalEndpoint;
-
 //------------------------------------------------------------------------------
 // class definition
 //------------------------------------------------------------------------------	
 //
-class Item {
+class LocalEndpoint: public Endpoint {
 public:
-	Item(const std::string& a_name);
-	virtual ~Item();
+	LocalEndpoint();
+	virtual ~LocalEndpoint();
 
-	virtual TypedValue call(ArgList args) = 0;
-
-	virtual std::string to_string() const;
-
-	const std::string& get_name() const { return m_name; }
-	std::string get_full_name() const;
-
-	static bool is_valid_name(const std::string& a_name);
+	template <typename Ret, typename...Arg>
+	void bind(const std::string& a_name, Ret (*a_func)(Arg...));
 
 protected:
-	friend class LocalEndpoint;
-	void set_endpoint(LocalEndpoint* a_endpoint) { m_endpoint = a_endpoint; }
-	const LocalEndpoint* get_endpoint() const { return m_endpoint; }
+	friend class Item;
+	void register_item(Item* a_item);
+	void unregister_item(Item* a_item);
+	void clear_items();
+	Item* find_item(const std::string& a_full_name);
 
 protected:
-	//! to be overriden by subclass
-	virtual const char* item_type() { return "item"; }
+	friend class RemoteEndpoint;
+	TypedValue call(const std::string& a_func_name, ArgList args);
 
 private:
-	//! endpoint to which this item belongs
-	LocalEndpoint* m_endpoint;
-	//! item name
-	std::string m_name;
+	//! container for looking up items by full name
+	std::unordered_map<std::string, Item*> m_items;	
 };
 
 
 //------------------------------------------------------------------------------
 } // end namespace remo
 //------------------------------------------------------------------------------
+
+// template implementation
+#include "local_endpoint.tpp.h"

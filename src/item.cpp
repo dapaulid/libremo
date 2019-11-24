@@ -9,8 +9,7 @@
 //------------------------------------------------------------------------------
 #include "item.h"
 
-#include "remo.h"
-#include "error.h"
+#include "local_endpoint.h"
 
 
 //------------------------------------------------------------------------------
@@ -22,7 +21,7 @@ namespace remo {
 //------------------------------------------------------------------------------
 //
 Item::Item(const std::string& a_name):
-    m_ctrl(nullptr), 
+    m_endpoint(nullptr), 
     m_name(a_name)
 {
     // check item name
@@ -36,9 +35,9 @@ Item::Item(const std::string& a_name):
 //
 Item::~Item()
 {
-    // unregister from controller
-    if (m_ctrl) {
-        m_ctrl->unregister_item(this);
+    // unregister from endpoint
+    if (m_endpoint) {
+        m_endpoint->unregister_item(this);
     }
 }
 

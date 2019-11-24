@@ -4,6 +4,9 @@ target_sources(
     remo
     PRIVATE
         remo.cpp
+        endpoint.cpp
+        local_endpoint.cpp
+        remote_endpoint.cpp
         types.cpp
         packet.cpp
         reader.cpp
