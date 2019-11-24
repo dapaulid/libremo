@@ -59,6 +59,7 @@ protected:
 	friend class Item;
 	void register_item(Item* a_item);
 	void unregister_item(Item* a_item);
+	void clear_items();
 	Item* find_item(const std::string& a_full_name);
 
 protected:

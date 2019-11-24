@@ -48,6 +48,7 @@ Controller::Controller():
 //
 Controller::~Controller()
 {
+    clear_items();
 }
 
 //------------------------------------------------------------------------------	
@@ -101,6 +102,17 @@ void Controller::unregister_item(Item* a_item)
         throw error(ErrorCode::ERR_ITEM_NOT_FOUND, "%s not found for unregistration: '%s'",
             a_item->item_type(), a_item->get_full_name().c_str());
     }
+}
+
+//------------------------------------------------------------------------------	
+//
+void Controller::clear_items()
+{
+    for (auto it = m_items.begin(); it != m_items.end(); it++) {
+        it->second->set_ctrl(nullptr);
+        delete it->second;
+    }
+    m_items.clear();
 }
 
 //------------------------------------------------------------------------------	
