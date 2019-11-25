@@ -106,7 +106,13 @@ public:
 	template<typename T>
 	void read_outparam(T)
 	{
-	}	
+	}
+
+	// template used to filter out const-pointer types in "out" parameters
+	template<typename T>
+	void read_outparam(const T*)
+	{
+	}
 
 	// read type id
 	TypeId read_type(uint8_t& o_modifier)

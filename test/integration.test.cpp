@@ -86,6 +86,27 @@ TYPED_TEST(Integration, func_with_one_numeric_outparam)
     EXPECT_EQ(a1, std::numeric_limits<NumericType>::min());
 }
 
+//------------------------------------------------------------------------------
+//
+TEST(Integration, func_with_one_string_inparam)
+{
+    // create endpoint
+    remo::LocalEndpoint endpoint;
+    remo::RemoteEndpoint* remote = endpoint.connect(".");
+
+    bool func_called = false;
+
+    // register function
+    endpoint.bind("test_func", [&](const char* a1) {
+        func_called = true;
+        EXPECT_STREQ(a1, "hello world");
+        return (uint32_t)0;
+    });
+
+    // call function
+    remote->call<uint32_t>("test_func", "hello world");
+    ASSERT_TRUE(func_called);
+}
 
 //------------------------------------------------------------------------------
 //
