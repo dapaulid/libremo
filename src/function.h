@@ -39,7 +39,7 @@ template <typename Ret, typename...Arg>
 class bound_function: public function {
 public:
 	bound_function(const std::string& a_name, Ret (*a_func)(Arg...)):
-		function(a_name, TypeInfo<Ret>::id(), { TypeInfo<Arg>::id()... }), 
+		function(a_name, TypeInfo<Ret>::id(), { TypeInfo<Arg>::id()... }),
 		m_func(a_func)
 	{
 	}
@@ -56,32 +56,36 @@ private:
 
 //------------------------------------------------------------------------------	
 
-template<typename Lambda>//, typename Class, typename Ret, typename... Args>
-class lambda_function: public function {
+template<typename Lambda>
+class lambda_function: public function
+{
 public:
-	lambda_function(const std::string& a_name, Lambda a_lambda)://, Ret (Class::*)(Args...) const):
-		function(a_name, TypeInfo<uint32_t>::id(), { }), 
-		m_lambda(a_lambda)
+	lambda_function(const std::string& a_name, Lambda a_lambda):
+		lambda_function(a_name, a_lambda, &Lambda::operator())
 	{
-		fuck(&Lambda::operator());
-	}
-
-	template<typename Class, typename Ret, typename... Args>
-	void fuck(Ret (Class::*)(Args...) const) {
-		m_result_type = TypeInfo<Ret>::id();
-		m_param_types = { TypeInfo<Args>::id()... };
 	}
 
 	virtual TypedValue call(ArgList args) override
 	{
 		check_args(args);
-		return fuck2(args, &Lambda::operator());
+		return call(args, &Lambda::operator());
+	}
+
+
+// helper overloads to capture result and parameter types
+private:
+	template<typename Class, typename Ret, typename... Args>
+	lambda_function(const std::string& a_name, Lambda a_lambda, Ret (Class::*)(Args...) const):
+		function(a_name, TypeInfo<Ret>::id(), { TypeInfo<Args>::id()... }),
+		m_lambda(a_lambda)	
+	{
 	}
 
 	template<typename Class, typename Ret, typename... Args>
-	TypedValue fuck2(ArgList args, Ret (Class::*)(Args...) const) {
+	TypedValue call(ArgList args, Ret (Class::*)(Args...) const)
+	{
 		return TypedValue(TypeInfo<Ret>::id(), dynamic_call<Lambda, Ret, Args...>(m_lambda, args));
-	}	
+	}
 
 private:
 	Lambda m_lambda;
