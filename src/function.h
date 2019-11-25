@@ -59,7 +59,7 @@ private:
 template<typename Lambda>//, typename Class, typename Ret, typename... Args>
 class lambda_function: public function {
 public:
-	lambda_function(const std::string& a_name, Lambda& a_lambda)://, Ret (Class::*)(Args...) const):
+	lambda_function(const std::string& a_name, Lambda a_lambda)://, Ret (Class::*)(Args...) const):
 		function(a_name, TypeInfo<uint32_t>::id(), { }), 
 		m_lambda(a_lambda)
 	{

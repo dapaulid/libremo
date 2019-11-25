@@ -41,7 +41,7 @@ public:
 	void bind(const std::string& a_name, Ret (*a_func)(Arg...));
 
 	template<typename Lambda>
-	void bind(const std::string& a_name, Lambda& a_lambda);
+	void bind(const std::string& a_name, Lambda a_lambda);
 
 
 protected:

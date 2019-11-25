@@ -59,10 +59,7 @@ int main(int, char**)
 
         endpoint.bind("fritzli", &fritzli);
 
-        auto lambda = [](int x) { std::cout << "geil " << x << std::endl; return x+1; };
-        bar(lambda);
-
-        endpoint.bind("lambda", lambda);
+        endpoint.bind("lambda", [](int x) { std::cout << "geil " << x << std::endl; return x+1; });
         auto gugus = remote->call<int>("lambda", (int)5); // needed to print rest???
         std::cout << "lambda returned ret=" << gugus << std::endl;
 
