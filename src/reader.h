@@ -77,7 +77,7 @@ public:
 				get_type_name(expected_type), get_type_name(actual_type));
 		}
 		// read actual result
-		Ret result = read_value<Ret>(modifier);
+		Ret result = (actual_type != TypeId::type_bool) ? read_value<Ret>(modifier) : modifier != 0;
 		// read "out" parameters
 		REMO_FOREACH_ARG(args, read_outparam);
 

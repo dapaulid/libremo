@@ -131,7 +131,7 @@ public:
 	
 	// write boolean
 	int write_value(bool a_bool);
-
+	
 	// write typed value
 	int write_value(const TypedValue& a_value);
 

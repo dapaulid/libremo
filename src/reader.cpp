@@ -296,8 +296,11 @@ std::string BinaryReader::format_value()
 		ss << '(' << get_type_name(type) << ')';
 		break;
 	case type_bool:
-	case type_bool_ptr:
 		ss << (modifier != 0 ? "true" : "false");
+		break;
+	case type_bool_ptr:
+		ss << '(' << get_type_name(type) << ')';
+		ss << (read_value<int64_t>(modifier) ? "true" : "false");
 		break;
 	case type_cstr:
 	case type_cstr_ptr:
