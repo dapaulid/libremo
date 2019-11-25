@@ -40,6 +40,10 @@ public:
 	template <typename Ret, typename...Arg>
 	void bind(const std::string& a_name, Ret (*a_func)(Arg...));
 
+	template<typename Lambda>
+	void bind(const std::string& a_name, Lambda& a_lambda);
+
+
 protected:
 	friend class Item;
 	void register_item(Item* a_item);

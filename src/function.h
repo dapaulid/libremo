@@ -28,7 +28,7 @@ protected:
 
 	virtual const char* item_type() override { return "function"; }
 
-private:
+protected:
 	TypeId m_result_type;
 	TypeList m_param_types;
 };
@@ -53,6 +53,40 @@ public:
 private:
 	Ret (*m_func)(Arg...);
 };
+
+//------------------------------------------------------------------------------	
+
+template<typename Lambda>//, typename Class, typename Ret, typename... Args>
+class lambda_function: public function {
+public:
+	lambda_function(const std::string& a_name, Lambda& a_lambda)://, Ret (Class::*)(Args...) const):
+		function(a_name, TypeInfo<uint32_t>::id(), { }), 
+		m_lambda(a_lambda)
+	{
+		fuck(&Lambda::operator());
+	}
+
+	template<typename Class, typename Ret, typename... Args>
+	void fuck(Ret (Class::*)(Args...) const) {
+		m_result_type = TypeInfo<Ret>::id();
+		m_param_types = { TypeInfo<Args>::id()... };
+	}
+
+	virtual TypedValue call(ArgList args) override
+	{
+		check_args(args);
+		return fuck2(args, &Lambda::operator());
+	}
+
+	template<typename Class, typename Ret, typename... Args>
+	TypedValue fuck2(ArgList args, Ret (Class::*)(Args...) const) {
+		return TypedValue(TypeInfo<Ret>::id(), dynamic_call<Lambda, Ret, Args...>(m_lambda, args));
+	}	
+
+private:
+	Lambda m_lambda;
+};
+
 
 //------------------------------------------------------------------------------
 } // end namespace remo

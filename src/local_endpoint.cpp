@@ -9,12 +9,17 @@
 //------------------------------------------------------------------------------
 #include "local_endpoint.h"
 
+#include "logger.h"
 #include "remote_endpoint.h"
 
 
 //------------------------------------------------------------------------------
 namespace remo {
 //------------------------------------------------------------------------------
+
+//! logger instance
+static Logger logger("LocalEndpoint");
+
 
 //------------------------------------------------------------------------------
 // class implementation
@@ -74,6 +79,9 @@ void LocalEndpoint::register_item(Item* a_item)
         throw error(ErrorCode::ERR_ITEM_ALREADY_EXISTING, "%s with same name already exists: '%s'",
             ret.first->second->item_type(), ret.first->first.c_str());
     } // end if
+
+	// success
+	logger.info("Registered '%s'", a_item->to_string().c_str());
 }
 
 //------------------------------------------------------------------------------	
@@ -97,6 +105,9 @@ void LocalEndpoint::unregister_item(Item* a_item)
         throw error(ErrorCode::ERR_ITEM_NOT_FOUND, "%s not found for unregistration: '%s'",
             a_item->item_type(), a_item->get_full_name().c_str());
     }
+
+	// success
+	logger.info("Unregistered '%s'", a_item->to_string().c_str());
 }
 
 //------------------------------------------------------------------------------	

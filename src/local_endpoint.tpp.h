@@ -27,5 +27,14 @@ void LocalEndpoint::bind(const std::string& a_name, Ret (*a_func)(Arg...))
 }
 
 //------------------------------------------------------------------------------
+//
+template<typename Lambda>
+void LocalEndpoint::bind(const std::string& a_name, Lambda& a_lambda)
+{
+    register_item(new lambda_function<Lambda>(a_name, a_lambda));
+}
+
+
+//------------------------------------------------------------------------------
 } // end namespace remo
 //------------------------------------------------------------------------------

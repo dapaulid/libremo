@@ -22,19 +22,55 @@ std::any bar(uint32_t* a) {
     return a;
 }
 
+template<typename F, typename Ret, typename A, typename... Rest>
+A
+helper(Ret (F::*)(A, Rest...));
+
+template<typename F, typename Ret, typename A, typename... Rest>
+A
+helper(Ret (F::*)(A, Rest...) const);
+
+template<typename F, typename Ret, typename... Args>
+void foo(Ret (F::*)(Args...)) {
+
+}
+
+template<typename Lambda, typename Class, typename Ret, typename... Args>
+void foo(Lambda& l, Ret (Class::*)(Args...) const) {
+    l(1);
+}
+
+template<typename F>
+struct first_argument {
+    typedef decltype( helper(&F::operator()) ) type;
+};
+
+template<typename Lambda>
+void bar(Lambda& l) {
+    foo(l, &Lambda::operator());
+}
+
+
 int main(int, char**)
 {
     try {
         remo::LocalEndpoint endpoint;
+        remo::RemoteEndpoint* remote = endpoint.connect(".");
 
         endpoint.bind("fritzli", &fritzli);
+
+        auto lambda = [](int x) { std::cout << "geil " << x << std::endl; return x+1; };
+        bar(lambda);
+
+        endpoint.bind("lambda", lambda);
+        auto gugus = remote->call<int>("lambda", (int)5); // needed to print rest???
+        std::cout << "lambda returned ret=" << gugus << std::endl;
+
 
         uint32_t a1 = 100;
         int32_t o1 = 200;
         double a2 = 300.1;
         double o2 = 400.5;
-
-        remo::RemoteEndpoint* remote = endpoint.connect(".");
 
         double ret = remote->call<double>("fritzli", a1, &o1, a2, &o2);
         std::cout << "fritzli returned ret=" << ret << ", o1=" << o1 << ", o2=" << o2 << std::endl;

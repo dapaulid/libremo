@@ -104,6 +104,20 @@ Ret dynamic_call (Ret (Class::*func)(Arg...), Class* obj, ArgList args)
     return (obj->*func)(any_ref_cast<Arg>().do_cast(fetch_back(args))...);
 }
 
+//------------------------------------------------------------------------------	
+//
+/*
+    call lambda function with dynamic arguments.
+
+    IMPORTANT: caller is responsible to check argument types, otherwise 
+    this function will throw cryptic exceptions or even core dump.
+*/
+template <typename Lambda, typename Ret, typename...Arg>
+Ret dynamic_call (Lambda& a_lambda, ArgList args)
+{
+    return a_lambda(any_ref_cast<Arg>().do_cast(fetch_back(args))...);
+}
+
 //------------------------------------------------------------------------------
 } // end namespace remo
 //------------------------------------------------------------------------------
