@@ -210,8 +210,8 @@ struct TypeInfo<const char*> {
 #endif
 
 // TODO better place
-// NOTE: the +1 avoids the "ISO C++ forbids zero-size array" pendantic warning
-#define REMO_FOREACH_ARG(args, what) { int dummy[sizeof...(args)+1] = { what(args)... }; (void)dummy; }
+// NOTE: the "0," avoids the "ISO C++ forbids zero-size array" pendantic warning
+#define REMO_FOREACH_ARG(args, what) { int dummy[] = { 0,(what(args),0)... }; (void)dummy; }
 
 typedef std::any any;
 

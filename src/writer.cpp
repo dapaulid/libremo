@@ -28,7 +28,7 @@ void Writer::write(unsigned char byte)
 
 //------------------------------------------------------------------------------
 
-int BinaryWriter::write_value(const char* a_string)
+void BinaryWriter::write_value(const char* a_string)
 {
 	// write type info byte
 	write(TypeId::type_cstr);
@@ -40,29 +40,26 @@ int BinaryWriter::write_value(const char* a_string)
 
 	// output terminating NUL character
 	write(0);
-
-	return 0;
 }
 
 //------------------------------------------------------------------------------
 
-int BinaryWriter::write_value(char* a_string)
+void BinaryWriter::write_value(char* a_string)
 {
-	return write_value((const char*)a_string);
+	write_value((const char*)a_string);
 }
 
 //------------------------------------------------------------------------------
 
-int BinaryWriter::write_value(bool a_bool)
+void BinaryWriter::write_value(bool a_bool)
 {
 	// header: combine value and type id
 	write(((a_bool & 1) << 4) | TypeId::type_bool);
-	return 0;
 }
 
 //------------------------------------------------------------------------------
 
-int BinaryWriter::write_value(arraysize_t a_size)
+void BinaryWriter::write_value(arraysize_t a_size)
 {
 	if (m_has_arraysize) {
 		throw error(ErrorCode::ERR_POINTER_NEEDS_SIZE, 
@@ -70,12 +67,11 @@ int BinaryWriter::write_value(arraysize_t a_size)
 	}
 	m_arraysize = a_size;
 	m_has_arraysize = true;
-	return 0;
 }
 
 //------------------------------------------------------------------------------
 
-int BinaryWriter::write_value(const TypedValue& a_value)
+void BinaryWriter::write_value(const TypedValue& a_value)
 {
 	switch (a_value.type) {
 	case type_null: 
@@ -140,8 +136,6 @@ int BinaryWriter::write_value(const TypedValue& a_value)
 		throw error(ErrorCode::ERR_INVALID_VALUE_TYPE, 
 			"invalid value type: %s (0x%02X)", get_type_name(a_value.type), a_value.type);
 	} // end switch
-
-	return 0;
 }
 
 //------------------------------------------------------------------------------

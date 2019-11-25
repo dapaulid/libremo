@@ -86,7 +86,7 @@ public:
 
 	// read "out" parameter
 	template<typename T>
-	int read_outparam(T* arg)
+	void read_outparam(T* arg)
 	{
 		TypeId expected_type = TypeInfo<T*>::id();
 
@@ -100,15 +100,12 @@ public:
 		}
 
 		copy_to_ptr(arg, 1); // TODO handle array length
-		return 1;
 	}
 
 	// template used to filter out non-pointer types in "out" parameters
 	template<typename T>
-	int read_outparam(T arg)
+	void read_outparam(T)
 	{
-		(void)arg;
-		return 1;
 	}	
 
 	// read type id

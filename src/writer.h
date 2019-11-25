@@ -61,7 +61,7 @@ public:
 
 	// write scalar value
 	template<typename T>
-	int write_value(const T& a_value)
+	void write_value(const T& a_value)
 	{
 		// make copy of value, as we need to modify and restore it
 		T value = a_value;
@@ -86,20 +86,17 @@ public:
 		LITTLE_ENDIAN_FOR(i, wire_size) {
 			write(p[i]);
 		}
-
-		return 0;
 	}
 
 	// write array
 	template<typename T, int N>
-	int write_value(T(&a_array)[N]) {
+	void write_value(T(&a_array)[N]) {
 		static_assert(dependent_false<T>::value, "array types not yet supported by libremo");
-		return 0;
 	}
 
 	// write pointer
 	template<typename T>
-	int write_value(T* a_ptr)
+	void write_value(T* a_ptr)
 	{
 		// assume size of 1 if not specified
 		if (!m_has_arraysize) {
@@ -118,22 +115,20 @@ public:
 				write(p[i]);
 			}
 		}
-		
-		return 0;
 	}	
 
 	// write array size
-	int write_value(arraysize_t a_size);
+	void write_value(arraysize_t a_size);
 
 	// write string
-	int write_value(char* a_string);
-	int write_value(const char* a_string);
+	void write_value(char* a_string);
+	void write_value(const char* a_string);
 	
 	// write boolean
-	int write_value(bool a_bool);
+	void write_value(bool a_bool);
 	
 	// write typed value
-	int write_value(const TypedValue& a_value);
+	void write_value(const TypedValue& a_value);
 
 private:
 	bool m_has_arraysize = false;
