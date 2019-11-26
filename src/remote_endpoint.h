@@ -32,8 +32,8 @@ public:
 	RemoteEndpoint(LocalEndpoint* a_local);
 	virtual ~RemoteEndpoint();
 
-	template<typename Ret, typename... Args>
-	Ret call(const std::string& a_function, Args... args);
+	template<typename... Args>
+	TypedValue call(const std::string& a_function, Args... args);
 
 protected:
 	Packet* take_packet();

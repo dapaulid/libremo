@@ -2,6 +2,7 @@
 
 #include "local_endpoint.h"
 #include "remote_endpoint.h"
+#include "types.h" // TypedValue
 
 #include <limits>
 
@@ -52,9 +53,9 @@ TYPED_TEST(Integration, func_with_one_numeric_inparam)
 
     // call function
     NumericType a1 = std::numeric_limits<NumericType>::max();
-    NumericType result = remote->call<NumericType>("test_func", a1);
+    remo::TypedValue result = remote->call("test_func", a1);
     ASSERT_TRUE(func_called);
-    EXPECT_EQ(result, std::numeric_limits<NumericType>::min());
+    EXPECT_EQ(result.get<NumericType>(), std::numeric_limits<NumericType>::min());
 }
 
 //------------------------------------------------------------------------------
@@ -80,9 +81,9 @@ TYPED_TEST(Integration, func_with_one_numeric_outparam)
 
     // call function
     NumericType a1 = std::numeric_limits<NumericType>::max();
-    NumericType result = remote->call<NumericType>("test_func", &a1);
+    remo::TypedValue result = remote->call("test_func", &a1);
     ASSERT_TRUE(func_called);
-    EXPECT_EQ(result, (NumericType)42);
+    EXPECT_EQ(result.get<NumericType>(), (NumericType)42);
     EXPECT_EQ(a1, std::numeric_limits<NumericType>::min());
 }
 
@@ -104,7 +105,7 @@ TEST(Integration, func_with_one_string_inparam)
     });
 
     // call function
-    remote->call<uint32_t>("test_func", "hello world");
+    remote->call("test_func", "hello world");
     ASSERT_TRUE(func_called);
 }
 
@@ -130,9 +131,9 @@ TYPED_TEST(Integration, func_with_two_numeric_inparams)
 
     // call function
     NumericType a1 = std::numeric_limits<NumericType>::max();
-    NumericType result = remote->call<NumericType>("test_func", a1, (uint32_t)12345678);
+    remo::TypedValue result = remote->call("test_func", a1, (uint32_t)12345678);
     ASSERT_TRUE(func_called);
-    EXPECT_EQ(result, std::numeric_limits<NumericType>::min());
+    EXPECT_EQ(result.get<NumericType>(), std::numeric_limits<NumericType>::min());
 }
 
 
@@ -150,7 +151,7 @@ TEST(integration, simple)
 
     // call function
     free_func_called = false;
-    uint32_t result = remote->call<uint32_t>("simple_func", (uint32_t)1234);
+    uint32_t result = remote->call("simple_func", (uint32_t)1234).get<uint32_t>();
     ASSERT_TRUE(free_func_called);
     ASSERT_EQ(result, (uint32_t)4321);
 }

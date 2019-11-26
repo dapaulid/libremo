@@ -21,8 +21,8 @@ namespace remo {
 // template implementation
 //------------------------------------------------------------------------------
 //
-template<typename Ret, typename... Args>
-Ret RemoteEndpoint::call(const std::string& a_function, Args... args)
+template<typename... Args>
+TypedValue RemoteEndpoint::call(const std::string& a_function, Args... args)
 {
     Packet* packet = take_packet();
     BinaryWriter writer(*packet);
@@ -35,7 +35,7 @@ Ret RemoteEndpoint::call(const std::string& a_function, Args... args)
     Packet* reply = m_received_result;
 
     BinaryReader reader(*reply);
-    Ret result = reader.read_result<Ret>(args...);
+    TypedValue result = reader.read_result(args...);
 
     reply->recycle();
 

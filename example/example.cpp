@@ -27,8 +27,8 @@ int main(int, char**)
         endpoint.bind("fritzli", &fritzli);
 
         endpoint.bind("lambda", [](int x) { std::cout << "geil " << x << std::endl; return x+1; });
-        auto gugus = remote->call<int>("lambda", (int)5); // needed to print rest???
-        std::cout << "lambda returned ret=" << gugus << std::endl;
+        remo::TypedValue gugus = remote->call("lambda", (int)5); // needed to print rest???
+        std::cout << "lambda returned ret=" << gugus.get<int>() << std::endl;
 
 
         uint32_t a1 = 100;
@@ -36,7 +36,7 @@ int main(int, char**)
         double a2 = 300.1;
         double o2 = 400.5;
 
-        double ret = remote->call<double>("fritzli", a1, &o1, a2, &o2);
+        double ret = remote->call("fritzli", a1, &o1, a2, &o2).get<double>();
         std::cout << "fritzli returned ret=" << ret << ", o1=" << o1 << ", o2=" << o2 << std::endl;
 
         return 0;

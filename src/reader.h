@@ -59,25 +59,16 @@ public:
 
 	void read_call();
 
-	template<typename Ret, typename... Args>
-	Ret read_result(Args... args)
+	template<typename... Args>
+	TypedValue read_result(Args... args)
 	{
 		// expect 'call' packet
 		if (read() != PacketType::packet_result) {
 			throw error(ErrorCode::ERR_BAD_PACKET, "not a 'result' packet");
 		}
 
-		// check if result type matches
-		uint8_t modifier = 0;
-		TypeId actual_type = read_type(modifier);
-		TypeId expected_type = TypeInfo<Ret>::id();
-		if (actual_type != expected_type) {
-			throw error(ErrorCode::ERR_RESULT_TYPE_MISMATCH, 
-				"result type mismatch: expected %s, got %s", 
-				get_type_name(expected_type), get_type_name(actual_type));
-		}
-		// read actual result
-		Ret result = (actual_type != TypeId::type_bool) ? read_value<Ret>(modifier) : modifier != 0;
+		// read result
+		TypedValue result = read_typed_value();
 		// read "out" parameters
 		REMO_FOREACH_ARG(args, read_outparam);
 
