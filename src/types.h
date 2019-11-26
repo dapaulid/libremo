@@ -247,6 +247,10 @@ struct TypedValue
 		return m_type;
 	}
 
+	const char* type_name() const {
+		return get_type_name(m_type);
+	}
+
 private:
 	//! value type
 	TypeId m_type;
