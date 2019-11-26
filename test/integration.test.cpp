@@ -110,6 +110,34 @@ TEST(Integration, func_with_one_string_inparam)
 
 //------------------------------------------------------------------------------
 //
+TYPED_TEST(Integration, func_with_two_numeric_inparams)
+{
+    using NumericType  = typename TestFixture::MyParamType;
+
+    // create endpoint
+    remo::LocalEndpoint endpoint;
+    remo::RemoteEndpoint* remote = endpoint.connect(".");
+
+    bool func_called = false;
+
+    // register function
+    endpoint.bind("test_func", [&](NumericType a1, uint32_t a2) {
+        func_called = true;
+        EXPECT_EQ(a1, std::numeric_limits<NumericType>::max());
+        EXPECT_EQ(a2, (uint32_t)12345678);
+        return std::numeric_limits<NumericType>::min();
+    });
+
+    // call function
+    NumericType a1 = std::numeric_limits<NumericType>::max();
+    NumericType result = remote->call<NumericType>("test_func", a1, (uint32_t)12345678);
+    ASSERT_TRUE(func_called);
+    EXPECT_EQ(result, std::numeric_limits<NumericType>::min());
+}
+
+
+//------------------------------------------------------------------------------
+//
 TEST(integration, simple)
 {
     remo::LocalEndpoint endpoint;
