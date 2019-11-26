@@ -304,7 +304,7 @@ std::string BinaryReader::format_value()
 		break;
 	case type_cstr:
 	case type_cstr_ptr:
-		ss << std::quoted(read_cstr()); // TODO escaping
+		ss << "\"" << read_cstr() << "\""; // TODO escaping (for C++14 we could use std::quote...)
 		break;
 	case type_double:
 	case type_double_ptr:
