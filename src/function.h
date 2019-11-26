@@ -97,6 +97,14 @@ private:
 		return TypedValue(dynamic_call<Lambda, Ret, Args...>(m_lambda, args));
 	}
 
+	template<typename Class, typename... Args>
+	TypedValue call(const ArgList& args, void (Class::*)(Args...) const)
+	{
+		dynamic_call<Lambda, void, Args...>(m_lambda, args);
+		return TypedValue(TypeId::type_void);
+	}
+
+
 private:
 	Lambda m_lambda;
 };

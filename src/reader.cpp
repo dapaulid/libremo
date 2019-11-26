@@ -79,7 +79,7 @@ TypedValue BinaryReader::read_typed_value()
 
 	switch (type) {
 	case type_null: 
-		return TypedValue(); 
+		return TypedValue(TypeId::type_null); 
 	case type_uint8:
 		return TypedValue(read_value<uint8_t>(modifier));
 	case type_uint16:
@@ -96,7 +96,8 @@ TypedValue BinaryReader::read_typed_value()
 		return TypedValue(read_value<int32_t>(modifier));
 	case type_int64:
 		return TypedValue(read_value<int64_t>(modifier));
-//			case type_void:
+	case type_void:
+		return TypedValue(TypeId::type_void);
 //			case type_any:
 	case type_bool:
 		return TypedValue(modifier != 0);
@@ -230,6 +231,7 @@ std::string BinaryReader::format_value()
 	// print value
 	switch (type) {
 	case type_null:
+		ss << '(' << get_type_name(type) << ')';
 		break;
 	case type_uint8:
 	case type_uint8_ptr:

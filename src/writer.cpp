@@ -75,7 +75,7 @@ void BinaryWriter::write_value(const TypedValue& a_value)
 {
 	switch (a_value.type()) {
 	case type_null: 
-		break;
+		return write(TypeId::type_null);
 	case type_uint8:
 		return write_value(a_value.get<uint8_t>());
 	case type_uint16:
@@ -93,9 +93,9 @@ void BinaryWriter::write_value(const TypedValue& a_value)
 	case type_int64:
 		return write_value(a_value.get<int64_t>());
 	case type_void:
-		break;
+		return write(TypeId::type_void);
 	case type_any:
-		break;
+		return write(TypeId::type_any);
 	case type_bool:
 		return write_value(a_value.get<bool>());
 	case type_cstr:

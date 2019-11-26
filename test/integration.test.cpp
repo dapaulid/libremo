@@ -136,6 +136,25 @@ TYPED_TEST(Integration, func_with_two_numeric_inparams)
     EXPECT_EQ(result.get<NumericType>(), std::numeric_limits<NumericType>::min());
 }
 
+//------------------------------------------------------------------------------
+//
+TEST(Integration, func_with_no_params_and_no_result)
+{
+    // create endpoint
+    remo::LocalEndpoint endpoint;
+    remo::RemoteEndpoint* remote = endpoint.connect(".");
+
+    bool func_called = false;
+
+    // register function
+    endpoint.bind("test_func", [&]() {
+        func_called = true;
+    });
+
+    // call function
+    remote->call("test_func");
+    ASSERT_TRUE(func_called);
+}
 
 //------------------------------------------------------------------------------
 //

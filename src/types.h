@@ -86,6 +86,12 @@ struct TypeInfo {
 };
 
 template<>
+struct TypeInfo<void> {
+	static TypeId id() { return type_void; }
+};
+
+
+template<>
 struct TypeInfo<uint8_t> {
 	static TypeId id() { return type_uint8; }
 };
@@ -222,7 +228,9 @@ struct TypeInfo<const char*> {
 //! type-safe union type to hold any supported type, similar to std::variant
 struct TypedValue
 {
-	TypedValue(): m_type(TypeId::type_null), m_value() {}
+	//TypedValue(): m_type(TypeId::type_null), m_value() {}
+	TypedValue(TypeId a_type): m_type(a_type), m_value() {}
+
 
 	template<typename T>
 	TypedValue(const T& value) {
