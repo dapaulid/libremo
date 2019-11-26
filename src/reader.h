@@ -130,6 +130,9 @@ public:
 		return static_cast<TypeId>(h);
 	}
 
+	// read typed value
+	TypedValue read_typed_value();
+
 	// read scalar value
 	template<typename T>
 	T read_value(size_t a_wire_size)

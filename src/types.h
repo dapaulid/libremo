@@ -222,6 +222,8 @@ struct TypeInfo<const char*> {
 //! type-safe union type to hold any supported type, similar to std::variant
 struct TypedValue
 {
+	TypedValue(): m_type(TypeId::type_null), m_value() {}
+
 	template<typename T>
 	TypedValue(const T& value) {
 		m_type = TypeInfo<T>::id();
