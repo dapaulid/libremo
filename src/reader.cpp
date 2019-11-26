@@ -73,81 +73,81 @@ void BinaryReader::read_call()
 		case type_null: 
 			break;
 		case type_uint8:
-			m_args.push_back(TypedValue(type, read_value<uint8_t>(modifier)));
+			m_args.push_back(TypedValue(read_value<uint8_t>(modifier)));
 			break;
 		case type_uint16:
-			m_args.push_back(TypedValue(type, read_value<uint16_t>(modifier)));
+			m_args.push_back(TypedValue(read_value<uint16_t>(modifier)));
 			break;
 		case type_uint32:
-			m_args.push_back(TypedValue(type, read_value<uint32_t>(modifier)));
+			m_args.push_back(TypedValue(read_value<uint32_t>(modifier)));
 			break;
 		case type_uint64:
-			m_args.push_back(TypedValue(type, read_value<uint64_t>(modifier)));
+			m_args.push_back(TypedValue(read_value<uint64_t>(modifier)));
 			break;
 		case type_int8:
-			m_args.push_back(TypedValue(type, read_value<int8_t>(modifier)));
+			m_args.push_back(TypedValue(read_value<int8_t>(modifier)));
 			break;
 		case type_int16:
-			m_args.push_back(TypedValue(type, read_value<int16_t>(modifier)));
+			m_args.push_back(TypedValue(read_value<int16_t>(modifier)));
 			break;
 		case type_int32:
-			m_args.push_back(TypedValue(type, read_value<int32_t>(modifier)));
+			m_args.push_back(TypedValue(read_value<int32_t>(modifier)));
 			break;
 		case type_int64:
-			m_args.push_back(TypedValue(type, read_value<int64_t>(modifier)));
+			m_args.push_back(TypedValue(read_value<int64_t>(modifier)));
 			break;
 //			case type_void:
 //			case type_any:
 		case type_bool:
-			m_args.push_back(TypedValue(type, modifier != 0));
+			m_args.push_back(TypedValue(modifier != 0));
 			break;
 		case type_cstr:
-			m_args.push_back(TypedValue(type, read_cstr()));
+			m_args.push_back(TypedValue(read_cstr()));
 			break;
 		case type_double:
-			m_args.push_back(TypedValue(type, read_value<double>(modifier)));
+			m_args.push_back(TypedValue(read_value<double>(modifier)));
 			break;
 //			case type_error:
 		case type_float:
-			m_args.push_back(TypedValue(type, read_value<float>(modifier)));
+			m_args.push_back(TypedValue(read_value<float>(modifier)));
 			break;
 		// pointer types
 		case type_uint8_ptr:
-			m_args.push_back(TypedValue(type, read_ptr<uint8_t>(modifier)));
+			m_args.push_back(TypedValue(read_ptr<uint8_t>(modifier)));
 			break;
 		case type_uint16_ptr:
-			m_args.push_back(TypedValue(type, read_ptr<uint16_t>(modifier)));
+			m_args.push_back(TypedValue(read_ptr<uint16_t>(modifier)));
 			break;
 		case type_uint32_ptr:
-			m_args.push_back(TypedValue(type, read_ptr<uint32_t>(modifier)));
+			m_args.push_back(TypedValue(read_ptr<uint32_t>(modifier)));
 			break;
 		case type_uint64_ptr:
-			m_args.push_back(TypedValue(type, read_ptr<uint64_t>(modifier)));
+			m_args.push_back(TypedValue(read_ptr<uint64_t>(modifier)));
 			break;
 		case type_int8_ptr:
-			m_args.push_back(TypedValue(type, read_ptr<int8_t>(modifier)));
+			m_args.push_back(TypedValue(read_ptr<int8_t>(modifier)));
 			break;
 		case type_int16_ptr:
-			m_args.push_back(TypedValue(type, read_ptr<int16_t>(modifier)));
+			m_args.push_back(TypedValue(read_ptr<int16_t>(modifier)));
 			break;
 		case type_int32_ptr:
-			m_args.push_back(TypedValue(type, read_ptr<int32_t>(modifier)));
+			m_args.push_back(TypedValue(read_ptr<int32_t>(modifier)));
 			break;
 		case type_int64_ptr:
-			m_args.push_back(TypedValue(type, read_ptr<int64_t>(modifier)));
+			m_args.push_back(TypedValue(read_ptr<int64_t>(modifier)));
 			break;
 //			case type_void:
 //			case type_any:
 		case type_bool_ptr:
-			m_args.push_back(TypedValue(type, read_ptr<bool>(modifier)));
+			m_args.push_back(TypedValue(read_ptr<bool>(modifier)));
 			break;
 		//case type_cstr_ptr:
 		case type_double_ptr:
-			m_args.push_back(TypedValue(type, read_ptr<double>(modifier)));
+			m_args.push_back(TypedValue(read_ptr<double>(modifier)));
 			break;
 //			case type_error:
 		case type_float_ptr:
-			m_args.push_back(TypedValue(type, read_ptr<float>(modifier)));
+			m_args.push_back(TypedValue(read_ptr<float>(modifier)));
 			break;		
 		default:
 			throw error(ErrorCode::ERR_PARAM_TYPE_INVALID, 

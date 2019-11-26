@@ -16,6 +16,11 @@
 namespace remo {
 //------------------------------------------------------------------------------	
 
+
+//------------------------------------------------------------------------------
+// class definition
+//------------------------------------------------------------------------------
+//
 class function: public Item {
 public:
 	function(const std::string& a_name, TypeId a_result_type, const TypeList& a_param_types);
@@ -33,10 +38,13 @@ protected:
 	TypeList m_param_types;
 };
 
-//------------------------------------------------------------------------------	
-
+//------------------------------------------------------------------------------
+// class definition
+//------------------------------------------------------------------------------
+//
 template <typename Ret, typename...Arg>
-class bound_function: public function {
+class bound_function: public function
+{
 public:
 	bound_function(const std::string& a_name, Ret (*a_func)(Arg...)):
 		function(a_name, TypeInfo<Ret>::id(), { TypeInfo<Arg>::id()... }),
@@ -47,15 +55,17 @@ public:
 	virtual TypedValue call(ArgList args) override
 	{
 		check_args(args);
-		return TypedValue(TypeInfo<Ret>::id(), dynamic_call(m_func, args));
+		return TypedValue(dynamic_call<decltype(m_func), Ret, Arg...>(m_func, args));
 	}
 
 private:
 	Ret (*m_func)(Arg...);
 };
 
-//------------------------------------------------------------------------------	
-
+//------------------------------------------------------------------------------
+// class definition
+//------------------------------------------------------------------------------
+//
 template<typename Lambda>
 class lambda_function: public function
 {
@@ -84,7 +94,7 @@ private:
 	template<typename Class, typename Ret, typename... Args>
 	TypedValue call(ArgList args, Ret (Class::*)(Args...) const)
 	{
-		return TypedValue(TypeInfo<Ret>::id(), dynamic_call<Lambda, Ret, Args...>(m_lambda, args));
+		return TypedValue(dynamic_call<Lambda, Ret, Args...>(m_lambda, args));
 	}
 
 private:

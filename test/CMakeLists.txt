@@ -1,7 +1,6 @@
 add_executable(
     unit_tests
     integration.test.cpp
-    serialization.test.cpp
 )
 
 target_link_libraries(

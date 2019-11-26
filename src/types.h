@@ -13,7 +13,7 @@
 #include <stddef.h> // size_t
 
 #include <vector>
-#include <any>
+
 
 //------------------------------------------------------------------------------
 namespace remo {
@@ -213,13 +213,26 @@ struct TypeInfo<const char*> {
 // NOTE: the "0," avoids the "ISO C++ forbids zero-size array" pendantic warning
 #define REMO_FOREACH_ARG(args, what) { int dummy[] = { 0,(what(args),0)... }; (void)dummy; }
 
-typedef std::any any;
 
 struct TypedValue {
-	TypedValue(TypeId a_type, const any& a_value):
-		type(a_type), value(a_value) {}
-	TypeId type;
-	any value;
+	template<typename T>
+	TypedValue(const T& value) {
+		m_type = TypeInfo<T>::id();
+		*reinterpret_cast<T*>(&m_value) = value;
+	}
+
+	template<typename T>
+	T get() const {
+		return reinterpret_cast<const T&>(m_value);
+	}
+
+	TypeId type() const {
+		return m_type;
+	}
+
+private:
+	TypeId m_type;
+	uint64_t m_value;
 };
 
 typedef std::vector<TypedValue> ArgList;

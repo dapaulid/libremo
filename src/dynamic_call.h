@@ -9,113 +9,52 @@
 //------------------------------------------------------------------------------
 #pragma once
 
-/*
-	Based on https://stackoverflow.com/questions/26575303/create-function-call-dynamically-in-c
-*/
-
 #include "types.h"
-#include "error.h"
 
-#include <iostream>
-#include <any>
-#include <functional>
 
 //------------------------------------------------------------------------------
 namespace remo {
 //------------------------------------------------------------------------------	
 
 
-static_assert(__cplusplus >= 201703L, "The following code requires -std=c++17 to compile");
-
 //------------------------------------------------------------------------------
-// helper functions
+// struct definition
 //------------------------------------------------------------------------------	
 //
-template <typename T>
-auto fetch_back(T& t) -> typename std::remove_reference<decltype(t.back().value)>::type
+struct ArgListIterator
 {
-    typename std::remove_reference<decltype(t.back().value)>::type ret = t.back().value;
-    t.pop_back();
-    return ret;
-}
-
-//------------------------------------------------------------------------------	
-//
-template <typename X>
-struct any_ref_cast
-{
-    X do_cast(std::any y)
-    {
-        return std::any_cast<X>(y);
+    ArgListIterator(const ArgList& a_arglist):
+        m_arglist(a_arglist), m_index(a_arglist.size()) {}
+    
+    const TypedValue& next() {
+        return m_arglist[--m_index];
     }
-};
-
-//------------------------------------------------------------------------------	
-//
-template <typename X>
-struct any_ref_cast<X&>
-{
-    X& do_cast(std::any y)
-    {
-        std::reference_wrapper<X> ref = std::any_cast<std::reference_wrapper<X>>(y);
-        return ref.get();
-    }
-};
-
-//------------------------------------------------------------------------------	
-//
-template <typename X>
-struct any_ref_cast<const X&>
-{
-    const X& do_cast(std::any y)
-    {
-        std::reference_wrapper<const X> ref = std::any_cast<std::reference_wrapper<const X>>(y);
-        return ref.get();
-    }
+private:
+    const ArgList& m_arglist;
+    size_t m_index;
 };
 
 //------------------------------------------------------------------------------
 // functions
 //------------------------------------------------------------------------------	
 //
-/*
-    call free function with dynamic arguments.
-
-    IMPORTANT: caller is responsible to check argument types, otherwise 
-    this function will throw cryptic exceptions or even core dump.
-*/
-template <typename Ret, typename...Arg>
-Ret dynamic_call (Ret (*func)(Arg...), ArgList args)
-{
-    return func(any_ref_cast<Arg>().do_cast(fetch_back(args))...);
-}
 
 //------------------------------------------------------------------------------	
 //
 /*
-    call member function with dynamic arguments.
+    call function with dynamic arguments.
 
     IMPORTANT: caller is responsible to check argument types, otherwise 
     this function will throw cryptic exceptions or even core dump.
-*/
-template <typename Class, typename Ret, typename...Arg>
-Ret dynamic_call (Ret (Class::*func)(Arg...), Class* obj, ArgList args)
-{
-    return (obj->*func)(any_ref_cast<Arg>().do_cast(fetch_back(args))...);
-}
 
-//------------------------------------------------------------------------------	
-//
-/*
-    call lambda function with dynamic arguments.
-
-    IMPORTANT: caller is responsible to check argument types, otherwise 
-    this function will throw cryptic exceptions or even core dump.
+    Inspired by https://stackoverflow.com/questions/26575303/create-function-call-dynamically-in-c
 */
-template <typename Lambda, typename Ret, typename...Arg>
-Ret dynamic_call (Lambda& a_lambda, ArgList args)
+template <typename Func, typename Ret, typename...Arg>
+Ret dynamic_call (Func& a_func, const ArgList& args)
 {
-    return a_lambda(any_ref_cast<Arg>().do_cast(fetch_back(args))...);
+    // do the magic...
+    ArgListIterator it(args);
+    return a_func(it.next().get<Arg>()...);
 }
 
 //------------------------------------------------------------------------------

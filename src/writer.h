@@ -53,7 +53,7 @@ public:
 		write_value(a_result);
 		// write output parameters
 		for (TypedValue& arg : a_args) {
-			if (is_ptr_type(arg.type)) {
+			if (is_ptr_type(arg.type())) {
 				write_value(arg);
 			}
 		}

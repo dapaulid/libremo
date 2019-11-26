@@ -64,10 +64,10 @@ void function::check_args(const ArgList& args)
     // check if argument and parameter types match
     // TODO allow cast here? For now we do an exact match
     for (size_t i = 0; i < m_param_types.size(); i++) {
-        if (args[i].type != m_param_types[i]) {
+        if (args[i].type() != m_param_types[i]) {
             throw error(ErrorCode::ERR_PARAM_TYPE_MISMATCH, 
                 "cannot convert '%s' to '%s' for argument %zu to remote function '%s'",
-                get_type_name(args[i].type), get_type_name(m_param_types[i]),
+                get_type_name(args[i].type()), get_type_name(m_param_types[i]),
                 i+1, to_string().c_str());
         }
     }

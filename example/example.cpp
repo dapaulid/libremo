@@ -18,39 +18,6 @@ double fritzli(uint32_t a1, int32_t* o1, double a2, double* o2) {
 }
 
 
-std::any bar(uint32_t* a) {
-    return a;
-}
-
-template<typename F, typename Ret, typename A, typename... Rest>
-A
-helper(Ret (F::*)(A, Rest...));
-
-template<typename F, typename Ret, typename A, typename... Rest>
-A
-helper(Ret (F::*)(A, Rest...) const);
-
-template<typename F, typename Ret, typename... Args>
-void foo(Ret (F::*)(Args...)) {
-
-}
-
-template<typename Lambda, typename Class, typename Ret, typename... Args>
-void foo(Lambda& l, Ret (Class::*)(Args...) const) {
-    l(1);
-}
-
-template<typename F>
-struct first_argument {
-    typedef decltype( helper(&F::operator()) ) type;
-};
-
-template<typename Lambda>
-void bar(Lambda& l) {
-    foo(l, &Lambda::operator());
-}
-
-
 int main(int, char**)
 {
     try {
