@@ -29,7 +29,7 @@ public:
 	Item(const std::string& a_name);
 	virtual ~Item();
 
-	virtual TypedValue call(ArgList args) = 0;
+	virtual TypedValue call(const ArgList& args) = 0;
 
 	virtual std::string to_string() const;
 

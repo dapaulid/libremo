@@ -45,14 +45,14 @@ public:
 		REMO_FOREACH_ARG(args, write_value);
 	}
 
-	void write_result(const TypedValue& a_result, ArgList& a_args)
+	void write_result(const TypedValue& a_result, const ArgList& a_args)
 	{
 		// write packet type
 		write(PacketType::packet_result);
 		// write function result
 		write_value(a_result);
 		// write output parameters
-		for (TypedValue& arg : a_args) {
+		for (const TypedValue& arg : a_args) {
 			if (is_ptr_type(arg.type())) {
 				write_value(arg);
 			}

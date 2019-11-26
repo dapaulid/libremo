@@ -103,8 +103,7 @@ void RemoteEndpoint::handle_call(Packet* a_packet)
     Packet* reply = take_packet();
     BinaryWriter reply_writer(*reply);
 
-    ArgList args = reader.get_args(); // TODO const? separate variable;
-    reply_writer.write_result(result, args);
+    reply_writer.write_result(result, reader.get_args());
 
     send_packet(reply);
     

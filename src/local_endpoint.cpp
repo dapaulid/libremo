@@ -131,7 +131,7 @@ Item* LocalEndpoint::find_item(const std::string& a_full_name)
 
 //------------------------------------------------------------------------------
 //
-TypedValue LocalEndpoint::call(const std::string& a_func_name, ArgList args)
+TypedValue LocalEndpoint::call(const std::string& a_func_name, const ArgList& args)
 {
     // get function item
     Item* item = find_item(a_func_name);

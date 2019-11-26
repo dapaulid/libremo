@@ -52,7 +52,7 @@ public:
 	{
 	}
 
-	virtual TypedValue call(ArgList args) override
+	virtual TypedValue call(const ArgList& args) override
 	{
 		check_args(args);
 		return TypedValue(dynamic_call<decltype(m_func), Ret, Arg...>(m_func, args));
@@ -75,7 +75,7 @@ public:
 	{
 	}
 
-	virtual TypedValue call(ArgList args) override
+	virtual TypedValue call(const ArgList& args) override
 	{
 		check_args(args);
 		return call(args, &Lambda::operator());
@@ -92,7 +92,7 @@ private:
 	}
 
 	template<typename Class, typename Ret, typename... Args>
-	TypedValue call(ArgList args, Ret (Class::*)(Args...) const)
+	TypedValue call(const ArgList& args, Ret (Class::*)(Args...) const)
 	{
 		return TypedValue(dynamic_call<Lambda, Ret, Args...>(m_lambda, args));
 	}

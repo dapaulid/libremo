@@ -56,7 +56,7 @@ protected:
 
 protected:
 	friend class RemoteEndpoint;
-	TypedValue call(const std::string& a_func_name, ArgList args);
+	TypedValue call(const std::string& a_func_name, const ArgList& args);
 
 private:
 	//! container for looking up items by full name
