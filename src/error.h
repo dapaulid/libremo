@@ -36,6 +36,7 @@ enum ErrorCode {
 	ERR_ITEM_ALREADY_REGISTERED = 18,
 	ERR_ITEM_NOT_FOUND = 19,
 	ERR_RPC_NOT_FOUND = 20,
+	ERR_BAD_VALUE_ACCESS = 21,
 };
 
 class error: public std::runtime_error

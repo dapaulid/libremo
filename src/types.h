@@ -9,6 +9,8 @@
 //------------------------------------------------------------------------------
 #pragma once
 
+#include "error.h"
+
 #include <stdint.h>
 #include <stddef.h> // size_t
 
@@ -213,16 +215,31 @@ struct TypeInfo<const char*> {
 // NOTE: the "0," avoids the "ISO C++ forbids zero-size array" pendantic warning
 #define REMO_FOREACH_ARG(args, what) { int dummy[] = { 0,(what(args),0)... }; (void)dummy; }
 
-
-struct TypedValue {
+//------------------------------------------------------------------------------
+// struct definition
+//------------------------------------------------------------------------------
+//
+//! type-safe union type to hold any supported type, similar to std::variant
+struct TypedValue
+{
 	template<typename T>
 	TypedValue(const T& value) {
 		m_type = TypeInfo<T>::id();
-		*reinterpret_cast<T*>(&m_value) = value;
+		static_assert(sizeof(T) <= sizeof(m_value), 
+			"type too large for TypedValue");
+		reinterpret_cast<T&>(m_value) = value;
 	}
 
 	template<typename T>
 	T get() const {
+		// check type
+		TypeId expected = TypeInfo<T>::id();
+		if (expected != m_type) {
+			throw error(ErrorCode::ERR_BAD_VALUE_ACCESS, 
+				"bad typed value access: expected '%s', got '%s'",
+				get_type_name(expected), get_type_name(m_type));
+		}
+		// return value
 		return reinterpret_cast<const T&>(m_value);
 	}
 
@@ -231,7 +248,9 @@ struct TypedValue {
 	}
 
 private:
+	//! value type
 	TypeId m_type;
+	//! value storage. must be large enough to hold any supported value
 	uint64_t m_value;
 };
 
