@@ -24,22 +24,17 @@ namespace remo {
 template<typename... Args>
 TypedValue RemoteEndpoint::call(const std::string& a_function, Args... args)
 {
-    Packet* packet = take_packet();
+    packet_ptr packet = take_packet();
     BinaryWriter writer(*packet);
     writer.write_call(a_function, args...);
 
     send_packet(packet);
-    packet->recycle();
     //receive_packet(&packet);
 
-    Packet* reply = m_received_result;
+    packet_ptr reply = std::move(m_received_result);
 
     BinaryReader reader(*reply);
-    TypedValue result = reader.read_result(args...);
-
-    reply->recycle();
-
-    return result;
+    return reader.read_result(args...);
 }
 
 //------------------------------------------------------------------------------

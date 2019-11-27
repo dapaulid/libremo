@@ -36,14 +36,14 @@ public:
 	TypedValue call(const std::string& a_function, Args... args);
 
 protected:
-	Packet* take_packet();
+	packet_ptr take_packet();
 
-	void send_packet(Packet* a_packet);
-	void receive_packet(Packet* a_packet);
+	void send_packet(packet_ptr& a_packet);
+	void receive_packet(packet_ptr& a_packet);
 
-	void handle_packet(Packet* a_packet);
-	void handle_call(Packet* a_packet);
-	void handle_result(Packet* a_packet);
+	void handle_packet(packet_ptr& a_packet);
+	void handle_call(packet_ptr& a_packet);
+	void handle_result(packet_ptr& a_packet);
 
 private:
 	void alloc_packets();
@@ -54,7 +54,7 @@ private:
 	//! packet pool to avoid heap allocations
 	RecyclingPool<Packet> m_packet_pool;
 	//! TODO use some data structure
-	Packet* m_received_result = nullptr;
+	packet_ptr m_received_result {};
 
 };
 

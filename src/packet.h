@@ -14,6 +14,7 @@
 
 #include <stddef.h>
 #include <iostream>
+#include <memory>
 
 //------------------------------------------------------------------------------
 namespace remo {
@@ -73,6 +74,16 @@ private:
     char m_buffer [1024];
     size_t m_size;
 };
+
+//! custom deleter
+struct PacketRecycler {  
+    void operator()(Packet* a_packet) {
+        a_packet->recycle();
+    }
+};
+
+//! smart pointer to safely pass around packages and finally recylce them
+typedef std::unique_ptr<Packet, PacketRecycler> packet_ptr;
 
 //------------------------------------------------------------------------------
 

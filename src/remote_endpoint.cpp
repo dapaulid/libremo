@@ -52,7 +52,7 @@ RemoteEndpoint::~RemoteEndpoint()
 
 //------------------------------------------------------------------------------	
 //
-void RemoteEndpoint::send_packet(Packet* a_packet)
+void RemoteEndpoint::send_packet(packet_ptr& a_packet)
 {
     logger.info(">> %s", a_packet->to_string().c_str());
 
@@ -62,7 +62,7 @@ void RemoteEndpoint::send_packet(Packet* a_packet)
 
 //------------------------------------------------------------------------------	
 //
-void RemoteEndpoint::receive_packet(Packet* a_packet)
+void RemoteEndpoint::receive_packet(packet_ptr& a_packet)
 {
     logger.info("<< %s", a_packet->to_string().c_str());
     handle_packet(a_packet);
@@ -70,7 +70,7 @@ void RemoteEndpoint::receive_packet(Packet* a_packet)
 
 //------------------------------------------------------------------------------	
 //
-void RemoteEndpoint::handle_packet(Packet* a_packet)
+void RemoteEndpoint::handle_packet(packet_ptr& a_packet)
 {
     if (a_packet->get_size() == 0) {
         logger.warning("ignoring packet of size 0");
@@ -92,7 +92,7 @@ void RemoteEndpoint::handle_packet(Packet* a_packet)
 
 //------------------------------------------------------------------------------	
 //
-void RemoteEndpoint::handle_call(Packet* a_packet)
+void RemoteEndpoint::handle_call(packet_ptr& a_packet)
 {
     BinaryReader reader(*a_packet);
     reader.read_call();
@@ -100,7 +100,7 @@ void RemoteEndpoint::handle_call(Packet* a_packet)
     // call it
     TypedValue result = m_local->call(reader.get_function(), reader.get_args());
 
-    Packet* reply = take_packet();
+    packet_ptr reply = take_packet();
     BinaryWriter reply_writer(*reply);
 
     reply_writer.write_result(result, reader.get_args());
@@ -111,10 +111,10 @@ void RemoteEndpoint::handle_call(Packet* a_packet)
 
 //------------------------------------------------------------------------------	
 //
-void RemoteEndpoint::handle_result(Packet* a_packet)
+void RemoteEndpoint::handle_result(packet_ptr& a_packet)
 {
     // TODO use some data structure
-    m_received_result = a_packet;
+    m_received_result = std::move(a_packet);
 }
 
 //------------------------------------------------------------------------------	
@@ -129,9 +129,9 @@ void RemoteEndpoint::alloc_packets()
 
 //------------------------------------------------------------------------------
 //
-Packet* RemoteEndpoint::take_packet()
+packet_ptr RemoteEndpoint::take_packet()
 {
-	Packet* packet = m_packet_pool.take();
+	packet_ptr packet(m_packet_pool.take());
 	if (!packet) {
 		throw error(ErrorCode::ERR_OUT_OF_PACKETS, 
 			"out of packets. maybe some transport plugin leaking?");
