@@ -68,6 +68,7 @@ public:
     std::string to_string(); //const;
     std::string to_hex() const;
 
+protected:
     void recycle() override;
 
 private:
@@ -75,15 +76,9 @@ private:
     size_t m_size;
 };
 
-//! custom deleter
-struct PacketRecycler {  
-    void operator()(Packet* a_packet) {
-        a_packet->recycle();
-    }
-};
 
 //! smart pointer to safely pass around packages and finally recylce them
-typedef std::unique_ptr<Packet, PacketRecycler> packet_ptr;
+typedef std::unique_ptr<Packet, Packet::Recycler> packet_ptr;
 
 //------------------------------------------------------------------------------
 

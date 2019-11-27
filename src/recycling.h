@@ -79,6 +79,7 @@ public:
 		}
 	}
 
+protected:
 	virtual void recycle()
 	{
 		// pool assigned?
@@ -91,6 +92,13 @@ public:
 				"cannot recycle object, destroy it instead");
 		}
 	}
+
+public:
+	struct Recycler {  
+		void operator()(Recyclable<SubClass>* a_recyclable) {
+			a_recyclable->recycle();
+		}
+	};	
 
 private:
 	typedef RecyclingPool<SubClass> Pool; 
