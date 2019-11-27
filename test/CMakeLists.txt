@@ -1,6 +1,7 @@
 add_executable(
     unit_tests
     integration.test.cpp
+    failure.test.cpp
 )
 
 target_link_libraries(
