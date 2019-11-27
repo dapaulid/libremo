@@ -30,7 +30,7 @@ using NumericTypes = testing::Types<
     int8_t, int16_t, int32_t, int64_t,
     float, double, bool
 >;
-TYPED_TEST_CASE(Integration, NumericTypes);
+TYPED_TEST_SUITE(Integration, NumericTypes);
 
 //------------------------------------------------------------------------------
 //

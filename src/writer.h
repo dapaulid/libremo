@@ -68,7 +68,7 @@ public:
 		unsigned char* p = reinterpret_cast<unsigned char*>(&value);
 		
 		// determine number of leading non-zero bytes
-		size_t wire_size = 0;
+		uint8_t wire_size = 0;
 		LITTLE_ENDIAN_FOR(i, sizeof(value)) {
 			if (!value) {
 				break;

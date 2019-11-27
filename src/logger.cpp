@@ -95,15 +95,16 @@ std::string Logger::get_timestamp()
 
 	// get local time (in seconds precision)
     time_t tnow = std::chrono::system_clock::to_time_t(now);	
-    tm* local_time = std::localtime(&tnow);
-    auto now_secs = std::chrono::system_clock::from_time_t(std::mktime(local_time));
+    struct tm local_time{};
+	::localtime_s(&local_time, &tnow);
+    auto now_secs = std::chrono::system_clock::from_time_t(std::mktime(&local_time));
 
     // get millisecond difference
     auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(now - now_secs).count();
 
 	// format timestamp
     std::stringstream ss;
-    ss << std::put_time(local_time, "%H:%M:%S.") << std::setw(3) << std::setfill('0') << millis;
+    ss << std::put_time(&local_time, "%H:%M:%S.") << std::setw(3) << std::setfill('0') << millis;
     return ss.str();
 }
 

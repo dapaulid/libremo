@@ -9,12 +9,6 @@ namespace testing
 {
  namespace internal
  {
-  enum GTestColor {
-      COLOR_DEFAULT,
-      COLOR_RED,
-      COLOR_GREEN,
-      COLOR_YELLOW
-  };
 
   extern void ColoredPrintf(GTestColor color, const char* fmt, ...);
  }

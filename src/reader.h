@@ -116,7 +116,7 @@ public:
 			h &= 0xF;
 		} else {
 			// pointer type
-			o_modifier = get_type_size(static_cast<TypeId>(h & 0xF));
+			o_modifier = (uint8_t) get_type_size(static_cast<TypeId>(h & 0xF));
 		}
 		return static_cast<TypeId>(h);
 	}
@@ -157,8 +157,8 @@ public:
 		unsigned char* p = reinterpret_cast<unsigned char*>(a_dest);
 		// read actual bytes
 		for (size_t i = 0; i < a_arraylength; i++) {
-			LITTLE_ENDIAN_FOR(i, sizeof(*a_dest)) {
-				p[i] = read();
+			LITTLE_ENDIAN_FOR(j, sizeof(*a_dest)) {
+				p[j] = read();
 			} // end for
 		} // end for
 	}	
