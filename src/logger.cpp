@@ -9,6 +9,8 @@
 //------------------------------------------------------------------------------
 #include "logger.h"
 
+#include "system.h"
+
 #include <chrono>  // chrono::system_clock
 #include <ctime>   // localtime
 #include <sstream> // stringstream
@@ -96,7 +98,11 @@ std::string Logger::get_timestamp()
 	// get local time (in seconds precision)
     time_t tnow = std::chrono::system_clock::to_time_t(now);	
     struct tm local_time{};
-	::localtime_s(&local_time, &tnow);
+#ifdef REMO_SYS_WIN
+	localtime_s(&local_time, &tnow);
+#else
+	localtime_r(&tnow, &local_time);
+#endif
     auto now_secs = std::chrono::system_clock::from_time_t(std::mktime(&local_time));
 
     // get millisecond difference

@@ -10,6 +10,7 @@
 #pragma once
 
 #include "error.h"
+#include "system.h" // TODO to have it everywhere?
 
 #include <stdint.h>
 #include <stddef.h> // size_t
