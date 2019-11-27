@@ -11,10 +11,7 @@
 
 #include "system.h"
 
-#include <chrono>  // chrono::system_clock
-#include <ctime>   // localtime
 #include <sstream> // stringstream
-#include <iomanip> // put_time
 #include <iostream>
 
 
@@ -61,7 +58,7 @@ void Logger::log(LogLevel a_level, const char* a_format, va_list args)
 	vsnprintf(message, sizeof(message), a_format, args);
 
 	// output prefix and timestamp
-	std::cerr << library_prefix << "[" << get_timestamp() << "] ";
+	std::cerr << library_prefix << "[" << sys::get_timestamp() << "] ";
 
 	// output log level
 	switch (a_level) {
@@ -86,32 +83,6 @@ void Logger::log(LogLevel a_level, const char* a_format, va_list args)
 
 	// output logger name and message
 	std::cerr << "[" << m_name << "] " << message << std::endl;
-}
-
-//------------------------------------------------------------------------------	
-//
-std::string Logger::get_timestamp()
-{
-	// get current time
-    auto now = std::chrono::system_clock::now();
-
-	// get local time (in seconds precision)
-    time_t tnow = std::chrono::system_clock::to_time_t(now);	
-    struct tm local_time{};
-#ifdef REMO_SYS_WIN
-	localtime_s(&local_time, &tnow);
-#else
-	localtime_r(&tnow, &local_time);
-#endif
-    auto now_secs = std::chrono::system_clock::from_time_t(std::mktime(&local_time));
-
-    // get millisecond difference
-    auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(now - now_secs).count();
-
-	// format timestamp
-    std::stringstream ss;
-    ss << std::put_time(&local_time, "%H:%M:%S.") << std::setw(3) << std::setfill('0') << millis;
-    return ss.str();
 }
 
 //------------------------------------------------------------------------------	

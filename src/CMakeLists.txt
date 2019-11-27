@@ -15,6 +15,7 @@ target_sources(
         function.cpp
         error.cpp
         logger.cpp
+        system.cpp
     PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/remo.h
     )

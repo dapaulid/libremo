@@ -52,8 +52,6 @@ public:
 protected:
 	virtual void log(LogLevel a_level, const char* a_format, va_list args);
 
-	static std::string get_timestamp();
-
 private:
 	std::string m_name;
 
