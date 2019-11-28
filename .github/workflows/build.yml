@@ -1,4 +1,4 @@
-name: run
+name: build
 
 on: [push]
 
@@ -9,5 +9,7 @@ jobs:
     
     steps:
     - uses: actions/checkout@v1
-    - name: run
-      run: ./run.sh
+    - name: prebuild
+      run: ci/prebuild.sh
+    - name: build
+      run: ci/build.sh
