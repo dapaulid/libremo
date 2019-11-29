@@ -3,16 +3,17 @@ name: build
 on: [push]
 
 jobs:
-  build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
+  build-linux:
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
+    - name: prepare lcov
+      run: sudo apt install lcov=1.13-3
     - name: prebuild
       run: ci/prebuild.sh
-      shell: bash
     - name: build
       run: ci/build.sh
-      shell: bash
+    - name: test
+      run: ci/test.sh
+    - name: coverage
+      run: ci/coverage.sh
