@@ -17,3 +17,8 @@ jobs:
       run: ci/test.sh
     - name: coverage
       run: ci/coverage.sh
+    - name: Upload coverage to Codecov  
+      uses: codecov/codecov-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        file: build/Debug/coverage.info
