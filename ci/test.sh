@@ -8,5 +8,5 @@ echo -e "\e[1;36m                            U N I T   T E S T                  
 echo -e "\e[1;36m================================================================================\e[0m"
 cd $BUILDDIR
 rm -f coverage.info
-lcov --zerocounters --directory src
+lcov --zerocounters --directory src --directory test
 bin/unit_tests
