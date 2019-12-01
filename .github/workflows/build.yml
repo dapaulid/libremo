@@ -22,3 +22,13 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         file: build/Debug/coverage.info
+  build-windows:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: prebuild
+      run: ci\prebuild.cmd
+    - name: build
+      run: ci\build.cmd
+    - name: test
+      run: ci\test.cmd
