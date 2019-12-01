@@ -21,6 +21,7 @@ namespace remo {
 
 
 Packet::Packet():
+    m_buffer(),
     m_size(0)
 {
 }
