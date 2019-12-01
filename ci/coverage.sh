@@ -9,9 +9,9 @@ echo -e "\e[1;36m                              C O V E R A G E                  
 echo -e "\e[1;36m================================================================================\e[0m"
 cd $BUILDDIR
 # capture coverage
-lcov --capture --directory src --directory test --output-file coverage.info --quiet $LCOV_ARGS
+lcov --capture --directory src --directory test --output-file coverage.info --quiet #$LCOV_ARGS
 # only keep info about files in src directory
 # necessary to correctly handle header files
-lcov --extract coverage.info '*/src/*' --output-file coverage.info --quiet $LCOV_ARGS
+lcov --extract coverage.info '*/src/*' --output-file coverage.info --quiet #$LCOV_ARGS
 # output summary
-lcov --list coverage.info $LCOV_ARGS
+lcov --list coverage.info #$LCOV_ARGS
