@@ -32,7 +32,7 @@ public:
 		return m_packet.get_byte(m_offset);
 	}
 
-	unsigned char read() {
+	unsigned char read_byte() {
 		return m_packet.get_byte(m_offset++);
 	}
 
@@ -63,7 +63,7 @@ public:
 	TypedValue read_result(Args... args)
 	{
 		// expect 'call' packet
-		if (read() != PacketType::packet_result) {
+		if (read_byte() != PacketType::packet_result) {
 			throw error(ErrorCode::ERR_BAD_PACKET, "not a 'result' packet");
 		}
 
@@ -109,7 +109,7 @@ public:
 	TypeId read_type(uint8_t& o_modifier)
 	{
 		// TODO use modifier constant
-		unsigned char h = read();
+		unsigned char h = read_byte();
 		o_modifier = (h >> 4) & 0xF;
 		if (o_modifier < 0xA) {
 			// wire size
@@ -133,7 +133,7 @@ public:
 		
 		// read actual bytes
 		LITTLE_ENDIAN_FOR(i, a_wire_size) {
-			p[i] = read();
+			p[i] = read_byte();
 		}
 
 		return value;
@@ -158,7 +158,7 @@ public:
 		// read actual bytes
 		for (size_t i = 0; i < a_arraylength; i++) {
 			LITTLE_ENDIAN_FOR(j, sizeof(*a_dest)) {
-				p[j] = read();
+				p[j] = read_byte();
 			} // end for
 		} // end for
 	}	
@@ -168,7 +168,7 @@ public:
 	{
 		const char* str = m_packet.get_ptr<const char>(m_offset);
 		// forward until NUL byte
-		while (read()) {};
+		while (read_byte()) {};
 		return str;
 	}
 

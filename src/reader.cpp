@@ -49,7 +49,7 @@ void BinaryReader::read_call()
 	uint8_t modifier = 0;
 
 	// expect 'call' packet
-	if (read() != PacketType::packet_call) {
+	if (read_byte() != PacketType::packet_call) {
 		throw error(ErrorCode::ERR_BAD_PACKET, "not a 'call' packet");
 	}
 
@@ -147,7 +147,7 @@ std::string BinaryReader::to_string()
 {
 	if (m_packet.get_size() > 0) {
 		// check packet type
-		switch (read()) {
+		switch (read_byte()) {
 		case PacketType::packet_call:
 			// call
 			return "call: " + format_call();
