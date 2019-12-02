@@ -24,7 +24,8 @@ enum LogLevel
 	eLogError    = 1,
 	eLogWarning  = 2,
 	eLogInfo     = 3,
-	eLogVerbose  = 4
+	eLogVerbose  = 4,
+	eLogAll      = 9999
 };
 
 //------------------------------------------------------------------------------
@@ -40,6 +41,7 @@ public:
 	void warning(const char* a_format, ...);
 	void info(const char* a_format, ...);
 	void verbose(const char* a_format, ...);
+	void custom(int a_level, const char* a_format, ...);
 
 	static LogLevel get_global_level() {
 		return s_global_level;

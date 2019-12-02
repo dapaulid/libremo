@@ -2,6 +2,7 @@ add_executable(
     unit_tests
     integration.test.cpp
     failure.test.cpp
+    l0_system/logger.test.cpp
 )
 
 target_link_libraries(

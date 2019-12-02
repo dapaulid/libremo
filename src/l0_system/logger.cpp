@@ -48,7 +48,7 @@ Logger::~Logger()
 void Logger::log(LogLevel a_level, const char* a_format, va_list args)
 {
 	// given level above global level?
-	if (a_level > s_global_level) {
+	if ((a_level > s_global_level) && (s_global_level != eLogAll)) {
 		// yes -> filter it
 		return;
 	}
@@ -134,6 +134,17 @@ void Logger::verbose(const char* a_format, ...)
 	log(eLogVerbose, a_format, args);
 	va_end (args);
 }
+
+//------------------------------------------------------------------------------	
+//
+void Logger::custom(int a_level, const char* a_format, ...)
+{
+	va_list args;
+	va_start(args, a_format);
+	log(LogLevel(a_level), a_format, args);
+	va_end (args);
+}
+
 
 //------------------------------------------------------------------------------
 } // end namespace remo
