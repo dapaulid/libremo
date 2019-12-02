@@ -9,7 +9,7 @@
 //------------------------------------------------------------------------------
 #include "function.h"
 
-#include "error.h"
+#include "../l0_system/error.h"
 
 #include <sstream>
 

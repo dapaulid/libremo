@@ -8,7 +8,6 @@
  */
 //------------------------------------------------------------------------------
 #include "packet.h"
-#include "error.h"
 #include "reader.h"
 
 #include <iostream>
