@@ -9,8 +9,8 @@
 //------------------------------------------------------------------------------
 #include "remote_endpoint.h"
 
-#include "reader.h"
-#include "writer.h"
+#include "../l1_transport/reader.h"
+#include "../l1_transport/writer.h"
 
 
 //------------------------------------------------------------------------------

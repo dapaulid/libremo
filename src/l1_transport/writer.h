@@ -9,8 +9,8 @@
 //------------------------------------------------------------------------------
 #pragma once
 
-#include "types.h"
 #include "packet.h"
+#include "../l0_system/types.h"
 
 #include <stdlib.h>
 #include <iostream> // debugging

@@ -1,8 +1,7 @@
 #include "test.h"
 
-#include "local_endpoint.h"
-#include "remote_endpoint.h"
-#include "types.h" // TypedValue
+#include "remo.h"
+
 
 //------------------------------------------------------------------------------
 //

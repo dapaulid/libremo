@@ -9,59 +9,54 @@
 //------------------------------------------------------------------------------
 #pragma once
 
-#include "endpoint.h"
-#include "packet.h"
+#include "../l0_system/types.h"
+
 
 //------------------------------------------------------------------------------
 namespace remo {
 //------------------------------------------------------------------------------	
 
-//------------------------------------------------------------------------------
-// forward declarations
-//------------------------------------------------------------------------------	
-//
-class LocalEndpoint;
-
 
 //------------------------------------------------------------------------------
-// class definition
+// struct definition
 //------------------------------------------------------------------------------	
 //
-class RemoteEndpoint: public Endpoint {
-public:
-	RemoteEndpoint(LocalEndpoint* a_local);
-	virtual ~RemoteEndpoint();
-
-	template<typename... Args>
-	TypedValue call(const std::string& a_function, Args... args);
-
-protected:
-	packet_ptr take_packet();
-
-	void send_packet(packet_ptr& a_packet);
-	void receive_packet(packet_ptr& a_packet);
-
-	void handle_packet(packet_ptr& a_packet);
-	void handle_call(packet_ptr& a_packet);
-	void handle_result(packet_ptr& a_packet);
-
+struct ArgListIterator
+{
+    ArgListIterator(const ArgList& a_arglist):
+        m_arglist(a_arglist), m_index(a_arglist.size()) {}
+    
+    const TypedValue& next() {
+        return m_arglist[--m_index];
+    }
 private:
-	void alloc_packets();
-
-private:
-	//! the local endpoint that this endpoint represents to the outside
-	LocalEndpoint* m_local;
-	//! packet pool to avoid heap allocations
-	RecyclingPool<Packet> m_packet_pool;
-	//! TODO use some data structure
-	packet_ptr m_received_result {};
-
+    const ArgList& m_arglist;
+    size_t m_index;
 };
 
+//------------------------------------------------------------------------------
+// functions
+//------------------------------------------------------------------------------	
+//
+
+//------------------------------------------------------------------------------	
+//
+/*
+    call function with dynamic arguments.
+
+    IMPORTANT: caller is responsible to check argument types, otherwise 
+    this function will throw cryptic exceptions or even core dump.
+
+    Inspired by https://stackoverflow.com/questions/26575303/create-function-call-dynamically-in-c
+*/
+template <typename Func, typename Ret, typename...Arg>
+Ret dynamic_call (Func& a_func, const ArgList& args)
+{
+    // do the magic...
+    ArgListIterator it(args);
+    return a_func(it.next().get<Arg>()...);
+}
 
 //------------------------------------------------------------------------------
 } // end namespace remo
 //------------------------------------------------------------------------------
-
-// template implementation
-#include "remote_endpoint.tpp.h"

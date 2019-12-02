@@ -3,19 +3,18 @@ add_library(remo "")
 target_sources(
     remo
     PRIVATE
-        remo.cpp
-        endpoint.cpp
-        local_endpoint.cpp
-        remote_endpoint.cpp
-        types.cpp
-        packet.cpp
-        reader.cpp
-        writer.cpp
-        item.cpp
-        function.cpp
-        error.cpp
-        logger.cpp
-        system.cpp
+        l3_rpc/endpoint.cpp
+        l3_rpc/local_endpoint.cpp
+        l3_rpc/remote_endpoint.cpp
+        l3_rpc/item.cpp
+        l3_rpc/function.cpp
+        l1_transport/packet.cpp
+        l1_transport/reader.cpp
+        l1_transport/writer.cpp
+        l0_system/error.cpp
+        l0_system/logger.cpp
+        l0_system/system.cpp
+        l0_system/types.cpp        
     PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/remo.h
     )

@@ -1,6 +1,4 @@
 #include "remo.h"
-#include "local_endpoint.h"
-#include "remote_endpoint.h"
 
 #include <stdint.h>
 #include <iostream>

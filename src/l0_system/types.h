@@ -9,8 +9,8 @@
 //------------------------------------------------------------------------------
 #pragma once
 
-#include "error.h"
-#include "system.h" // TODO to have it everywhere?
+#include "../l0_system/error.h"
+#include "../l0_system/system.h" // TODO to have it everywhere?
 
 #include <stdint.h>
 #include <stddef.h> // size_t

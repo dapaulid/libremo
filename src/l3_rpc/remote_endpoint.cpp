@@ -9,10 +9,11 @@
 //------------------------------------------------------------------------------
 #include "remote_endpoint.h"
 
-#include "reader.h"
-#include "writer.h"
-#include "logger.h"
 #include "local_endpoint.h"
+#include "../l1_transport/reader.h"
+#include "../l1_transport/writer.h"
+#include "../l0_system/logger.h"
+
 
 //------------------------------------------------------------------------------
 namespace remo {
