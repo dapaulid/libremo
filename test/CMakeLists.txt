@@ -3,6 +3,7 @@ add_executable(
     integration.test.cpp
     failure.test.cpp
     l0_system/logger.test.cpp
+    l0_system/socket.test.cpp
 )
 
 target_link_libraries(

@@ -37,6 +37,9 @@ enum ErrorCode {
 	ERR_ITEM_NOT_FOUND = 19,
 	ERR_RPC_NOT_FOUND = 20,
 	ERR_BAD_VALUE_ACCESS = 21,
+
+	ERR_GETADDRINFO_FAILED = 22,
+	ERR_GETNAMEINFO_FAILED = 23
 };
 
 class error: public std::runtime_error
