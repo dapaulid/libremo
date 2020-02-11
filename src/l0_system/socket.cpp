@@ -209,8 +209,8 @@ void Socket::connect(const SockAddr& a_addr)
 //
 void Socket::bind(const SockAddr& a_addr)
 {
-	REMO_VERB("binding socket #%d to %s (%d, %d)",
-		m_sockfd, a_addr.to_string().c_str(), a_addr.get_port(), a_addr.m_addrlen);
+	REMO_VERB("binding socket #%d to %s",
+		m_sockfd, a_addr.to_string().c_str());
 
 	// bind it
 	int err = ::bind(m_sockfd, (const sockaddr*)&a_addr.m_addr, 
