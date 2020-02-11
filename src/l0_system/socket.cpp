@@ -29,7 +29,6 @@
 	#pragma comment(lib, "Ws2_32.lib")
 
 	#define poll WSAPoll
-	#define close closesocket
 #else
 	// UNIX / Linux
 	#include <sys/types.h>
@@ -39,6 +38,8 @@
 	#include <netdb.h> // getaddrinfo
 	#include <unistd.h> // close
 	#include <errno.h>
+
+	#define closesocket close
 #endif
 
 
@@ -182,7 +183,7 @@ void Socket::close()
 		return;
 	}
 	int sockfd = m_sockfd;
-	int err = ::close(m_sockfd);
+	int err = ::closesocket(m_sockfd);
 	m_sockfd = INVALID_SOCKFD;
 	if (err) {
 		err = get_last_error();
