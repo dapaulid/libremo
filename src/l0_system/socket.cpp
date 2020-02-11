@@ -161,7 +161,7 @@ void Socket::open(SockProto a_proto, AddrFamily a_family)
 	close();
 
 	// create socket descriptor
-	m_sockfd = ::socket(af, type, proto);
+	m_sockfd = (int)::socket(af, type, proto);
 	if (m_sockfd < 0) {
 		m_sockfd = INVALID_SOCKFD;
 		int err = get_last_error();
@@ -271,7 +271,7 @@ Socket Socket::accept()
 	// we do not need the address of the peer socket, as can be fetched by
 	// getpeername() afterwards, see 
 	// https://stackoverflow.com/questions/22904179/difference-in-address-returned-by-getpeername-and-accept-c-socket
-	int sockfd = ::accept(m_sockfd, nullptr, nullptr);
+	int sockfd = (int)::accept(m_sockfd, nullptr, nullptr);
 	if (sockfd < 0) {
 		int err = get_last_error();
 		throw error(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
@@ -292,7 +292,7 @@ Socket Socket::accept()
 //
 size_t Socket::send(const void* a_buffer, size_t a_bufsize)
 {
-	int bytes_sent = ::send(m_sockfd, (const char*)a_buffer, a_bufsize, 0);
+	int bytes_sent = ::send(m_sockfd, (const char*)a_buffer, (int)a_bufsize, 0);
 	if (bytes_sent < 0) {
 		int err = get_last_error();
 		throw error(ErrorCode::ERR_SOCKET_SEND_FAILED, 
@@ -311,7 +311,7 @@ size_t Socket::send(const void* a_buffer, size_t a_bufsize)
 //
 size_t Socket::receive(void* a_buffer, size_t a_bufsize)
 {
-	int bytes_received = ::recv(m_sockfd, (char*)a_buffer, a_bufsize, 0);
+	int bytes_received = ::recv(m_sockfd, (char*)a_buffer, (int)a_bufsize, 0);
 	if (bytes_received < 0) {
 		int err = get_last_error();
 		throw error(ErrorCode::ERR_SOCKET_SEND_FAILED, 
@@ -330,8 +330,8 @@ size_t Socket::receive(void* a_buffer, size_t a_bufsize)
 void Socket::shutdown()
 {
 	int err = ::shutdown(m_sockfd, SHUT_RDWR);
-	if (err < 0) {
-		int err = get_last_error();
+	if (err) {
+		err = get_last_error();
 		throw error(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
 			"Syscall shutdown() failed with error %d: %s", 
 			err, get_error_message(err).c_str());		
