@@ -66,7 +66,7 @@ TEST(SockAddr, Invalid)
 
 //------------------------------------------------------------------------------
 //
-TEST(Socket, SendReceive)
+TEST(Socket, SendReceive_UDP)
 {
 	const char sendbuf [] = "Hello World!";
 	char recvbuf [32];
@@ -84,6 +84,31 @@ TEST(Socket, SendReceive)
 	EXPECT_EQ(bytes_received, bytes_sent);
 	EXPECT_TRUE(memcmp(recvbuf, sendbuf, sizeof(sendbuf)) == 0);
 }
+
+//------------------------------------------------------------------------------
+//
+TEST(Socket, SendReceive_TCP)
+{
+	const char sendbuf [] = "Hello World!";
+	char recvbuf [32];
+
+    Socket s1(SockProto::TCP);
+	Socket s2(SockProto::TCP);
+
+	s2.bind(SockAddr::localhost);
+	s2.listen();
+
+	s1.connect(s2.get_socket_addr());
+	Socket s3 = s2.accept();
+	
+	size_t bytes_sent = s1.send(sendbuf, sizeof(sendbuf));
+	EXPECT_EQ(bytes_sent, sizeof(sendbuf));
+
+	size_t bytes_received = s3.receive(recvbuf, sizeof(recvbuf));
+	EXPECT_EQ(bytes_received, bytes_sent);
+	EXPECT_TRUE(memcmp(recvbuf, sendbuf, sizeof(sendbuf)) == 0);
+}
+
 
 //------------------------------------------------------------------------------
 //
@@ -117,7 +142,7 @@ TEST(SocketSet, Poll)
 	// no socket should be ready first
 	s1_ready = s2_ready = false;
 	size_t num_ready = ss.poll(NO_WAIT);
-	EXPECT_EQ(num_ready, (size_t)0);
+	EXPECT_EQ(num_ready, 0);
 	EXPECT_FALSE(s1_ready);
 	EXPECT_FALSE(s2_ready);
 
@@ -129,14 +154,55 @@ TEST(SocketSet, Poll)
 	// s2 should be ready now
 	s1_ready = s2_ready = false;
 	num_ready = ss.poll(NO_WAIT);
-	EXPECT_EQ(num_ready, (size_t)1);
+	EXPECT_EQ(num_ready, 1);
 	EXPECT_FALSE(s1_ready);
 	EXPECT_TRUE(s2_ready);
 
 	// s2 should still be ready
 	s1_ready = s2_ready = false;
 	num_ready = ss.poll(NO_WAIT);
-	EXPECT_EQ(num_ready, (size_t)1);
+	EXPECT_EQ(num_ready, 1);
 	EXPECT_FALSE(s1_ready);
 	EXPECT_TRUE(s2_ready);
+}
+
+//------------------------------------------------------------------------------
+//
+TEST(SocketSet, PollShutdown)
+{
+    Socket s1(SockProto::TCP);
+	Socket s2(SockProto::TCP);
+
+	s2.bind(SockAddr::localhost);
+	s2.listen();
+
+	s1.connect(s2.get_socket_addr());
+	Socket s3 = s2.accept();
+
+	SocketSet ss;
+	ss.add(&s1);
+	ss.add(&s2);
+	ss.add(&s3);
+
+	// no socket should be ready first
+	size_t num_ready = ss.poll(NO_WAIT);
+	EXPECT_EQ(num_ready, 0);
+
+	// shutdown s1
+	s1.shutdown();
+
+	// sockets s1 and s3 should be ready
+	num_ready = ss.poll(NO_WAIT);
+	EXPECT_EQ(num_ready, 2);
+	
+	// s3 and s1 should "receive" 0 bytes -> orderly shutdown by peer
+	char recvbuf [32];
+	size_t bytes_received = s3.receive(recvbuf, sizeof(recvbuf));
+	EXPECT_EQ(bytes_received, 0);
+	bytes_received = s1.receive(recvbuf, sizeof(recvbuf));
+	EXPECT_EQ(bytes_received, 0);
+
+	// sockets s1 and s3 should still be ready (by observation)
+	num_ready = ss.poll(NO_WAIT);
+	EXPECT_EQ(num_ready, 2);
 }

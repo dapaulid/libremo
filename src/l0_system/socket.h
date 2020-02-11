@@ -71,6 +71,8 @@ public:
 	size_t send(const void* a_buffer, size_t a_bufsize);
 	size_t receive(void* a_buffer, size_t a_bufsize);
 
+	void shutdown();
+
 	void on_receive_ready(const ready_handler& a_handler);
 
 	SockAddr get_socket_addr() const;

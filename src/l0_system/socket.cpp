@@ -214,8 +214,9 @@ void Socket::connect(const SockAddr& a_addr)
 	}
 
 	// success
-	REMO_INFO("socket #%d connected to '%s'",
-		m_sockfd, get_remote_addr().to_string().c_str());
+	REMO_INFO("socket #%d connected: '%s' <-> '%s'",
+		m_sockfd, get_socket_addr().to_string().c_str(), 
+		get_remote_addr().to_string().c_str());
 }
 
 //------------------------------------------------------------------------------
@@ -255,7 +256,11 @@ void Socket::listen(int a_backlog)
 		throw error(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
 			"Syscall listen() failed with error %d: %s", 
 			err, get_error_message(err).c_str());		
-	}		
+	}
+
+	// success
+	REMO_INFO("socket #%d listening (backlog=%d)",
+		m_sockfd, a_backlog);
 }
 
 //------------------------------------------------------------------------------
@@ -271,8 +276,15 @@ Socket Socket::accept()
 		throw error(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
 			"Syscall accept() failed with error %d: %s", 
 			err, get_error_message(err).c_str());		
-	}		
-	return Socket(sockfd);
+	}
+
+	// create new socket
+	Socket socket(sockfd);
+
+	// success
+	REMO_INFO("socket #%d accepted connection from '%s' -> created socket #%d",
+		m_sockfd, socket.get_remote_addr().to_string().c_str(), socket.get_fd());
+	return socket;
 }
 
 //------------------------------------------------------------------------------
@@ -287,6 +299,10 @@ size_t Socket::send(const void* a_buffer, size_t a_bufsize)
 			get_remote_addr().to_string().c_str(), 
 			err, get_error_message(err).c_str());		
 	}		
+
+	// success
+	REMO_VERB("socket #%d sent %d bytes (bufsize=%zu)",
+		m_sockfd, bytes_sent, a_bufsize);
 	return bytes_sent;
 }
 
@@ -302,7 +318,23 @@ size_t Socket::receive(void* a_buffer, size_t a_bufsize)
 			get_remote_addr().to_string().c_str(), 
 			err, get_error_message(err).c_str());		
 	}		
+
+	REMO_VERB("socket #%d received %d bytes (bufsize=%zu)",
+		m_sockfd, bytes_received, a_bufsize);
 	return bytes_received;
+}
+
+//------------------------------------------------------------------------------
+//
+void Socket::shutdown()
+{
+	int err = ::shutdown(m_sockfd, SHUT_RDWR);
+	if (err < 0) {
+		int err = get_last_error();
+		throw error(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
+			"Syscall shutdown() failed with error %d: %s", 
+			err, get_error_message(err).c_str());		
+	}		
 }
 
 //------------------------------------------------------------------------------
