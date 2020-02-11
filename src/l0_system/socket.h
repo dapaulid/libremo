@@ -59,7 +59,7 @@ public:
 	typedef std::function<void(Socket*)> ready_handler;
 
 public:
-	Socket(SockProto a_proto, AddrFamily a_family);
+	Socket(SockProto a_proto, AddrFamily a_family = AddrFamily::Unspec);
 	virtual ~Socket();
 
 	void connect(const SockAddr& a_addr);
@@ -130,6 +130,10 @@ public:
 
 	AddrFamily get_family() const;
 	uint16_t get_port() const;
+
+public:
+	// some well-known addresses
+	static const SockAddr localhost;
 
 private:
 	friend Socket;

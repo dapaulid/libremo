@@ -71,10 +71,10 @@ TEST(Socket, SendReceive)
 	const char sendbuf [] = "Hello World!";
 	char recvbuf [32];
 
-    Socket s1(SockProto::UDP, AddrFamily::IPv4);
-	Socket s2(SockProto::UDP, AddrFamily::IPv4);
+    Socket s1(SockProto::UDP);
+	Socket s2(SockProto::UDP);
 
-	s2.bind(SockAddr("localhost"));
+	s2.bind(SockAddr::localhost);
 
 	s1.connect(s2.get_socket_addr());
 	size_t bytes_sent = s1.send(sendbuf, sizeof(sendbuf));
@@ -89,8 +89,8 @@ TEST(Socket, SendReceive)
 //
 TEST(SocketSet, Poll)
 {
-    Socket s1(SockProto::UDP, AddrFamily::IPv4);
-	Socket s2(SockProto::UDP, AddrFamily::IPv4);
+    Socket s1(SockProto::UDP);
+	Socket s2(SockProto::UDP);
 
 	SocketSet ss;
 	ss.add(&s1);
@@ -109,8 +109,8 @@ TEST(SocketSet, Poll)
 	});
 
 	// connect s1 <==> s2
-	s1.bind(SockAddr("localhost"));
-	s2.bind(SockAddr("localhost"));
+	s1.bind(SockAddr::localhost);
+	s2.bind(SockAddr::localhost);
 	s1.connect(s2.get_socket_addr());
 	s2.connect(s1.get_socket_addr());
 

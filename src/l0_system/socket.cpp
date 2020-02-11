@@ -110,19 +110,30 @@ Socket::~Socket()
 //
 void Socket::open(SockProto a_proto, AddrFamily a_family)
 {
+	// when family not specified, use family of resolved localhost address
+	// TODO not sure if this is the best way to go
+	if (a_family == AddrFamily::Unspec) {
+		a_family = SockAddr::localhost.get_family();
+	}
+
 	int af = 0;
 	int type = 0;
-	int protocol = 0;
+	int proto = 0;
+	const char* af_str = "?";
+	const char* proto_str = "?";
 
 	switch (a_family) {
 	case AddrFamily::Unspec:
 		af = AF_UNSPEC;
+		af_str = "unspec";
 		break;
 	case AddrFamily::IPv4:
 		af = AF_INET;
+		af_str = "IPv4";
 		break;
 	case AddrFamily::IPv6:
 		af = AF_INET6;
+		af_str = "IPv6";
 		break;
 	default:
 		throw error(ErrorCode::ERR_SOCKET_UNSUPPORTED_FAMILY, 
@@ -132,11 +143,13 @@ void Socket::open(SockProto a_proto, AddrFamily a_family)
 	switch (a_proto) {
 	case SockProto::UDP:
 		type = SOCK_DGRAM;
-		protocol = IPPROTO_UDP;
+		proto = IPPROTO_UDP;
+		proto_str = "UDP";
 		break;
 	case SockProto::TCP:
 		type = SOCK_STREAM;
-		protocol = IPPROTO_TCP;
+		proto = IPPROTO_TCP;
+		proto_str = "TCP";
 		break;
 	default:
 		throw error(ErrorCode::ERR_SOCKET_UNSUPPORTED_PROTOCOL, 
@@ -147,7 +160,7 @@ void Socket::open(SockProto a_proto, AddrFamily a_family)
 	close();
 
 	// create socket descriptor
-	m_sockfd = ::socket(af, type, protocol);
+	m_sockfd = ::socket(af, type, proto);
 	if (m_sockfd < 0) {
 		m_sockfd = INVALID_SOCKFD;
 		int err = get_last_error();
@@ -157,7 +170,7 @@ void Socket::open(SockProto a_proto, AddrFamily a_family)
 	}
 
 	// success
-	REMO_INFO("socket #%d opened", m_sockfd);
+	REMO_INFO("socket #%d opened (%s/%s)", m_sockfd, proto_str, af_str);
 }
 
 //------------------------------------------------------------------------------
@@ -186,7 +199,7 @@ void Socket::close()
 //
 void Socket::connect(const SockAddr& a_addr)
 {
-	REMO_VERB("connecting socket #%d to %s",
+	REMO_VERB("connecting socket #%d to '%s'",
 		m_sockfd, a_addr.to_string().c_str());
 
 	// connect it
@@ -201,7 +214,7 @@ void Socket::connect(const SockAddr& a_addr)
 	}
 
 	// success
-	REMO_INFO("socket #%d connected to %s",
+	REMO_INFO("socket #%d connected to '%s'",
 		m_sockfd, get_remote_addr().to_string().c_str());
 }
 
@@ -209,7 +222,7 @@ void Socket::connect(const SockAddr& a_addr)
 //
 void Socket::bind(const SockAddr& a_addr)
 {
-	REMO_VERB("binding socket #%d to %s",
+	REMO_VERB("binding socket #%d to '%s'",
 		m_sockfd, a_addr.to_string().c_str());
 
 	// bind it
@@ -224,7 +237,7 @@ void Socket::bind(const SockAddr& a_addr)
 	}
 
 	// success
-	REMO_INFO("socket #%d bound to %s",
+	REMO_INFO("socket #%d bound to '%s'",
 		m_sockfd, get_socket_addr().to_string().c_str());
 }
 
@@ -422,6 +435,10 @@ size_t SocketSet::count() const
 
 //------------------------------------------------------------------------------
 // class implementation
+//------------------------------------------------------------------------------
+//
+const SockAddr SockAddr::localhost("localhost");
+
 //------------------------------------------------------------------------------
 //
 SockAddr::SockAddr():
