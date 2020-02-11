@@ -10,13 +10,17 @@
 #pragma once
 
 #include <string>
+#include <functional>
 
 //------------------------------------------------------------------------------
 namespace remo {
 namespace sys {
 //------------------------------------------------------------------------------
 
-
+//------------------------------------------------------------------------------
+// types
+//------------------------------------------------------------------------------
+//
 enum class AddrFamily {
 	Unspec,
 	IPv4,
@@ -24,11 +28,101 @@ enum class AddrFamily {
 	Invalid
 };
 
+enum class SockProto {
+	UDP,
+	TCP
+};
+
+//------------------------------------------------------------------------------
+// forward declarations
+//------------------------------------------------------------------------------
+//
+static const int WAIT_FOREVER = -1;
+static const int NO_WAIT = 0;
+
+//------------------------------------------------------------------------------
+// forward declarations
+//------------------------------------------------------------------------------
+//
+class Socket;
+class SocketSet;
+struct SockAddr;
+
+//------------------------------------------------------------------------------
+// class definition
+//------------------------------------------------------------------------------
+//
+class Socket
+{
+public:
+	// callback type for ready events
+	typedef std::function<void(Socket*)> ready_handler;
+
+public:
+	Socket(SockProto a_proto, AddrFamily a_family);
+	virtual ~Socket();
+
+	void connect(const SockAddr& a_addr);
+
+	void bind(const SockAddr& a_addr);
+	void listen(int a_backlog = -1);
+	Socket accept();
+
+	size_t send(const void* a_buffer, size_t a_bufsize);
+	size_t receive(void* a_buffer, size_t a_bufsize);
+
+	void on_receive_ready(const ready_handler& a_handler);
+
+	SockAddr get_socket_addr() const;
+	SockAddr get_remote_addr() const;
+
+	int get_fd() const { return m_sockfd; }
+
+protected:
+	Socket(int a_sockfd);
+
+	void open(SockProto a_proto, AddrFamily a_family);
+	void close();
+
+private:
+	// socket descriptor
+	int m_sockfd;
+private:
+	friend SocketSet;
+	// ready event callbacks
+	ready_handler m_receive_ready;
+};
+
+//------------------------------------------------------------------------------
+// class definition
+//------------------------------------------------------------------------------
+//
+class SocketSet
+{
+public:
+	SocketSet();
+	~SocketSet();
+
+	void add(Socket* a_socket);
+	void remove(Socket* a_socket);
+
+	size_t poll(int a_timeout_ms = WAIT_FOREVER);
+
+	size_t count() const;
+
+private:
+	struct impl;
+	impl* pimpl;
+};
+
+//------------------------------------------------------------------------------
+// class definition
 //------------------------------------------------------------------------------
 //
 struct SockAddr
 {
 public:
+	SockAddr();
 	SockAddr(const std::string& a_str);
 
 	void from_string(const std::string& a_str);
@@ -38,7 +132,14 @@ public:
 	uint16_t get_port() const;
 
 private:
-	char m_storage [32];
+	friend Socket;
+	// opaque type corresponding to native sockaddr_storage
+	// use uint64_t to enforce 8 byte alignment
+	typedef uint64_t Storage [16];
+	Storage m_addr;
+	// actual number of bytes used in storage
+	typedef unsigned int socklen_t;
+	socklen_t m_addrlen;
 };
 
 //------------------------------------------------------------------------------
