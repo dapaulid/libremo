@@ -9,6 +9,8 @@
 //------------------------------------------------------------------------------
 #pragma once
 
+#include "system.h"
+
 #include <string>
 #include <functional>
 
@@ -57,6 +59,13 @@ class Socket
 public:
 	// callback type for ready events
 	typedef std::function<void(Socket*)> ready_handler;
+	
+	// shutdown flags
+	enum ShutdownFlag {
+		ShutRd   = 0,
+		ShutWr   = 1,
+		ShutRdWr = 2
+	};
 
 public:
 	Socket(SockProto a_proto, AddrFamily a_family = AddrFamily::Unspec);
@@ -71,7 +80,7 @@ public:
 	size_t send(const void* a_buffer, size_t a_bufsize);
 	size_t receive(void* a_buffer, size_t a_bufsize);
 
-	void shutdown();
+	void shutdown(ShutdownFlag how = ShutRdWr);
 
 	void on_receive_ready(const ready_handler& a_handler);
 
@@ -144,7 +153,11 @@ private:
 	typedef uint64_t Storage [16];
 	Storage m_addr;
 	// actual number of bytes used in storage
+#ifdef REMO_SYS_WIN
+	typedef int socklen_t;
+#else
 	typedef unsigned int socklen_t;
+#endif
 	socklen_t m_addrlen;
 };
 

@@ -327,9 +327,9 @@ size_t Socket::receive(void* a_buffer, size_t a_bufsize)
 
 //------------------------------------------------------------------------------
 //
-void Socket::shutdown()
+void Socket::shutdown(ShutdownFlag how)
 {
-	int err = ::shutdown(m_sockfd, SHUT_RDWR);
+	int err = ::shutdown(m_sockfd, (int)how);
 	if (err) {
 		err = get_last_error();
 		throw error(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
