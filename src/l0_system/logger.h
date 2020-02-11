@@ -17,6 +17,20 @@
 namespace remo {
 //------------------------------------------------------------------------------
 
+// use macro instead of function to avoid unnecessary parameter evaluation
+// NOTE: a_format is part of variadic parameter to avoid the error
+// "ISO C++11 requires at least one argument for the "..." in a variadic macro"
+#define REMO_LOG(a_level, /*a_format,*/ ...)                                   \
+	if (logger.level_enabled((remo::LogLevel)a_level)) {                       \
+		logger.log((remo::LogLevel)a_level, __VA_ARGS__);                      \
+	}
+
+#define REMO_FATAL(/*a_format,*/ ...) REMO_LOG(remo::LogLevel::eLogFatal, __VA_ARGS__)
+#define REMO_ERROR(/*a_format,*/ ...) REMO_LOG(remo::LogLevel::eLogError, __VA_ARGS__)
+#define REMO_WARN(/*a_format,*/ ...)  REMO_LOG(remo::LogLevel::eLogWarning, __VA_ARGS__)
+#define REMO_INFO(/*a_format,*/ ...)  REMO_LOG(remo::LogLevel::eLogInfo, __VA_ARGS__)
+#define REMO_VERB(/*a_format,*/ ...)  REMO_LOG(remo::LogLevel::eLogVerbose, __VA_ARGS__)
+
 enum LogLevel
 {
 	eLogNone     = -1,
@@ -36,12 +50,9 @@ public:
 	Logger(const std::string& a_name);
 	virtual ~Logger();
 
-	void fatal(const char* a_format, ...);
-	void error(const char* a_format, ...);
-	void warning(const char* a_format, ...);
-	void info(const char* a_format, ...);
-	void verbose(const char* a_format, ...);
-	void custom(int a_level, const char* a_format, ...);
+	void log(LogLevel a_level, const char* a_format, ...);
+	
+	bool level_enabled(LogLevel a_level);
 
 	static LogLevel get_global_level() {
 		return s_global_level;
@@ -50,9 +61,6 @@ public:
 	static void set_global_level(LogLevel a_level) {
 		s_global_level = a_level;
 	}
-
-protected:
-	virtual void log(LogLevel a_level, const char* a_format, va_list args);
 
 private:
 	std::string m_name;

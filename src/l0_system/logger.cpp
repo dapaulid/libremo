@@ -45,17 +45,26 @@ Logger::~Logger()
 
 //------------------------------------------------------------------------------	
 //
-void Logger::log(LogLevel a_level, const char* a_format, va_list args)
+bool Logger::level_enabled(LogLevel a_level)
 {
-	// given level above global level?
-	if ((a_level > s_global_level) && (s_global_level != eLogAll)) {
-		// yes -> filter it
+	return (a_level <= s_global_level) || (s_global_level == eLogAll);
+}
+
+//------------------------------------------------------------------------------	
+//
+void Logger::log(LogLevel a_level, const char* a_format, ...)
+{
+	// check log level
+	if (!level_enabled(a_level)) {
 		return;
 	}
 
 	// format message
 	char message [1024];
+	va_list args;
+	va_start(args, a_format);
 	vsnprintf(message, sizeof(message), a_format, args);
+	va_end (args);	
 
 	// output prefix and timestamp
 	std::cerr << library_prefix << "[" << sys::get_timestamp() << "] ";
@@ -83,66 +92,6 @@ void Logger::log(LogLevel a_level, const char* a_format, va_list args)
 
 	// output logger name and message
 	std::cerr << "[" << m_name << "] " << message << std::endl;
-}
-
-//------------------------------------------------------------------------------	
-//
-void Logger::fatal(const char* a_format, ...)
-{
-	va_list args;
-	va_start(args, a_format);
-	log(eLogFatal, a_format, args);
-	va_end (args);
-}
-
-//------------------------------------------------------------------------------	
-//
-void Logger::error(const char* a_format, ...)
-{
-	va_list args;
-	va_start(args, a_format);
-	log(eLogError, a_format, args);
-	va_end (args);
-}
-
-//------------------------------------------------------------------------------	
-//
-void Logger::warning(const char* a_format, ...)
-{
-	va_list args;
-	va_start(args, a_format);
-	log(eLogWarning, a_format, args);
-	va_end (args);
-}
-
-//------------------------------------------------------------------------------	
-//
-void Logger::info(const char* a_format, ...)
-{
-	va_list args;
-	va_start(args, a_format);
-	log(eLogInfo, a_format, args);
-	va_end (args);
-}
-
-//------------------------------------------------------------------------------	
-//
-void Logger::verbose(const char* a_format, ...)
-{
-	va_list args;
-	va_start(args, a_format);
-	log(eLogVerbose, a_format, args);
-	va_end (args);
-}
-
-//------------------------------------------------------------------------------	
-//
-void Logger::custom(int a_level, const char* a_format, ...)
-{
-	va_list args;
-	va_start(args, a_format);
-	log(LogLevel(a_level), a_format, args);
-	va_end (args);
 }
 
 

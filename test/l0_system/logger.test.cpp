@@ -8,11 +8,11 @@ TEST(Logger, example)
 {
     remo::Logger logger("LoggerTest");
 
-	logger.fatal("This is an example fatal message");
-	logger.error("This is an example error message");
-	logger.warning("This is an example warning message");
-	logger.info("This is an example info message");
-	logger.verbose("This is an example verbose message");
+	REMO_FATAL("This is an example fatal message");
+	REMO_ERROR("This is an example error message");
+	REMO_WARN("This is an example warning message");
+	REMO_INFO("This is an example info message");
+	REMO_VERB("This is an example verbose message");
 }
 
 //------------------------------------------------------------------------------
@@ -22,7 +22,7 @@ TEST(Logger, filter)
     remo::Logger logger("LoggerTest");
 
 	logger.set_global_level(remo::LogLevel::eLogWarning);
-	logger.info("This info message should not be logged");
+	REMO_INFO("This info message should not be logged");
 }
 
 //------------------------------------------------------------------------------
@@ -32,5 +32,5 @@ TEST(Logger, custom)
     remo::Logger logger("LoggerTest");
 
 	logger.set_global_level(remo::eLogAll);
-	logger.custom(99, "This is an example custom message");
+	REMO_LOG(99, "This is an example custom message");
 }

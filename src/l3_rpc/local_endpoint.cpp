@@ -81,7 +81,7 @@ void LocalEndpoint::register_item(Item* a_item)
     } // end if
 
 	// success
-	logger.info("Registered '%s'", a_item->to_string().c_str());
+	REMO_INFO("Registered '%s'", a_item->to_string().c_str());
 }
 
 //------------------------------------------------------------------------------	
@@ -107,7 +107,7 @@ void LocalEndpoint::unregister_item(Item* a_item)
     }
 
 	// success
-	logger.info("Unregistered '%s'", a_item->to_string().c_str());
+	REMO_INFO("Unregistered '%s'", a_item->to_string().c_str());
 }
 
 //------------------------------------------------------------------------------	

@@ -55,7 +55,7 @@ RemoteEndpoint::~RemoteEndpoint()
 //
 void RemoteEndpoint::send_packet(packet_ptr& a_packet)
 {
-    logger.info(">> %s", a_packet->to_string().c_str());
+    REMO_INFO(">> %s", a_packet->to_string().c_str());
 
     // "loopback"
     receive_packet(a_packet);
@@ -65,7 +65,7 @@ void RemoteEndpoint::send_packet(packet_ptr& a_packet)
 //
 void RemoteEndpoint::receive_packet(packet_ptr& a_packet)
 {
-    logger.info("<< %s", a_packet->to_string().c_str());
+    REMO_INFO("<< %s", a_packet->to_string().c_str());
     handle_packet(a_packet);
 }
 
@@ -74,7 +74,7 @@ void RemoteEndpoint::receive_packet(packet_ptr& a_packet)
 void RemoteEndpoint::handle_packet(packet_ptr& a_packet)
 {
     if (a_packet->get_size() == 0) {
-        logger.warning("ignoring packet of size 0");
+        REMO_WARN("ignoring packet of size 0");
         return;
     }
 
@@ -87,7 +87,7 @@ void RemoteEndpoint::handle_packet(packet_ptr& a_packet)
         handle_result(a_packet);
         break;
     default:
-        logger.warning("ignoring packet of unknown type 0x%02X", type);
+        REMO_WARN("ignoring packet of unknown type 0x%02X", type);
     }
 }
 
