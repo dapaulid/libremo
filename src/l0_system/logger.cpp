@@ -13,6 +13,24 @@
 
 #include <sstream> // stringstream
 #include <iostream>
+#include <unistd.h> // isatty
+
+
+//------------------------------------------------------------------------------
+// constants
+//------------------------------------------------------------------------------	
+//
+//! prefix for identifying our traces
+static const std::string library_prefix = "libremo: ";
+
+
+//------------------------------------------------------------------------------
+namespace remo {
+//------------------------------------------------------------------------------	
+
+//! initialize default log level
+LogLevel Logger::s_global_level = eLogVerbose;
+
 
 //------------------------------------------------------------------------------
 // helpers
@@ -47,31 +65,13 @@ namespace color {
 		underline      = 4
 	};
 
-	std::string colorize(const std::string& a_str, Color a_forecol, Color a_backcol = Color::none, Style a_style = Style::none)
-	{
-		if (a_forecol != Color::none || a_backcol != Color::none || a_style != Style::none) {
-			std::string colorized("\x1B[");
-			const char* sep = "";
-			if (a_forecol != Color::none) {
-				colorized += std::to_string((int)a_forecol);
-				sep = ";";
-			}
-			if (a_backcol != Color::none) {
-				colorized += sep + std::to_string((int)a_backcol + 10);
-				sep = ";";
-			}
-			if (a_style != Style::none) {
-				colorized += sep + std::to_string((int)a_style);
-				sep = ";";
-			}
-			colorized += "m" + a_str + "\x1B[0m";
-			return colorized;
-		} else {
-			return a_str;
-		}
-	}
+	std::string colorize(const std::string& a_str, Color a_forecol, Color a_backcol = Color::none, Style a_style = Style::none);
+	bool use_colors();
 
-	#define DECL_COLOR_FUNC(COL) std::string COL(const std::string& s, Style style = Style::none) { return colorize(s, Color::COL, Color::none, style); }
+	#define DECL_COLOR_FUNC(COL) \
+		std::string COL(const std::string& s, Style style = Style::none) { \
+			return colorize(s, Color::COL, Color::none, style);            \
+		}
 	DECL_COLOR_FUNC(black)
 	DECL_COLOR_FUNC(red)
 	DECL_COLOR_FUNC(green)
@@ -91,21 +91,9 @@ namespace color {
 	#undef DECL_COLOR_FUNC
 }
 
-//------------------------------------------------------------------------------
-// constants
-//------------------------------------------------------------------------------	
-//
-//! prefix for identifying our traces
-static const std::string library_prefix = "libremo: ";
-
 
 //------------------------------------------------------------------------------
-namespace remo {
-//------------------------------------------------------------------------------	
-
-//! initialize default log level
-LogLevel Logger::s_global_level = eLogVerbose;
-
+// class implementation
 //------------------------------------------------------------------------------	
 //
 Logger::Logger(const std::string& a_name):
@@ -187,6 +175,43 @@ void Logger::log(LogLevel a_level, const char* a_format, ...)
 	std::cerr << color::colorize(message, fcol, bcol, style) << std::endl;
 }
 
+//------------------------------------------------------------------------------
+// helpers
+//------------------------------------------------------------------------------	
+//
+namespace color {
+
+	// colorizes the given string using Ansi escape codes
+	std::string colorize(const std::string& a_str, Color a_forecol, Color a_backcol, Style a_style)
+	{
+		if (use_colors() && (a_forecol != Color::none || a_backcol != Color::none || a_style != Style::none)) {
+			std::string colorized("\x1B[");
+			const char* sep = "";
+			if (a_forecol != Color::none) {
+				colorized += std::to_string((int)a_forecol);
+				sep = ";";
+			}
+			if (a_backcol != Color::none) {
+				colorized += sep + std::to_string((int)a_backcol + 10);
+				sep = ";";
+			}
+			if (a_style != Style::none) {
+				colorized += sep + std::to_string((int)a_style);
+				sep = ";";
+			}
+			colorized += "m" + a_str + "\x1B[0m";
+			return colorized;
+		} else {
+			return a_str;
+		}
+	}
+
+	// determines if colors should be used
+	bool use_colors()
+	{
+		return ::isatty(::fileno(stderr));
+	}
+}
 
 //------------------------------------------------------------------------------
 } // end namespace remo
