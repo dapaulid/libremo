@@ -17,9 +17,6 @@
 
 #ifdef REMO_SYS_WIN
 	#include <io.h> // _isatty
-	// function aliases
-	static const auto& isatty = _isatty;
-	static const auto& fileno = _fileno;
 #else
 	#include <unistd.h> // isatty
 #endif
@@ -218,7 +215,11 @@ namespace color {
 	// determines if colors should be used
 	bool use_colors()
 	{
+#ifdef REMO_SYS_WIN
+		return ::_isatty(::_fileno(stderr));
+#else
 		return ::isatty(::fileno(stderr));
+#endif
 	}
 }
 
