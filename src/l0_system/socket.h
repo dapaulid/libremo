@@ -78,7 +78,7 @@ public:
 	Socket accept();
 
 	size_t send(const void* a_buffer, size_t a_bufsize);
-	size_t receive(void* a_buffer, size_t a_bufsize);
+	size_t recv(void* a_buffer, size_t a_bufsize);
 
 	void shutdown(ShutdownFlag how = ShutRdWr);
 

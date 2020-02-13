@@ -311,7 +311,7 @@ size_t Socket::send(const void* a_buffer, size_t a_bufsize)
 
 //------------------------------------------------------------------------------
 //
-size_t Socket::receive(void* a_buffer, size_t a_bufsize)
+size_t Socket::recv(void* a_buffer, size_t a_bufsize)
 {
 	int bytes_received = ::recv(m_sockfd, (char*)a_buffer, (int)a_bufsize, 0);
 	if (bytes_received < 0) {

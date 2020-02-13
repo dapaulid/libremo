@@ -80,7 +80,7 @@ TEST(Socket, SendReceive_UDP)
 	size_t bytes_sent = s1.send(sendbuf, sizeof(sendbuf));
 	EXPECT_EQ(bytes_sent, sizeof(sendbuf));
 
-	size_t bytes_received = s2.receive(recvbuf, sizeof(recvbuf));
+	size_t bytes_received = s2.recv(recvbuf, sizeof(recvbuf));
 	EXPECT_EQ(bytes_received, bytes_sent);
 	EXPECT_TRUE(memcmp(recvbuf, sendbuf, sizeof(sendbuf)) == 0);
 }
@@ -104,7 +104,7 @@ TEST(Socket, SendReceive_TCP)
 	size_t bytes_sent = s1.send(sendbuf, sizeof(sendbuf));
 	EXPECT_EQ(bytes_sent, sizeof(sendbuf));
 
-	size_t bytes_received = s3.receive(recvbuf, sizeof(recvbuf));
+	size_t bytes_received = s3.recv(recvbuf, sizeof(recvbuf));
 	EXPECT_EQ(bytes_received, bytes_sent);
 	EXPECT_TRUE(memcmp(recvbuf, sendbuf, sizeof(sendbuf)) == 0);
 }
@@ -197,9 +197,9 @@ TEST(SocketSet, PollShutdown)
 	
 	// s3 and s1 should "receive" 0 bytes -> orderly shutdown by peer
 	char recvbuf [32];
-	size_t bytes_received = s3.receive(recvbuf, sizeof(recvbuf));
+	size_t bytes_received = s3.recv(recvbuf, sizeof(recvbuf));
 	EXPECT_EQ(bytes_received, 0);
-	bytes_received = s1.receive(recvbuf, sizeof(recvbuf));
+	bytes_received = s1.recv(recvbuf, sizeof(recvbuf));
 	EXPECT_EQ(bytes_received, 0);
 
 	// sockets s1 and s3 should still be ready (by observation)
