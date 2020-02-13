@@ -29,7 +29,7 @@
 	#pragma comment(lib, "Ws2_32.lib")
 
 	// type aliases
-	typedef ULONG nfds_t
+	typedef ULONG nfds_t;
 	// function aliases
 	static const auto& close = closesocket;
 	static const auto& poll = WSAPoll;
