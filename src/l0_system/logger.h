@@ -9,6 +9,8 @@
 //------------------------------------------------------------------------------
 #pragma once
 
+#include "system.h"
+
 #include <string>
 
 #include <stdarg.h> // va_list
@@ -64,6 +66,10 @@ public:
 
 private:
 	std::string m_name;
+	sys::time_point m_last_timestamp;
+	bool m_invert;
+	// time between two tracings for inverting background in microseconds
+	int m_invert_threshold;
 
 	static LogLevel s_global_level;	
 };

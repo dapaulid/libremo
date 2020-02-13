@@ -21,6 +21,8 @@
 	#include <unistd.h> // isatty
 #endif
 
+#include <chrono>
+
 
 //------------------------------------------------------------------------------
 // constants
@@ -103,7 +105,10 @@ namespace color {
 //------------------------------------------------------------------------------	
 //
 Logger::Logger(const std::string& a_name):
-	m_name(a_name)
+	m_name(a_name),
+	m_last_timestamp(),
+	m_invert(false),
+	m_invert_threshold(5000) // microseconds
 {
 }
 
@@ -136,10 +141,7 @@ void Logger::log(LogLevel a_level, const char* a_format, ...)
 	vsnprintf(message, sizeof(message), a_format, args);
 	va_end (args);	
 
-	// output prefix and timestamp
-	std::cerr << library_prefix << "[" << color::bright_black(sys::get_timestamp()) << "] ";
-
-	// output log level
+	// determine log level label and color
 	std::string level;
 	color::Color fcol = color::Color::none;
 	color::Color bcol = color::Color::none;
@@ -173,6 +175,18 @@ void Logger::log(LogLevel a_level, const char* a_format, ...)
 		fcol = color::Color::none;
 	}
 
+	// get current timestamp
+	sys::time_point ts = sys::get_timestamp();
+	if ( sys::micros_between(ts, m_last_timestamp) > m_invert_threshold) {
+		m_invert = !m_invert;
+	}
+	m_last_timestamp = ts;
+
+	// output prefix and timestamp
+	std::cerr << library_prefix;
+	// output timestamp
+	std::cerr << color::colorize("[" + sys::format_timestamp(ts) + "]", 
+		color::Color::black, m_invert ? color::Color::bright_black : color::Color::bright_white) << " ";
 	// output log level
 	std::cerr << "[" << color::colorize(level, fcol, bcol, style) << "] ";
 	// output logger name

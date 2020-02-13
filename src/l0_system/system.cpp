@@ -22,23 +22,34 @@ namespace sys {
 
 //------------------------------------------------------------------------------	
 //
-std::string get_timestamp()
+time_point get_timestamp()
 {
-	// get current time
-    auto now = std::chrono::system_clock::now();
+    return std::chrono::system_clock::now();
+}
 
+//------------------------------------------------------------------------------	
+//
+int64_t micros_between(const time_point& a_now, const time_point& a_then)
+{
+    return std::chrono::duration_cast<std::chrono::microseconds>(a_now - a_then).count();
+}
+
+//------------------------------------------------------------------------------	
+//
+std::string format_timestamp(const time_point& a_timestamp)
+{
 	// get local time (in seconds precision)
-    time_t tnow = std::chrono::system_clock::to_time_t(now);	
+    time_t ttimestamp = std::chrono::system_clock::to_time_t(a_timestamp);	
     struct tm local_time{};
 #ifdef REMO_SYS_WIN
-	localtime_s(&local_time, &tnow);
+	localtime_s(&local_time, &ttimestamp);
 #else
-	localtime_r(&tnow, &local_time);
+	localtime_r(&ttimestamp, &local_time);
 #endif
     auto now_secs = std::chrono::system_clock::from_time_t(std::mktime(&local_time));
 
     // get millisecond difference
-    auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(now - now_secs).count();
+    auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(a_timestamp - now_secs).count();
 
 	// format timestamp
     std::stringstream ss;
