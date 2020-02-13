@@ -28,6 +28,8 @@
 	#include <ws2tcpip.h>
 	#pragma comment(lib, "Ws2_32.lib")
 
+	// type aliases
+	typedef ULONG nfds_t
 	// function aliases
 	static const auto& close = closesocket;
 	static const auto& poll = WSAPoll;
@@ -433,7 +435,7 @@ size_t SocketSet::poll(int a_timeout_ms)
 {
 	// wait for events
 	const size_t n = count();
-	int ret = ::poll(&pimpl->m_pollfds[0], n, a_timeout_ms);
+	int ret = ::poll(&pimpl->m_pollfds[0], (nfds_t)n, a_timeout_ms);
 	if (ret < 0) {
 		int err = get_last_error();
 		throw error(ErrorCode::ERR_SOCKET_POLL_FAILED, 
@@ -445,7 +447,7 @@ size_t SocketSet::poll(int a_timeout_ms)
 	for (size_t i = 0; i < n; i++) {
 		if (pimpl->m_pollfds[i].revents & POLLIN) {
 			// ready to receive
-			int sockfd = pimpl->m_pollfds[i].fd;
+			int sockfd = (int)pimpl->m_pollfds[i].fd;
 			REMO_VERB("poll: socket #%d ready to receive", sockfd);
 			Socket* socket = pimpl->m_sockets[i];
 			if (socket->m_receive_ready) {
@@ -543,7 +545,7 @@ void SockAddr::from_string(const std::string& a_str)
 
 	// copy address
 	memcpy(m_addr, result->ai_addr, result->ai_addrlen);
-	m_addrlen = result->ai_addrlen;
+	m_addrlen = (socklen_t)result->ai_addrlen;
 
 	// cleanup
 	freeaddrinfo(result);
@@ -634,7 +636,7 @@ static std::string get_error_message(int err)
 		err,                 // message id
 		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),    // languageid
 		&msg[0],             // output buffer
-		msg.size(),          // size of msgbuf, bytes
+		(DWORD)msg.size(),   // size of msgbuf, bytes
 		NULL                 // va_list of arguments
 	);
 #else
