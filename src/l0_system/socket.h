@@ -98,6 +98,9 @@ protected:
 	void set_sockfd(int asockfd);
 	std::string get_log_name() const { return m_log_name; }
 
+	//! event handlers
+	virtual void receive_ready();
+
 private:
 	//! socket descriptor
 	int m_sockfd;

@@ -392,6 +392,18 @@ void Socket::set_sockfd(int a_sockfd)
 	m_log_name = "#" + std::to_string(m_sockfd);
 }
 
+//------------------------------------------------------------------------------
+//
+void Socket::receive_ready()
+{
+	REMO_VERB("socket ready to receive");
+
+	// invoke callback
+	if (m_receive_ready) {
+		m_receive_ready(this);
+	}
+}
+
 
 //------------------------------------------------------------------------------
 // class implementation
@@ -420,6 +432,17 @@ SocketSet::~SocketSet()
 //
 void SocketSet::add(Socket* a_socket)
 {
+	const size_t n = count();
+
+	REMO_PRECOND({
+		REMO_ASSERT(a_socket, 
+			"socket must not be null");
+	});
+	REMO_POSTCOND({
+		REMO_ASSERT(count() == n + 1, 
+			"size must increase by one");
+	});
+
 	pollfd pfd {};
 	pfd.fd = a_socket->get_fd();
 	pfd.events = POLLIN;
@@ -433,6 +456,16 @@ void SocketSet::add(Socket* a_socket)
 void SocketSet::remove(Socket* a_socket)
 {
 	const size_t n = count();
+
+	REMO_PRECOND({
+		REMO_ASSERT(a_socket, 
+			"socket must not be null");
+	});
+	REMO_POSTCOND({
+		REMO_ASSERT(count() == n - 1, 
+			"size must decrease by one");
+	});
+
 	for (size_t i = 0; i < n; i++) {
 		if (pimpl->m_sockets[i] == a_socket) {
 			pimpl->m_sockets.erase(pimpl->m_sockets.begin() + i);
@@ -449,6 +482,8 @@ size_t SocketSet::poll(int a_timeout_ms)
 	// wait for events
 	const size_t n = count();
 	int ret = ::poll(&pimpl->m_pollfds[0], (nfds_t)n, a_timeout_ms);
+	REMO_ASSERT(n == count(),
+		"set size must not change during poll");
 	if (ret < 0) {
 		int err = get_last_error();
 		throw error(ErrorCode::ERR_SOCKET_POLL_FAILED, 
@@ -456,18 +491,17 @@ size_t SocketSet::poll(int a_timeout_ms)
 			err, get_error_message(err).c_str());		
 	}
 
+	REMO_ASSERT(pimpl->m_pollfds.size() == n,
+		"incosistent array size");
+	REMO_ASSERT(pimpl->m_sockets.size() == n,
+		"incosistent array size");
+
 	// check for events
 	for (size_t i = 0; i < n; i++) {
+		REMO_ASSERT((int)pimpl->m_pollfds[i].fd == pimpl->m_sockets[i]->get_fd(),
+			"inconsistent socket descriptors");
 		if (pimpl->m_pollfds[i].revents & POLLIN) {
-			REMO_ASSERT((int)pimpl->m_pollfds[i].fd == pimpl->m_sockets[i]->get_fd(),
-				"inconsistent socket descriptors in SocketSet");
-			// ready to receive
-			int sockfd = (int)pimpl->m_pollfds[i].fd;
-			REMO_VERB("poll: socket #%d ready to receive", sockfd);
-			Socket* socket = pimpl->m_sockets[i];
-			if (socket->m_receive_ready) {
-				socket->m_receive_ready(socket);
-			}
+			pimpl->m_sockets[i]->receive_ready();
 		}
 	}
 
