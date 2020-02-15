@@ -2,11 +2,13 @@
 
 #include "../../src/l0_system/logger.h"
 
+using namespace remo;
+
 //------------------------------------------------------------------------------
 //
 TEST(Logger, example)
 {
-    remo::Logger logger("LoggerTest");
+    Logger logger("LoggerTest");
 
 	REMO_FATAL("This is an example fatal message");
 	REMO_ERROR("This is an example error message");
@@ -19,9 +21,9 @@ TEST(Logger, example)
 //
 TEST(Logger, filter)
 {
-    remo::Logger logger("LoggerTest");
+    Logger logger("LoggerTest");
 
-	logger.set_global_level(remo::LogLevel::eLogWarning);
+	logger.set_global_level(LogLevel::eLogWarning);
 	REMO_INFO("This info message should not be logged");
 }
 
@@ -29,8 +31,8 @@ TEST(Logger, filter)
 //
 TEST(Logger, custom)
 {
-    remo::Logger logger("LoggerTest");
+    Logger logger("LoggerTest");
 
-	logger.set_global_level(remo::eLogAll);
+	logger.set_global_level(LogLevel::eLogAll);
 	REMO_LOG(99, "This is an example custom message");
 }

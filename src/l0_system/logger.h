@@ -19,12 +19,15 @@
 namespace remo {
 //------------------------------------------------------------------------------
 
+// TODO good way to output sourcefile:line without redundancy to class name?
+//#define __FILENAME__ (strrchr("/" __FILE__, '/') + 1)
+
 // use macro instead of function to avoid unnecessary parameter evaluation
 // NOTE: a_format is part of variadic parameter to avoid the error
 // "ISO C++11 requires at least one argument for the "..." in a variadic macro"
 #define REMO_LOG(a_level, /*a_format,*/ ...)                                   \
 	if (logger.level_enabled((remo::LogLevel)a_level)) {                       \
-		logger.log((remo::LogLevel)a_level, __VA_ARGS__);                      \
+		logger.log((remo::LogLevel)a_level, get_log_name(), __VA_ARGS__);      \
 	}
 
 #define REMO_FATAL(/*a_format,*/ ...) REMO_LOG(remo::LogLevel::eLogFatal, __VA_ARGS__)
@@ -44,6 +47,13 @@ enum LogLevel
 	eLogAll      = 9999
 };
 
+/**
+ * Default declaration for function used in REMO_LOG macro for getting the object name.
+ * The idea is that classes can implement their own member function with the same name,
+ * shadowing this function, so that an object name can be logged along the category.
+ */ 
+std::string get_log_name();
+
 //------------------------------------------------------------------------------
 //
 class Logger
@@ -52,7 +62,8 @@ public:
 	Logger(const std::string& a_name);
 	virtual ~Logger();
 
-	void log(LogLevel a_level, const char* a_format, ...);
+	void log(LogLevel a_level, const std::string& a_log_name, 
+		const char* a_format, ...);
 	
 	bool level_enabled(LogLevel a_level);
 

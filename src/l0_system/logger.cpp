@@ -99,6 +99,13 @@ namespace color {
 	#undef DECL_COLOR_FUNC
 }
 
+//------------------------------------------------------------------------------	
+//
+std::string get_log_name() {
+	// https://stackoverflow.com/questions/26587110/returning-an-empty-string-efficient-way-in-c
+	return std::string();
+}
+
 
 //------------------------------------------------------------------------------
 // class implementation
@@ -127,7 +134,8 @@ bool Logger::level_enabled(LogLevel a_level)
 
 //------------------------------------------------------------------------------	
 //
-void Logger::log(LogLevel a_level, const char* a_format, ...)
+void Logger::log(LogLevel a_level,  const std::string& a_log_name, 
+	const char* a_format, ...)
 {
 	// check log level
 	if (!level_enabled(a_level)) {
@@ -185,12 +193,19 @@ void Logger::log(LogLevel a_level, const char* a_format, ...)
 	// output prefix and timestamp
 	std::cerr << library_prefix;
 	// output timestamp
-	std::cerr << color::colorize("[" + sys::format_timestamp(ts) + "]", 
-		color::Color::black, m_invert ? color::Color::bright_black : color::Color::bright_white) << " ";
+	std::cerr << color::colorize(
+		"[" + sys::format_timestamp(ts) + "]", 
+		m_invert ? color::Color::bright_white : color::Color::black, 
+		m_invert ? color::Color::bright_black : color::Color::white
+	) << " ";
 	// output log level
 	std::cerr << "[" << color::colorize(level, fcol, bcol, style) << "] ";
-	// output logger name
-	std::cerr << "[" << color::cyan(m_name) << "] ";
+	// output logger name and optional object name
+	std::cerr << "[" << color::cyan(m_name);
+	if (!a_log_name.empty()) {
+		std::cerr << ":" << color::bright_magenta(a_log_name);
+	}
+	std::cerr << "] ";
 	// output message
 	std::cerr << color::colorize(message, fcol, bcol, style) << std::endl;
 }

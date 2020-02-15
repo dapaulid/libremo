@@ -95,13 +95,18 @@ protected:
 	void open(SockProto a_proto, AddrFamily a_family);
 	void close();
 
+	void set_sockfd(int asockfd);
+	std::string get_log_name() const { return m_log_name; }
+
 private:
-	// socket descriptor
+	//! socket descriptor
 	int m_sockfd;
 private:
 	friend SocketSet;
-	// ready event callbacks
+	//! ready event callbacks
 	ready_handler m_receive_ready;
+	//! socket name used for logging
+	std::string m_log_name;
 };
 
 //------------------------------------------------------------------------------

@@ -89,8 +89,11 @@ static std::string get_error_message(int err);
 //------------------------------------------------------------------------------
 //
 Socket::Socket(int a_sockfd):
-	m_sockfd(a_sockfd) 
+	m_sockfd(INVALID_SOCKFD),
+	m_receive_ready(),
+	m_log_name()
 {
+	set_sockfd(a_sockfd);
 }
 
 //------------------------------------------------------------------------------
@@ -163,9 +166,8 @@ void Socket::open(SockProto a_proto, AddrFamily a_family)
 	close();
 
 	// create socket descriptor
-	m_sockfd = (int)::socket(af, type, proto);
-	if (m_sockfd < 0) {
-		m_sockfd = INVALID_SOCKFD;
+	int sockfd = (int)::socket(af, type, proto);
+	if (sockfd < 0) {
 		int err = get_last_error();
 		throw error(ErrorCode::ERR_SOCKET_OPEN_FAILED, 
 			"Opening socket failed with error %d: %s", 
@@ -173,6 +175,7 @@ void Socket::open(SockProto a_proto, AddrFamily a_family)
 	}
 
 	// success
+	set_sockfd(sockfd);
 	REMO_INFO("socket #%d opened (%s/%s)", m_sockfd, proto_str, af_str);
 }
 
@@ -184,7 +187,6 @@ void Socket::close()
 		// nothing to do
 		return;
 	}
-	int sockfd = m_sockfd;
 	int err = ::close(m_sockfd);
 	m_sockfd = INVALID_SOCKFD;
 	if (err) {
@@ -195,15 +197,15 @@ void Socket::close()
 	}
 
 	// success
-	REMO_INFO("socket #%d closed", sockfd);
+	REMO_INFO("socket closed");
 }
 
 //------------------------------------------------------------------------------
 //
 void Socket::connect(const SockAddr& a_addr)
 {
-	REMO_VERB("connecting socket #%d to '%s'",
-		m_sockfd, a_addr.to_string().c_str());
+	REMO_VERB("socket connecting to '%s'",
+		a_addr.to_string().c_str());
 
 	// connect it
 	int err = ::connect(m_sockfd, (const sockaddr*)&a_addr.m_addr, 
@@ -217,8 +219,8 @@ void Socket::connect(const SockAddr& a_addr)
 	}
 
 	// success
-	REMO_INFO("socket #%d connected: '%s' <-> '%s'",
-		m_sockfd, get_socket_addr().to_string().c_str(), 
+	REMO_INFO("socket connected: '%s' <-> '%s'",
+		get_socket_addr().to_string().c_str(), 
 		get_remote_addr().to_string().c_str());
 }
 
@@ -226,8 +228,8 @@ void Socket::connect(const SockAddr& a_addr)
 //
 void Socket::bind(const SockAddr& a_addr)
 {
-	REMO_VERB("binding socket #%d to '%s'",
-		m_sockfd, a_addr.to_string().c_str());
+	REMO_VERB("socket binding to '%s'",
+		a_addr.to_string().c_str());
 
 	// bind it
 	int err = ::bind(m_sockfd, (const sockaddr*)&a_addr.m_addr, 
@@ -241,8 +243,8 @@ void Socket::bind(const SockAddr& a_addr)
 	}
 
 	// success
-	REMO_INFO("socket #%d bound to '%s'",
-		m_sockfd, get_socket_addr().to_string().c_str());
+	REMO_INFO("socket bound to '%s'",
+		get_socket_addr().to_string().c_str());
 }
 
 //------------------------------------------------------------------------------
@@ -262,8 +264,8 @@ void Socket::listen(int a_backlog)
 	}
 
 	// success
-	REMO_INFO("socket #%d listening (backlog=%d)",
-		m_sockfd, a_backlog);
+	REMO_INFO("socket listening (backlog=%d)",
+		a_backlog);
 }
 
 //------------------------------------------------------------------------------
@@ -285,8 +287,8 @@ Socket Socket::accept()
 	Socket socket(sockfd);
 
 	// success
-	REMO_INFO("socket #%d accepted connection from '%s' -> created socket #%d",
-		m_sockfd, socket.get_remote_addr().to_string().c_str(), socket.get_fd());
+	REMO_INFO("socket accepted connection from '%s' -> created socket #%d",
+		socket.get_remote_addr().to_string().c_str(), socket.get_fd());
 	return socket;
 }
 
@@ -304,8 +306,8 @@ size_t Socket::send(const void* a_buffer, size_t a_bufsize)
 	}		
 
 	// success
-	REMO_VERB("socket #%d sent %d bytes (bufsize=%zu)",
-		m_sockfd, bytes_sent, a_bufsize);
+	REMO_VERB("socket sent %d bytes (bufsize=%zu)",
+		bytes_sent, a_bufsize);
 	return bytes_sent;
 }
 
@@ -322,8 +324,8 @@ size_t Socket::recv(void* a_buffer, size_t a_bufsize)
 			err, get_error_message(err).c_str());		
 	}		
 
-	REMO_VERB("socket #%d received %d bytes (bufsize=%zu)",
-		m_sockfd, bytes_received, a_bufsize);
+	REMO_VERB("socket received %d bytes (bufsize=%zu)",
+		bytes_received, a_bufsize);
 	return bytes_received;
 }
 
@@ -337,7 +339,9 @@ void Socket::shutdown(ShutdownFlag how)
 		throw error(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
 			"Syscall shutdown() failed with error %d: %s", 
 			err, get_error_message(err).c_str());		
-	}		
+	}
+
+	REMO_INFO("socket shutdown")
 }
 
 //------------------------------------------------------------------------------
@@ -377,6 +381,14 @@ SockAddr Socket::get_remote_addr() const
 			err, get_error_message(err).c_str());		
 	}
 	return addr;
+}
+
+//------------------------------------------------------------------------------
+//
+void Socket::set_sockfd(int a_sockfd)
+{
+	m_sockfd = a_sockfd;
+	m_log_name = "#" + std::to_string(m_sockfd);
 }
 
 
