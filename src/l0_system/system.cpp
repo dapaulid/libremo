@@ -48,12 +48,12 @@ std::string format_timestamp(const time_point& a_timestamp)
 #endif
     auto now_secs = std::chrono::system_clock::from_time_t(std::mktime(&local_time));
 
-    // get millisecond difference
-    auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(a_timestamp - now_secs).count();
+    // get microsecond difference
+    auto micros = std::chrono::duration_cast<std::chrono::microseconds>(a_timestamp - now_secs).count();
 
 	// format timestamp
     std::stringstream ss;
-    ss << std::put_time(&local_time, "%H:%M:%S.") << std::setw(3) << std::setfill('0') << millis;
+    ss << std::put_time(&local_time, "%H:%M:%S.") << std::setw(6) << std::setfill('0') << micros;
     return ss.str();
 }
 

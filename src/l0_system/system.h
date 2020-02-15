@@ -34,7 +34,7 @@ typedef std::chrono::system_clock::time_point time_point;
 time_point get_timestamp();
 //! returns elapsed time between two timestamps in microseconds
 int64_t micros_between(const time_point& a_now, const time_point& a_then);
-//! formats a timestamp in format HH:MM:SS.MILLI
+//! formats a timestamp in format HH:MM:SS.MICROS
 std::string format_timestamp(const time_point& a_timestamp);
 
 //------------------------------------------------------------------------------
