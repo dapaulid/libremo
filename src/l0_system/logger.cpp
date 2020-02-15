@@ -37,7 +37,7 @@ namespace remo {
 //------------------------------------------------------------------------------	
 
 //! initialize default log level
-LogLevel Logger::s_global_level = eLogVerbose;
+LogLevel Logger::s_global_level = eLogVerb;
 
 
 //------------------------------------------------------------------------------
@@ -166,15 +166,20 @@ void Logger::log(LogLevel a_level,  const std::string& a_log_name,
 		fcol = color::Color::bright_red;
 		style = color::Style::bold;
 		break;
-	case eLogWarning:
+	case eLogWarn:
 		level = "warn ";
 		fcol = color::Color::yellow;
+		break;
+	case eLogNote:
+		level = "note ";
+		fcol = color::Color::bright_white;
+		style = color::Style::bold;
 		break;
 	case eLogInfo:
 		level = "info ";
 		fcol = color::Color::none;
 		break;
-	case eLogVerbose:
+	case eLogVerb:
 		level = "verb ";
 		fcol = color::Color::bright_black;
 		break;
