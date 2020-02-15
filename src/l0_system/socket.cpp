@@ -12,6 +12,7 @@
 #include "system.h"
 #include "logger.h"
 #include "error.h"
+#include "../utils/contracts.h"
 
 #include <sstream>
 #include <vector>
@@ -458,6 +459,8 @@ size_t SocketSet::poll(int a_timeout_ms)
 	// check for events
 	for (size_t i = 0; i < n; i++) {
 		if (pimpl->m_pollfds[i].revents & POLLIN) {
+			REMO_ASSERT((int)pimpl->m_pollfds[i].fd == pimpl->m_sockets[i]->get_fd(),
+				"inconsistent socket descriptors in SocketSet");
 			// ready to receive
 			int sockfd = (int)pimpl->m_pollfds[i].fd;
 			REMO_VERB("poll: socket #%d ready to receive", sockfd);
