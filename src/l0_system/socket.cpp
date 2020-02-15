@@ -12,7 +12,7 @@
 #include "system.h"
 #include "logger.h"
 #include "error.h"
-#include "../utils/contracts.h"
+#include "utils/contracts.h"
 
 #include <sstream>
 #include <vector>
