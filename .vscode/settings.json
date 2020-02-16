@@ -51,7 +51,9 @@
 		"streambuf": "cpp",
 		"cinttypes": "cpp",
 		"typeinfo": "cpp",
-		"chrono": "cpp"
+		"chrono": "cpp",
+		"unordered_set": "cpp",
+		"ratio": "cpp"
 	},
 	"markiscodecoverage.searchCriteria": "build/Debug/coverage.info"
 }

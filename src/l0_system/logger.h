@@ -10,8 +10,10 @@
 #pragma once
 
 #include "system.h"
+#include "utils/colors.h"
 
 #include <string>
+#include <iostream>
 
 #include <stdarg.h> // va_list
 
@@ -61,7 +63,7 @@ std::string get_log_name();
 class Logger
 {
 public:
-	Logger(const std::string& a_name);
+	Logger(const std::string& a_name, std::ostream& a_out = std::cerr);
 	virtual ~Logger();
 
 	void log(LogLevel a_level, const std::string& a_log_name, 
@@ -78,12 +80,18 @@ public:
 	}
 
 private:
+	//! logger name
 	std::string m_name;
+	//! output stream (std::cout or std::cerr)
+	std::ostream& m_out;
+	//! color object used for pretty printing
+	Colors m_colors;
+	//! timestamp of last log
 	sys::time_point m_last_timestamp;
+	//! flag indicating if background color of timestamp is to be inverted
 	bool m_invert;
-	// time between two tracings for inverting background in microseconds
+	//! time between two logs for inverting background in microseconds
 	int m_invert_threshold;
-
 	static LogLevel s_global_level;	
 };
 

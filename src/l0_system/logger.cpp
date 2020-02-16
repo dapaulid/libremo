@@ -9,10 +9,7 @@
 //------------------------------------------------------------------------------
 #include "logger.h"
 
-#include "system.h"
-
 #include <sstream> // stringstream
-#include <iostream>
 #include <stdio.h>
 
 #ifdef REMO_SYS_WIN
@@ -40,65 +37,6 @@ namespace remo {
 LogLevel Logger::s_global_level = eLogVerb;
 
 
-//------------------------------------------------------------------------------
-// helpers
-//------------------------------------------------------------------------------	
-//
-namespace color {
-	enum class Color {
-		none           = 0,
-
-		black          = 30,
-		red            = 31,
-		green          = 32,
-		yellow         = 33,
-		blue           = 34,
-		magenta        = 35,
-		cyan           = 36,
-		white          = 37,
-
-		bright_black   = 90,
-		bright_red     = 91,
-		bright_green   = 92,
-		bright_yellow  = 93,
-		bright_blue    = 94,
-		bright_magenta = 95,
-		bright_cyan    = 96,
-		bright_white   = 97,
-	};
-
-	enum class Style {
-		none           = 0,
-		bold           = 1,
-		underline      = 4
-	};
-
-	std::string colorize(const std::string& a_str, Color a_forecol, Color a_backcol = Color::none, Style a_style = Style::none);
-	bool use_colors();
-
-	#define DECL_COLOR_FUNC(COL) \
-		std::string COL(const std::string& s, Style style = Style::none) { \
-			return colorize(s, Color::COL, Color::none, style);            \
-		}
-	DECL_COLOR_FUNC(black)
-	DECL_COLOR_FUNC(red)
-	DECL_COLOR_FUNC(green)
-	DECL_COLOR_FUNC(yellow)
-	DECL_COLOR_FUNC(blue)
-	DECL_COLOR_FUNC(magenta)
-	DECL_COLOR_FUNC(cyan)
-	DECL_COLOR_FUNC(white)
-	DECL_COLOR_FUNC(bright_black)
-	DECL_COLOR_FUNC(bright_red)
-	DECL_COLOR_FUNC(bright_green)
-	DECL_COLOR_FUNC(bright_yellow)
-	DECL_COLOR_FUNC(bright_blue)
-	DECL_COLOR_FUNC(bright_magenta)
-	DECL_COLOR_FUNC(bright_cyan)
-	DECL_COLOR_FUNC(bright_white)
-	#undef DECL_COLOR_FUNC
-}
-
 //------------------------------------------------------------------------------	
 //
 std::string get_log_name() {
@@ -111,8 +49,10 @@ std::string get_log_name() {
 // class implementation
 //------------------------------------------------------------------------------	
 //
-Logger::Logger(const std::string& a_name):
+Logger::Logger(const std::string& a_name, std::ostream& a_out):
 	m_name(a_name),
+	m_out(a_out),
+	m_colors(a_out, UseColors::automatic),
 	m_last_timestamp(),
 	m_invert(false),
 	m_invert_threshold(5000) // microseconds
@@ -151,41 +91,41 @@ void Logger::log(LogLevel a_level,  const std::string& a_log_name,
 
 	// determine log level label and color
 	std::string level;
-	color::Color fcol = color::Color::none;
-	color::Color bcol = color::Color::none;
-	color::Style style = color::Style::none;
+	Color fcol = Color::none;
+	Color bcol = Color::none;
+	Style style = Style::none;
 	switch (a_level) {
 	case eLogFatal:
 		level = "fatal";
-		fcol = color::Color::bright_white;
-		bcol = color::Color::red;
-		style = color::Style::underline;
+		fcol = Color::bright_white;
+		bcol = Color::red;
+		style = Style::underline;
 		break;
 	case eLogError:
 		level = "error";
-		fcol = color::Color::bright_red;
-		style = color::Style::bold;
+		fcol = Color::bright_red;
+		style = Style::bold;
 		break;
 	case eLogWarn:
 		level = "warn ";
-		fcol = color::Color::yellow;
+		fcol = Color::yellow;
 		break;
 	case eLogNote:
 		level = "note ";
-		fcol = color::Color::bright_white;
-		style = color::Style::bold;
+		fcol = Color::bright_white;
+		style = Style::bold;
 		break;
 	case eLogInfo:
 		level = "info ";
-		fcol = color::Color::none;
+		fcol = Color::none;
 		break;
 	case eLogVerb:
 		level = "verb ";
-		fcol = color::Color::bright_black;
+		fcol = Color::bright_black;
 		break;
 	default:
 		level = "L" + std::to_string(a_level);
-		fcol = color::Color::none;
+		fcol = Color::none;
 	}
 
 	// get current timestamp
@@ -196,66 +136,25 @@ void Logger::log(LogLevel a_level,  const std::string& a_log_name,
 	m_last_timestamp = ts;
 
 	// output prefix and timestamp
-	std::cerr << library_prefix;
+	m_out << library_prefix;
 	// output timestamp
-	std::cerr << color::colorize(
+	m_out << m_colors.colorize(
 		"[" + sys::format_timestamp(ts) + "]", 
-		m_invert ? color::Color::bright_white : color::Color::black, 
-		m_invert ? color::Color::bright_black : color::Color::white
+		m_invert ? Color::bright_white : Color::black, 
+		m_invert ? Color::bright_black : Color::white
 	) << " ";
 	// output log level
-	std::cerr << "[" << color::colorize(level, fcol, bcol, style) << "] ";
+	m_out << "[" << m_colors.colorize(level, fcol, bcol, style) << "] ";
 	// output logger name and optional object name
-	std::cerr << "[" << color::cyan(m_name);
+	m_out << "[" << m_colors.cyan(m_name);
 	if (!a_log_name.empty()) {
-		std::cerr << ":" << color::bright_magenta(a_log_name);
+		m_out << ":" << m_colors.bright_magenta(a_log_name);
 	}
-	std::cerr << "] ";
+	m_out << "] ";
 	// output message
-	std::cerr << color::colorize(message, fcol, bcol, style) << std::endl;
+	m_out << m_colors.colorize(message, fcol, bcol, style) << std::endl;
 }
 
-//------------------------------------------------------------------------------
-// helpers
-//------------------------------------------------------------------------------	
-//
-namespace color {
-
-	// colorizes the given string using Ansi escape codes
-	std::string colorize(const std::string& a_str, Color a_forecol, Color a_backcol, Style a_style)
-	{
-		if (use_colors() && (a_forecol != Color::none || a_backcol != Color::none || a_style != Style::none)) {
-			std::string colorized("\x1B[");
-			const char* sep = "";
-			if (a_forecol != Color::none) {
-				colorized += std::to_string((int)a_forecol);
-				sep = ";";
-			}
-			if (a_backcol != Color::none) {
-				colorized += sep + std::to_string((int)a_backcol + 10);
-				sep = ";";
-			}
-			if (a_style != Style::none) {
-				colorized += sep + std::to_string((int)a_style);
-				sep = ";";
-			}
-			colorized += "m" + a_str + "\x1B[0m";
-			return colorized;
-		} else {
-			return a_str;
-		}
-	}
-
-	// determines if colors should be used
-	bool use_colors()
-	{
-#ifdef REMO_SYS_WIN
-		return ::_isatty(::_fileno(stderr));
-#else
-		return ::isatty(::fileno(stderr));
-#endif
-	}
-}
 
 //------------------------------------------------------------------------------
 } // end namespace remo
