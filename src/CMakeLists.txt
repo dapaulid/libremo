@@ -12,11 +12,11 @@ target_sources(
         l1_transport/reader.cpp
         l1_transport/writer.cpp
         l0_system/error.cpp
-        l0_system/logger.cpp
         l0_system/socket.cpp
         l0_system/system.cpp
         l0_system/types.cpp
         utils/colors.cpp
+        utils/logger.cpp        
     PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/remo.h
     )

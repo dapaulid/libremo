@@ -1,6 +1,6 @@
 #include "../test.h"
 
-#include "../../src/l0_system/logger.h"
+#include "utils/logger.h"
 
 using namespace remo;
 

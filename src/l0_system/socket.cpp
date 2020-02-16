@@ -10,8 +10,8 @@
 #include "socket.h"
 
 #include "system.h"
-#include "logger.h"
 #include "error.h"
+#include "utils/logger.h"
 #include "utils/contracts.h"
 
 #include <sstream>
