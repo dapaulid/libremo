@@ -18,7 +18,7 @@
 //
 
 // assert wrapper
-#define REMO_ASSERT(cond, msg) assert(((void) msg, cond))
+#define REMO_ASSERT(cond, msg) assert(msg && (cond))
 
 // precondition block: list assertions to be evaluated at function scope entry
 #define REMO_PRECOND(block) block
