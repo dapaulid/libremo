@@ -22,7 +22,7 @@
 #endif
 
 #ifdef REMO_SYS_WIN
-	#define REMO_MSVC_WARN_SUPPRESS(code)   #pragma warning(suppress: code)
+	#define REMO_MSVC_WARN_SUPPRESS(code) __pragma(warning(suppress: code))
 #else
 	#define REMO_MSVC_WARN_SUPPRESS(code)
 #endif
