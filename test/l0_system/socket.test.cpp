@@ -3,8 +3,23 @@
 #include "../../src/l0_system/socket.h"
 #include "../../src/l0_system/error.h"
 
+#include <future>
 #include <string.h>
+#include <chrono>
 
+//------------------------------------------------------------------------------
+// helpers
+//------------------------------------------------------------------------------
+//
+void sleep(int a_timeout_ms) {
+	std::this_thread::sleep_for(std::chrono::milliseconds(a_timeout_ms));
+}
+
+
+//------------------------------------------------------------------------------
+// tests
+//------------------------------------------------------------------------------
+//
 using namespace remo::sys;
 
 //------------------------------------------------------------------------------
@@ -204,5 +219,41 @@ TEST(SocketSet, PollShutdown)
 
 	// sockets s1 and s3 should still be ready (by observation)
 	num_ready = ss.poll(NO_WAIT);
+	EXPECT_EQ(num_ready, 2);
+}
+
+//------------------------------------------------------------------------------
+//
+TEST(SocketSet, PollShutdown_async)
+{
+    Socket s1(SockProto::TCP);
+	Socket s2(SockProto::TCP);
+
+	s2.bind(SockAddr::localhost);
+	s2.listen();
+
+	s1.connect(s2.get_socket_addr());
+	Socket s3 = s2.accept();
+
+	SocketSet ss;
+	ss.add(&s1);
+	ss.add(&s2);
+	ss.add(&s3);
+
+	// no socket should be ready first
+	size_t num_ready = ss.poll(NO_WAIT);
+	EXPECT_EQ(num_ready, 0);
+
+	// do a blocking poll in a separate thread
+	auto a = std::async(std::launch::async, [&](){
+		return ss.poll(1000);
+	});
+
+	// shutdown s1 in the middle of asynchronous poll
+	sleep(500);
+	s1.shutdown();
+	
+	// sockets s1 and s3 should be ready
+	num_ready = a.get();
 	EXPECT_EQ(num_ready, 2);
 }
