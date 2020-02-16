@@ -83,6 +83,7 @@ static struct WinsockGuard {
 //
 static int get_last_error();
 static std::string get_error_message(int err);
+static const char* get_sdflag_str(Socket::ShutdownFlag sdf);
 
 
 //------------------------------------------------------------------------------
@@ -288,8 +289,8 @@ Socket Socket::accept()
 	Socket socket(sockfd);
 
 	// success
-	REMO_INFO("socket accepted connection from '%s' -> created socket #%d",
-		socket.get_remote_addr().to_string().c_str(), socket.get_fd());
+	REMO_INFO("socket accepted connection from '%s' -> created socket %s",
+		socket.get_remote_addr().to_string().c_str(), socket.get_log_name().c_str());
 	return socket;
 }
 
@@ -342,7 +343,8 @@ void Socket::shutdown(ShutdownFlag how)
 			err, get_error_message(err).c_str());		
 	}
 
-	REMO_INFO("socket shutdown")
+	REMO_INFO("socket shutdown (how=%s)",
+		get_sdflag_str(how));
 }
 
 //------------------------------------------------------------------------------
@@ -704,6 +706,17 @@ static std::string get_error_message(int err)
 	return msg;           
 }
 
+//------------------------------------------------------------------------------
+//
+static const char* get_sdflag_str(Socket::ShutdownFlag sdf)
+{
+	switch (sdf) {
+		case Socket::ShutdownFlag::ShutRd: return "ShutRd";
+		case Socket::ShutdownFlag::ShutWr: return "ShutWr";
+		case Socket::ShutdownFlag::ShutRdWr: return "ShutRdWr";
+		default: return "???";
+	}
+}
 
 //------------------------------------------------------------------------------
 	} // end namespace sys
