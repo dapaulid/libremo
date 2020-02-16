@@ -8,6 +8,9 @@ project(libremo CXX)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# output compiler info
+message(STATUS "Using compiler ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION} (${CMAKE_CXX_COMPILER})")
+
 # set global compile options
 if(MSVC)
   add_compile_options(/W4 /WX)
