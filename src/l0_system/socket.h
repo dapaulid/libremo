@@ -89,6 +89,13 @@ public:
 
 	int get_fd() const { return m_sockfd; }
 
+public:
+	// move-only semantics
+    Socket(Socket&&) = default;
+    Socket& operator=(Socket&&) = default;
+    Socket(const Socket&) = delete;
+    Socket& operator=(const Socket&) = delete;
+
 protected:
 	Socket(int a_sockfd);
 
