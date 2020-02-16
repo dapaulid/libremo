@@ -11,6 +11,8 @@
 
 #include "l0_system/system.h"
 
+#include <cstring>
+
 #ifdef REMO_SYS_WIN
 	#include <windows.h> // GetConsoleMode
 	#include <io.h> // _isatty
@@ -35,6 +37,21 @@ Colors::Colors(std::ostream& a_out, UseColors a_use_colors):
 	m_out(a_out),
 	m_use_colors()
 {
+	// check environment for "auto" mode
+	if (a_use_colors == UseColors::automatic) {
+		const char* ev = std::getenv("REMO_COLORS");
+		if (ev) {
+			if (std::strcmp(ev, "always") == 0) {
+				a_use_colors = UseColors::always;
+			} else if (std::strcmp(ev, "never") == 0) {
+				a_use_colors = UseColors::never;
+			} else if (std::strcmp(ev, "automatic") == 0) {
+				a_use_colors = UseColors::automatic;
+			}
+		}
+	}
+
+	// determine if colors to be used
 	if (a_use_colors == UseColors::always) {
 		request_color_support();
 		m_use_colors = true;

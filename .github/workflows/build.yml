@@ -2,6 +2,9 @@ name: build
 
 on: [push]
 
+env:
+  REMO_COLORS: always
+
 jobs:
   build-linux:
     runs-on: ubuntu-latest
