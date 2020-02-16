@@ -57,6 +57,15 @@ std::string format_timestamp(const time_point& a_timestamp)
     return ss.str();
 }
 
+//------------------------------------------------------------------------------	
+//
+std::string get_env(const char* a_name)
+{
+    REMO_MSVC_WARN_SUPPRESS(4996)
+    const char* ev = std::getenv(a_name);
+    return ev ? std::string(ev) : std::string();
+}
+
 //------------------------------------------------------------------------------
 } // end namespace sys
 } // end namespace remo

@@ -21,6 +21,11 @@
 #define REMO_SYS_WIN
 #endif
 
+#ifdef REMO_SYS_WIN
+	#define REMO_MSVC_WARN_SUPPRESS(code)   #pragma warning(suppress: code)
+#else
+	#define REMO_MSVC_WARN_SUPPRESS(code)
+#endif
 
 //------------------------------------------------------------------------------
 namespace remo {
@@ -36,6 +41,9 @@ time_point get_timestamp();
 int64_t micros_between(const time_point& a_now, const time_point& a_then);
 //! formats a timestamp in format HH:MM:SS.MICROS
 std::string format_timestamp(const time_point& a_timestamp);
+
+//! gets the value of the specified environment variable
+std::string get_env(const char* a_name);
 
 //------------------------------------------------------------------------------
 } // end namespace sys
