@@ -11,6 +11,15 @@
 // helpers
 //------------------------------------------------------------------------------
 //
+static const int POLL_TIMEOUT = 100; // ms
+static const auto ASYNC_NO_WAIT = std::chrono::milliseconds(0);
+static const auto ASYNC_PSEUDO_NO_WAIT = std::chrono::milliseconds(10);
+
+
+//------------------------------------------------------------------------------
+// helpers
+//------------------------------------------------------------------------------
+//
 void sleep(int a_timeout_ms) {
 	std::this_thread::sleep_for(std::chrono::milliseconds(a_timeout_ms));
 }
@@ -157,7 +166,7 @@ TEST(SocketSet, Poll)
 	// no socket should be ready first
 	s1_ready = s2_ready = false;
 	size_t num_ready = ss.poll(NO_WAIT);
-	EXPECT_EQ(num_ready, 0);
+	EXPECT_EQ(num_ready, (size_t)0);
 	EXPECT_FALSE(s1_ready);
 	EXPECT_FALSE(s2_ready);
 
@@ -169,14 +178,14 @@ TEST(SocketSet, Poll)
 	// s2 should be ready now
 	s1_ready = s2_ready = false;
 	num_ready = ss.poll(NO_WAIT);
-	EXPECT_EQ(num_ready, 1);
+	EXPECT_EQ(num_ready, (size_t)1);
 	EXPECT_FALSE(s1_ready);
 	EXPECT_TRUE(s2_ready);
 
 	// s2 should still be ready
 	s1_ready = s2_ready = false;
 	num_ready = ss.poll(NO_WAIT);
-	EXPECT_EQ(num_ready, 1);
+	EXPECT_EQ(num_ready, (size_t)1);
 	EXPECT_FALSE(s1_ready);
 	EXPECT_TRUE(s2_ready);
 }
@@ -201,25 +210,25 @@ TEST(SocketSet, PollShutdown)
 
 	// no socket should be ready first
 	size_t num_ready = ss.poll(NO_WAIT);
-	EXPECT_EQ(num_ready, 0);
+	EXPECT_EQ(num_ready, (size_t)0);
 
 	// shutdown s1
 	s1.shutdown();
 
 	// sockets s1 and s3 should be ready
 	num_ready = ss.poll(NO_WAIT);
-	EXPECT_EQ(num_ready, 2);
+	EXPECT_EQ(num_ready, (size_t)2);
 	
 	// s3 and s1 should "receive" 0 bytes -> orderly shutdown by peer
 	char recvbuf [32];
 	size_t bytes_received = s3.recv(recvbuf, sizeof(recvbuf));
-	EXPECT_EQ(bytes_received, 0);
+	EXPECT_EQ(bytes_received, (size_t)0);
 	bytes_received = s1.recv(recvbuf, sizeof(recvbuf));
-	EXPECT_EQ(bytes_received, 0);
+	EXPECT_EQ(bytes_received, (size_t)0);
 
 	// sockets s1 and s3 should still be ready (by observation)
 	num_ready = ss.poll(NO_WAIT);
-	EXPECT_EQ(num_ready, 2);
+	EXPECT_EQ(num_ready, (size_t)2);
 }
 
 //------------------------------------------------------------------------------
@@ -242,18 +251,24 @@ TEST(SocketSet, PollShutdown_async)
 
 	// no socket should be ready first
 	size_t num_ready = ss.poll(NO_WAIT);
-	EXPECT_EQ(num_ready, 0);
+	EXPECT_EQ(num_ready, (size_t)0);
 
 	// do a blocking poll in a separate thread
-	auto a = std::async(std::launch::async, [&](){
-		return ss.poll(1000);
+	std::future<size_t> a = std::async(std::launch::async, [&](){
+		return ss.poll(POLL_TIMEOUT);
 	});
 
 	// shutdown s1 in the middle of asynchronous poll
-	sleep(500);
+	sleep(POLL_TIMEOUT / 2);
+	std::future_status status = a.wait_for(ASYNC_NO_WAIT);
+	EXPECT_EQ(status, std::future_status::timeout);
 	s1.shutdown();
 	
+	// asynchronous poll should return
+	status = a.wait_for(ASYNC_PSEUDO_NO_WAIT);
+	EXPECT_EQ(status, std::future_status::ready);
+
 	// sockets s1 and s3 should be ready
 	num_ready = a.get();
-	EXPECT_EQ(num_ready, 2);
+	EXPECT_EQ(num_ready, (size_t)2);
 }
