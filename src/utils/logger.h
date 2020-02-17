@@ -86,10 +86,6 @@ private:
 	std::ostream& m_out;
 	//! color object used for pretty printing
 	Colors m_colors;
-	//! timestamp of last log
-	sys::time_point m_last_timestamp;
-	//! flag indicating if background color of timestamp is to be inverted
-	bool m_invert;
 	//! time between two logs for inverting background in microseconds
 	int m_invert_threshold;
 	static LogLevel s_global_level;	

@@ -52,7 +52,6 @@ static const std::array<Color, 8> thread_colors = {
 // forward declarations
 //------------------------------------------------------------------------------	
 //
-//! helper functions for mapping thread ids to consecutive (short) numbers
 static int get_thread_number(const std::thread::id& a_tid = std::this_thread::get_id());
 
 
@@ -70,8 +69,6 @@ Logger::Logger(const std::string& a_name, std::ostream& a_out):
 	m_name(a_name),
 	m_out(a_out),
 	m_colors(a_out, UseColors::automatic),
-	m_last_timestamp(),
-	m_invert(false),
 	m_invert_threshold(5000) // microseconds
 {
 }
@@ -84,10 +81,21 @@ Logger::~Logger()
 
 //------------------------------------------------------------------------------	
 //
-bool Logger::level_enabled(LogLevel a_level)
-{
-	return (a_level <= s_global_level) || (s_global_level == eLogAll);
-}
+/**
+ * static variables used by the log function.
+ * these are declared here instead of as locals, to avoid the penalty for
+ * locking during initialization.
+ */
+static struct {
+	//! mutex to serialize access to members and static variables in log function
+	std::mutex mutex;
+	//! timestamp of last log
+	sys::time_point last_ts;
+	//! flag indicating if background color of timestamp is to be inverted
+	bool invert;
+	//! intermediary buffer for formatting log message
+	std::stringstream ss;
+} s_log;
 
 //------------------------------------------------------------------------------	
 //
@@ -145,12 +153,20 @@ void Logger::log(LogLevel a_level,  const std::string& a_log_name,
 		fcol = Color::none;
 	}
 
+	/**
+	 * Critical section starts here.
+	 * 
+	 * This ensures correct ordering of log messages according to timestamp
+	 * and guards access to static variables.
+	 */
+	const std::lock_guard<std::mutex> lock(s_log.mutex);
+
 	// get current timestamp
 	sys::time_point ts = sys::get_timestamp();
-	if ( sys::micros_between(ts, m_last_timestamp) > m_invert_threshold) {
-		m_invert = !m_invert;
+	if ( sys::micros_between(ts, s_log.last_ts) > m_invert_threshold) {
+		s_log.invert = !s_log.invert;
 	}
-	m_last_timestamp = ts;
+	s_log.last_ts = ts;
 
 	// get sequence number of current thread
 	// we use a mapping instead of the actual thread id to keep the log lines compact
@@ -164,16 +180,21 @@ void Logger::log(LogLevel a_level,  const std::string& a_log_name,
 	 * our output stream directly, in order to:
 	 * 1. avoid unnecessary flushes on stderr
 	 * 2. avoid interleaved output from different threads
+	 *    writing to the stream from outside this function
 	 */
-	std::stringstream ss;
+	
+	// reuse string buffer to minimize heap allocations
+	std::stringstream& ss(s_log.ss);
+	ss.str(std::string());
+	ss.clear();
 
 	// output prefix and timestamp
 	ss << library_prefix;
 	// output timestamp
 	ss << m_colors.colorize(
 		"[" + sys::format_timestamp(ts) + "]", 
-		m_invert ? Color::bright_white : Color::black, 
-		m_invert ? Color::bright_black : Color::white
+		s_log.invert ? Color::bright_white : Color::black, 
+		s_log.invert ? Color::bright_black : Color::white
 	) << " ";
 	// output log level
 	ss << "[" << m_colors.colorize(level, fcol, bcol, style) << "] ";
@@ -194,24 +215,29 @@ void Logger::log(LogLevel a_level,  const std::string& a_log_name,
 	m_out << ss.str();
 }
 
+//------------------------------------------------------------------------------	
+//
+bool Logger::level_enabled(LogLevel a_level)
+{
+	return (a_level <= s_global_level) || (s_global_level == eLogAll);
+}
+
 
 //------------------------------------------------------------------------------
 // helpers
 //------------------------------------------------------------------------------	
 //
+//! helper functions for mapping thread ids to consecutive (short) numbers
+//! IMPORTANT: Caller is responsible for locking!
 static int get_thread_number(const std::thread::id& a_tid)
 {
-	// static variables
+	// static map to keep track of all observed thread ids
 	typedef std::unordered_map<std::thread::id, int> Map;
 	static Map map;
-	static std::mutex mutex;
 
 	// thread number to be determined
 	int thread_num = -1;
 
-	// critical section
-	const std::lock_guard<std::mutex> lock(mutex);
-	
 	// lookup thread id
 	auto it = map.find(a_tid);
 	if (it == map.end()) {
