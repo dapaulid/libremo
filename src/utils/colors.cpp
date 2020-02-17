@@ -110,7 +110,7 @@ bool Colors::colors_requested() const
 		return false;
 	}
 #ifdef REMO_SYS_WIN
-	return ::_isatty(::_fileno(stream));
+	return ::_isatty(::_fileno(stream)) != 0;
 #else
 	return ::isatty(::fileno(stream));
 #endif
