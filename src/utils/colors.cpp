@@ -87,7 +87,6 @@ std::string Colors::colorize(const std::string& a_str, Color a_forecol, Color a_
 		}
 		if (a_style != Style::none) {
 			colorized += sep + std::to_string((int)a_style);
-			sep = ";";
 		}
 		colorized += "m" + a_str + "\x1B[0m";
 		return colorized;
