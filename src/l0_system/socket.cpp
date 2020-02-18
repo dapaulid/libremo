@@ -705,17 +705,19 @@ static std::string get_error_message(int err)
 #else
 	const char* ptr = strerror_r(err, &msg[0], msg.size());
 	if (ptr != &msg[0]) {
-		strncpy(&msg[0], ptr, msg.size());
+		snprintf(&msg[0], msg.size(), "%s", ptr);
 	}
 #endif
 	// get actual message length
-	size_t len = strlen(msg.c_str());
-	// remove trailing whitespace (observed under Windows)
-	while (len > 0 && msg[len-1] <= ' ') --len;
-	// truncate to actual message length
-	msg.resize(len);
+	size_t len = msg.find('\0');
+	if (len != std::string::npos) {
+		// remove trailing whitespace (observed under Windows)
+		while (len > 0 && msg[len-1] <= ' ') --len;
+		// truncate to actual message length
+		msg.resize(len);
+	}
 	// done
-	return msg;           
+	return msg;
 }
 
 //------------------------------------------------------------------------------
