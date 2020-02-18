@@ -43,6 +43,7 @@
 	#include <netdb.h> // getaddrinfo
 	#include <unistd.h> // close
 	#include <errno.h>
+	#include <fcntl.h>
 #endif
 
 
@@ -308,39 +309,90 @@ Socket Socket::accept()
 
 //------------------------------------------------------------------------------
 //
-size_t Socket::send(const void* a_buffer, size_t a_bufsize)
+Socket::IOResult Socket::send(const void* a_buffer, size_t a_bufsize, size_t* o_bytes_sent)
 {
-	int bytes_sent = ::send(m_sockfd, (const char*)a_buffer, (int)a_bufsize, 0);
-	if (bytes_sent < 0) {
+	if (o_bytes_sent) {
+		*o_bytes_sent = 0;
+	}
+
+	int ret = ::send(m_sockfd, (const char*)a_buffer, (int)a_bufsize, 0);
+	if (ret < 0) {
 		int err = get_last_error();
-		throw error(ErrorCode::ERR_SOCKET_SEND_FAILED, 
-			"Sending to '%s' failed with error %d: %s", 
-			get_remote_addr().to_string().c_str(), 
-			err, get_error_message(err).c_str());		
-	}		
+		if (err == EWOULDBLOCK) {
+			REMO_VERB("socket send would block");
+			return IOResult::WouldBlock;
+		} else {
+			throw error(ErrorCode::ERR_SOCKET_SEND_FAILED, 
+				"Sending to '%s' failed with error %d: %s", 
+				get_remote_addr().to_string().c_str(), 
+				err, get_error_message(err).c_str());		
+		}
+	}
+	size_t bytes_sent = (size_t)ret;
+
+	// caller handles number of bytes sent?
+	if (o_bytes_sent) {
+		// yes -> return it
+		*o_bytes_sent = bytes_sent;
+	} else {
+		// no -> caller expects whole buffer to be sent
+		if (bytes_sent != a_bufsize) {
+			throw error(ErrorCode::ERR_SOCKET_SEND_INCOMPLETE, 
+				"Failed to send complete buffer: Expected %d bytes, actual %d bytes", 
+				a_bufsize, bytes_sent);
+		}
+	}
 
 	// success
-	REMO_VERB("socket sent %d bytes (bufsize=%zu)",
+	REMO_VERB("socket sent %d bytes (bufsize=%d)",
 		bytes_sent, a_bufsize);
-	return bytes_sent;
+	return IOResult::Success;
 }
 
 //------------------------------------------------------------------------------
 //
-size_t Socket::recv(void* a_buffer, size_t a_bufsize)
+Socket::IOResult Socket::recv(void* a_buffer, size_t a_bufsize, size_t* o_bytes_received)
 {
-	int bytes_received = ::recv(m_sockfd, (char*)a_buffer, (int)a_bufsize, 0);
-	if (bytes_received < 0) {
+	if (o_bytes_received) {
+		*o_bytes_received = 0;
+	}
+
+	int ret = ::recv(m_sockfd, (char*)a_buffer, (int)a_bufsize, 0);
+	if (ret < 0) {
 		int err = get_last_error();
-		throw error(ErrorCode::ERR_SOCKET_SEND_FAILED, 
-			"Receiving from '%s' failed with error %d: %s", 
-			get_remote_addr().to_string().c_str(), 
-			err, get_error_message(err).c_str());		
-	}		
+		if (err == EWOULDBLOCK) {
+			REMO_VERB("socket receive would block");
+			return IOResult::WouldBlock;
+		} else {
+			throw error(ErrorCode::ERR_SOCKET_SEND_FAILED, 
+				"Receiving from '%s' failed with error %d: %s", 
+				get_remote_addr().to_string().c_str(), 
+				err, get_error_message(err).c_str());
+		}
+	}  else if (ret == 0) {
+		// handle peer shutdown
+		// TODO what about zero-length UDP datagrams?
+		REMO_INFO("Peer performed orderly shutdown during recv()");
+		return IOResult::PeerShutdown;
+	}
+	size_t bytes_received = (size_t)ret;
+
+	// caller handles number of bytes received?
+	if (o_bytes_received) {
+		// yes -> return it
+		*o_bytes_received = bytes_received;
+	} else {
+		// no -> caller expects whole buffer to be received
+		if (bytes_received != a_bufsize) {
+			throw error(ErrorCode::ERR_SOCKET_RECV_INCOMPLETE, 
+				"Failed to receive complete buffer: Expected %d bytes, actual %d bytes", 
+				a_bufsize, bytes_received);
+		}
+	}
 
 	REMO_VERB("socket received %d bytes (bufsize=%zu)",
 		bytes_received, a_bufsize);
-	return bytes_received;
+	return IOResult::Success;
 }
 
 //------------------------------------------------------------------------------
@@ -357,6 +409,41 @@ void Socket::shutdown(ShutdownFlag how)
 
 	REMO_INFO("socket shutdown (how=%s)",
 		get_sdflag_str(how));
+}
+
+//------------------------------------------------------------------------------
+//
+void Socket::set_blocking(bool a_blocking)
+{
+#ifdef REMO_SYS_WINDOWS
+   unsigned long mode = blocking ? 0 : 1;
+   int ret = ::ioctlsocket(m_sockfd, FIONBIO, &mode);
+   if (ret != 0) {
+		int err = get_last_error();
+		throw error(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
+			"Setting socket blocking mode using ioctlsocket() failed with error %d: %s", 
+			err, get_error_message(err).c_str());
+   }
+#else
+   int flags = ::fcntl(m_sockfd, F_GETFL, 0);
+   if (flags == -1) {
+		int err = get_last_error();
+		throw error(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
+			"Getting socket flags using fcntl() failed with error %d: %s", 
+			err, get_error_message(err).c_str());
+   }
+   flags = a_blocking ? (flags & ~O_NONBLOCK) : (flags | O_NONBLOCK);
+   int ret = ::fcntl(m_sockfd, F_SETFL, flags);
+   if (ret != 0) {
+		int err = get_last_error();
+		throw error(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
+			"Setting socket blocking mode using fcntl() failed with error %d: %s", 
+			err, get_error_message(err).c_str());
+   }
+#endif
+
+	REMO_INFO("socket set no %s mode",
+		a_blocking ? "blocking" : "non-blocking");
 }
 
 //------------------------------------------------------------------------------

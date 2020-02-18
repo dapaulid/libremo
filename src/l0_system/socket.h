@@ -61,10 +61,16 @@ public:
 	typedef std::function<void(Socket*)> ready_handler;
 	
 	// shutdown flags
-	enum ShutdownFlag {
+	enum class ShutdownFlag {
 		ShutRd   = 0,
 		ShutWr   = 1,
 		ShutRdWr = 2
+	};
+
+	enum class IOResult {
+		Success,          // data sent/received
+		WouldBlock,       // send/receive would block for non-blocking socket / timeout expired
+		PeerShutdown      // peer has performed an orderly shutdown
 	};
 
 public:
@@ -77,10 +83,13 @@ public:
 	void listen(int a_backlog = -1);
 	Socket accept();
 
-	size_t send(const void* a_buffer, size_t a_bufsize);
-	size_t recv(void* a_buffer, size_t a_bufsize);
+	IOResult send(const void* a_buffer, size_t a_bufsize, size_t* o_bytes_sent = nullptr);
+	IOResult recv(void* a_buffer, size_t a_bufsize, size_t* o_bytes_received = nullptr);
 
-	void shutdown(ShutdownFlag how = ShutRdWr);
+	void shutdown(ShutdownFlag how = ShutdownFlag::ShutRdWr);
+
+	//! change between blocking and non-blocking mode
+	void set_blocking(bool a_blocking);
 
 	void on_receive_ready(const ready_handler& a_handler);
 

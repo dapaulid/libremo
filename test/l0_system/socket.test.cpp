@@ -90,10 +90,25 @@ TEST(SockAddr, Invalid)
 
 //------------------------------------------------------------------------------
 //
+TEST(Socket, NonBlockingReceive)
+{
+	char recvbuf [32];
+
+	Socket s1(SockProto::UDP);
+	s1.connect(SockAddr("localhost:12345"));
+	s1.set_blocking(false);
+
+	// attempt to receive any data should block
+	Socket::IOResult recv_result = s1.recv(recvbuf, sizeof(recvbuf));
+	EXPECT_EQ(recv_result, Socket::IOResult::WouldBlock);
+}
+
+//------------------------------------------------------------------------------
+//
 TEST(Socket, SendReceive_UDP)
 {
 	const char sendbuf [] = "Hello World!";
-	char recvbuf [32];
+	char recvbuf [sizeof(sendbuf)];
 
     Socket s1(SockProto::UDP);
 	Socket s2(SockProto::UDP);
@@ -101,11 +116,11 @@ TEST(Socket, SendReceive_UDP)
 	s2.bind(SockAddr::localhost);
 
 	s1.connect(s2.get_socket_addr());
-	size_t bytes_sent = s1.send(sendbuf, sizeof(sendbuf));
-	EXPECT_EQ(bytes_sent, sizeof(sendbuf));
+	Socket::IOResult send_result = s1.send(sendbuf, sizeof(sendbuf));
+	EXPECT_EQ(send_result, Socket::IOResult::Success);
 
-	size_t bytes_received = s2.recv(recvbuf, sizeof(recvbuf));
-	EXPECT_EQ(bytes_received, bytes_sent);
+	Socket::IOResult recv_result = s2.recv(recvbuf, sizeof(recvbuf));
+	EXPECT_EQ(recv_result, Socket::IOResult::Success);
 	EXPECT_TRUE(memcmp(recvbuf, sendbuf, sizeof(sendbuf)) == 0);
 }
 
@@ -114,7 +129,7 @@ TEST(Socket, SendReceive_UDP)
 TEST(Socket, SendReceive_TCP)
 {
 	const char sendbuf [] = "Hello World!";
-	char recvbuf [32];
+	char recvbuf [sizeof(sendbuf)];
 
     Socket s1(SockProto::TCP);
 	Socket s2(SockProto::TCP);
@@ -125,11 +140,11 @@ TEST(Socket, SendReceive_TCP)
 	s1.connect(s2.get_socket_addr());
 	Socket s3 = s2.accept();
 	
-	size_t bytes_sent = s1.send(sendbuf, sizeof(sendbuf));
-	EXPECT_EQ(bytes_sent, sizeof(sendbuf));
+	Socket::IOResult send_result = s1.send(sendbuf, sizeof(sendbuf));
+	EXPECT_EQ(send_result, Socket::IOResult::Success);
 
-	size_t bytes_received = s3.recv(recvbuf, sizeof(recvbuf));
-	EXPECT_EQ(bytes_received, bytes_sent);
+	Socket::IOResult recv_result = s3.recv(recvbuf, sizeof(recvbuf));
+	EXPECT_EQ(recv_result, Socket::IOResult::Success);
 	EXPECT_TRUE(memcmp(recvbuf, sendbuf, sizeof(sendbuf)) == 0);
 }
 
@@ -172,8 +187,8 @@ TEST(SocketSet, Poll)
 
 	// send data from s1 to s2
 	const char data [] = "Hello";
-	size_t bytes_sent = s1.send(data, sizeof(data));
-	EXPECT_EQ(bytes_sent, sizeof(data));
+	Socket::IOResult send_result = s1.send(data, sizeof(data));
+	EXPECT_EQ(send_result, Socket::IOResult::Success);
 
 	// s2 should be ready now
 	s1_ready = s2_ready = false;
@@ -219,10 +234,10 @@ TEST(SocketSet, PollShutdown)
 	num_ready = ss.poll(NO_WAIT);
 	EXPECT_GT(num_ready, (size_t)0); // 1 under Windows, 2 under Linux...
 	
-	// s3 should "receive" 0 bytes -> orderly shutdown by peer
+	// s3 should "receive" orderly shutdown by peer
 	char recvbuf [32];
-	size_t bytes_received = s3.recv(recvbuf, sizeof(recvbuf));
-	EXPECT_EQ(bytes_received, (size_t)0);
+	Socket::IOResult recv_result = s3.recv(recvbuf, sizeof(recvbuf));
+	EXPECT_EQ(recv_result, Socket::IOResult::PeerShutdown);
 
 	// socket s3 should still be ready (by observation)
 	num_ready = ss.poll(NO_WAIT);
