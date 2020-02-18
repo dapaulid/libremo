@@ -100,6 +100,18 @@ Socket::Socket(int a_sockfd):
 
 //------------------------------------------------------------------------------
 //
+// move constructor
+Socket::Socket(Socket&& a_other):
+	m_sockfd(a_other.m_sockfd),
+	m_receive_ready(std::move(a_other.m_receive_ready)),
+	m_log_name(std::move(a_other.m_log_name))
+{
+	// ensure descriptor is not closed twice
+	a_other.m_sockfd = INVALID_SOCKFD;
+}
+
+//------------------------------------------------------------------------------
+//
 Socket::Socket(SockProto a_proto, AddrFamily a_family):
 	Socket(INVALID_SOCKFD)
 {

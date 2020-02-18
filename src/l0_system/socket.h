@@ -91,8 +91,8 @@ public:
 
 public:
 	// move-only semantics
-    Socket(Socket&&) = default;
-    Socket& operator=(Socket&&) = default;
+    Socket(Socket&& a_other);
+    Socket& operator=(Socket&&) = delete; // not sure we need this
     Socket(const Socket&) = delete;
     Socket& operator=(const Socket&) = delete;
 
