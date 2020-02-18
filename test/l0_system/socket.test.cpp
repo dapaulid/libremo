@@ -215,20 +215,18 @@ TEST(SocketSet, PollShutdown)
 	// shutdown s1
 	s1.shutdown();
 
-	// sockets s1 and s3 should be ready
+	// socket s3 should be ready
 	num_ready = ss.poll(NO_WAIT);
-	EXPECT_EQ(num_ready, (size_t)2);
+	EXPECT_GT(num_ready, (size_t)0); // 1 under Windows, 2 under Linux...
 	
-	// s3 and s1 should "receive" 0 bytes -> orderly shutdown by peer
+	// s3 should "receive" 0 bytes -> orderly shutdown by peer
 	char recvbuf [32];
 	size_t bytes_received = s3.recv(recvbuf, sizeof(recvbuf));
 	EXPECT_EQ(bytes_received, (size_t)0);
-	bytes_received = s1.recv(recvbuf, sizeof(recvbuf));
-	EXPECT_EQ(bytes_received, (size_t)0);
 
-	// sockets s1 and s3 should still be ready (by observation)
+	// socket s3 should still be ready (by observation)
 	num_ready = ss.poll(NO_WAIT);
-	EXPECT_EQ(num_ready, (size_t)2);
+	EXPECT_GT(num_ready, (size_t)0); // 1 under Windows, 2 under Linux...
 }
 
 //------------------------------------------------------------------------------
@@ -268,7 +266,7 @@ TEST(SocketSet, PollShutdown_async)
 	status = a.wait_for(ASYNC_PSEUDO_NO_WAIT);
 	EXPECT_EQ(status, std::future_status::ready);
 
-	// sockets s1 and s3 should be ready
+	// socket s3 should be ready
 	num_ready = a.get();
-	EXPECT_EQ(num_ready, (size_t)2);
+	EXPECT_GT(num_ready, (size_t)0); // 1 under Windows, 2 under Linux...
 }
