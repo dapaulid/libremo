@@ -415,7 +415,7 @@ void Socket::shutdown(ShutdownFlag how)
 //
 void Socket::set_blocking(bool a_blocking)
 {
-#ifdef REMO_SYS_WINDOWS
+#ifdef REMO_SYS_WIN
    unsigned long mode = blocking ? 0 : 1;
    int ret = ::ioctlsocket(m_sockfd, FIONBIO, &mode);
    if (ret != 0) {
