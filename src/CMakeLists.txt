@@ -8,6 +8,7 @@ target_sources(
         l3_rpc/remote_endpoint.cpp
         l3_rpc/item.cpp
         l3_rpc/function.cpp
+        l1_transport/channel.cpp
         l1_transport/packet.cpp
         l1_transport/reader.cpp
         l1_transport/writer.cpp
@@ -15,6 +16,7 @@ target_sources(
         l0_system/socket.cpp
         l0_system/system.cpp
         l0_system/types.cpp
+        l0_system/worker.cpp
         utils/colors.cpp
         utils/logger.cpp        
     PUBLIC

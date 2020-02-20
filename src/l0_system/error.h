@@ -55,6 +55,7 @@ enum ErrorCode {
 	ERR_SOCKET_SEND_INCOMPLETE = 35,
 	ERR_SOCKET_RECV_FAILED = 36,
 	ERR_SOCKET_RECV_INCOMPLETE = 37,
+	ERR_WORKER_BAD_THREAD_STATE = 38,
 };
 
 class error: public std::runtime_error
