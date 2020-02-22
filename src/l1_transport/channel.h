@@ -19,8 +19,6 @@
 // C++ 
 #include <functional>
 //
-// system
-//
 //
 //------------------------------------------------------------------------------
 namespace remo {
@@ -35,8 +33,19 @@ class Channel
 {
 // types
 public:
-	// callback type for receive events
+	//! channel states
+	enum class State {
+		closed,
+		opening,
+		open,
+		closing,
+		closed_by_peer
+	};
+
+	//! callback type for receive events
 	typedef std::function<void(Channel*, packet_ptr&)> receive_handler;
+	//! calback type for state change event
+	typedef std::function<void(Channel*, State)> state_handler;
 
 // ctor/dtor
 public:
@@ -47,16 +56,38 @@ public:
 public:
 	//! send a packet over this channel
 	virtual void send(packet_ptr& a_packet) = 0;
+	
 	//! register a callback function that is invoked when a packet was received by this channel
 	void on_receive(const receive_handler& a_handler);
+	//! register a callback function that is invoked when the channel state changed
+	void on_state_changed(const state_handler& a_handler);
+
+	//! close this channel
+	virtual void close() = 0;
+
+	State get_state() const { return m_state; }
+	bool is_open() const { return m_state == State::open; }
+	bool is_closed() const { return m_state == State::closed || m_state == State::closed_by_peer; }
+
+	//! returns the name of the given state
+	static const char* get_state_str(State a_state);
+
+// protected member functions
+protected:
+	//! enters the specified state
+	void change_state(State a_new_state);
 
 // private member functions
 private:
 
 // private members
 private:
+	//! channel state
+	State m_state;
 	//! callback invoked when a packet was received by this channel
 	receive_handler m_receive_handler;
+	//! callback invoked when the state channel changed
+	state_handler m_state_handler;
 };
 
 //------------------------------------------------------------------------------

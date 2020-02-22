@@ -54,7 +54,8 @@
 		"chrono": "cpp",
 		"unordered_set": "cpp",
 		"ratio": "cpp",
-		"thread": "cpp"
+		"thread": "cpp",
+		"future": "cpp"
 	},
 	"markiscodecoverage.searchCriteria": "build/Debug/coverage.info"
 }

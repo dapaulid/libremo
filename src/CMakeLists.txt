@@ -8,6 +8,7 @@ target_sources(
         l3_rpc/remote_endpoint.cpp
         l3_rpc/item.cpp
         l3_rpc/function.cpp
+        l1_transport/transport.cpp
         l1_transport/channel.cpp
         l1_transport/packet.cpp
         l1_transport/reader.cpp
