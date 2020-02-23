@@ -12,9 +12,9 @@
 #include "utils/recycling.h"
 #include "../l0_system/error.h"
 
-#include <stddef.h>
 #include <iostream>
 #include <memory>
+#include <cstddef> // max_align_t
 
 //------------------------------------------------------------------------------
 namespace remo {
@@ -61,9 +61,11 @@ public:
         }
     }
 
+    void set_size(size_t a_size);
 
     char* get_buffer() { return m_buffer; }
-    size_t get_size() const { return m_size;  }
+    size_t get_size() const { return m_size; }
+    size_t get_buffer_size() const { return sizeof(m_buffer); }
 
     std::string to_string(); //const;
     std::string to_hex() const;
@@ -72,7 +74,7 @@ protected:
     void recycle() override;
 
 private:
-    char m_buffer [1024];
+    alignas(std::max_align_t) char m_buffer [1024];
     size_t m_size;
 };
 

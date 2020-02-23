@@ -14,6 +14,7 @@
 //------------------------------------------------------------------------------
 //
 // project
+#include "transport.h"
 #include "utils/logger.h"
 #include "utils/contracts.h"
 //
@@ -35,7 +36,8 @@ static Logger logger("Channel");
 // class implementation
 //------------------------------------------------------------------------------	
 //
-Channel::Channel():
+Channel::Channel(Transport* a_transport):
+	m_transport(a_transport),
 	m_state(State::closed),
 	m_receive_handler(),
 	m_state_handler()
@@ -66,6 +68,16 @@ void Channel::on_state_changed(const Channel::state_handler& a_handler)
 
 //------------------------------------------------------------------------------	
 //
+void Channel::receive(packet_ptr& a_packet)
+{	
+	// notify observer
+	if (m_receive_handler) {
+		m_receive_handler(this, a_packet);
+	}
+}
+
+//------------------------------------------------------------------------------	
+//
 void Channel::change_state(State a_new_state)
 {
 	if (a_new_state != m_state) {
@@ -78,6 +90,25 @@ void Channel::change_state(State a_new_state)
 			m_state_handler(this, a_new_state);
 		}
 	}
+}
+
+//------------------------------------------------------------------------------	
+//
+size_t Channel::determine_packet_size(const packet_ptr& a_packet)
+{
+	uint32_t actual_packet_size = 0;
+
+	// packet header complete?
+	if (a_packet->get_size() >= sizeof(actual_packet_size)) {
+		// yes -> read actual packet size
+		actual_packet_size = *(uint32_t*)a_packet->get_buffer();
+		// packet complete?
+		if (actual_packet_size <= a_packet->get_size()) {
+			// yes -> return actual size
+			return (size_t)actual_packet_size;
+		}
+	}
+	return PACKET_INCOMPLETE;
 }
 
 //------------------------------------------------------------------------------	

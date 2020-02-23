@@ -14,79 +14,60 @@
 //------------------------------------------------------------------------------
 //
 // project
-#include "utils/contracts.h"
+#include "l1_transport/channel.h"
+#include "l0_system/socket.h"
 //
 // C++ 
-#include <thread>
-//
-// system
 //
 //
 //------------------------------------------------------------------------------
 namespace remo {
-	namespace sys {
+	namespace trans {
 //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// forward declarations
+//------------------------------------------------------------------------------
+//
+class TcpTransport;
+
 
 //------------------------------------------------------------------------------
 // class declaration
 //------------------------------------------------------------------------------
 //
-class Worker
+class TcpChannel: public Channel
 {
-// types
-public:
-	enum class ThreadState {
-		idle,
-		startup,
-		running,
-		shutdown
-	};
-
 // ctor/dtor
 public:
-	Worker();
-	virtual ~Worker();
+	TcpChannel(TcpTransport* a_transport);
+	virtual ~TcpChannel();
 
 // public member functions
 public:
-	//! starts the worker thread
-	void startup();
-	//! requests and waits for termination of the worker thread
-	void shutdown();
-	//! returns the current thread state
-	ThreadState get_thread_state() const { return m_thread_state; }
-
-	//! returns the worker instance associated with the current thread, if any
-	//! WARNING: Beware of dangling pointers!
-	static Worker* actual();
-
-// protected member functions
-protected:
-	//! implemented by subclasses to do the actual work
-	virtual void action() = 0;
-	//! implemented by subclasses to do anything necessary for startup
-	virtual void do_startup() {};
-	//! implemented by subclasses to do anything necessary for shutdown
-	virtual void do_shutdown() {};
+	//! send a packet over this channel
+	//! may block if the send buffer is full
+	virtual void send(packet_ptr& a_packet) override;
+	
+	//! close this channel
+	virtual void close() override;
 
 // private member functions
 private:
-	//! worker thread entry function
-	void run();
-
-	//! add/remove current thread to/from our bookkeeping
-	void register_thread();
-	void unregister_thread();
+	//! called when socket has data ready to receive
+	void receive_chunk();
+	//! ensure rx packet is allocated
+	void prepare_rx_packet();
 
 // private members
 private:
-	//! the worker thread
-	std::thread m_thread;
-	//! state of worker thread
-	ThreadState m_thread_state;
+	//! socket used for communication
+	sys::Socket m_socket;
+	//! current packet in progress of being received
+	packet_ptr m_rx_packet;
 };
 
 //------------------------------------------------------------------------------
-	} // end namespace sys
+	} // end namespace trans
 } // end namespace remo
 //------------------------------------------------------------------------------

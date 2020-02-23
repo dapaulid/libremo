@@ -55,7 +55,10 @@
 		"unordered_set": "cpp",
 		"ratio": "cpp",
 		"thread": "cpp",
-		"future": "cpp"
+		"future": "cpp",
+		"condition_variable": "cpp",
+		"cstring": "cpp",
+		"mutex": "cpp"
 	},
 	"markiscodecoverage.searchCriteria": "build/Debug/coverage.info"
 }

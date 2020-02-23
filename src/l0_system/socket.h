@@ -58,7 +58,7 @@ class Socket
 {
 public:
 	// callback type for ready events
-	typedef std::function<void(Socket*)> ready_handler;
+	typedef std::function<void()> ready_handler;
 	
 	// shutdown flags
 	enum class ShutdownFlag {
@@ -87,6 +87,9 @@ public:
 	IOResult recv(void* a_buffer, size_t a_bufsize, size_t* o_bytes_received = nullptr);
 
 	void shutdown(ShutdownFlag how = ShutdownFlag::ShutRdWr);
+
+	//! wait until the socket is ready to send
+	void wait_send_ready(int a_timeout_ms = WAIT_FOREVER);
 
 	//! change between blocking and non-blocking mode
 	void set_blocking(bool a_blocking);

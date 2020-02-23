@@ -14,79 +14,40 @@
 //------------------------------------------------------------------------------
 //
 // project
-#include "utils/contracts.h"
+#include "l1_transport/transport.h"
 //
 // C++ 
-#include <thread>
-//
-// system
 //
 //
 //------------------------------------------------------------------------------
 namespace remo {
-	namespace sys {
+	namespace trans {
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 // class declaration
 //------------------------------------------------------------------------------
 //
-class Worker
+class TcpTransport: public Transport
 {
-// types
-public:
-	enum class ThreadState {
-		idle,
-		startup,
-		running,
-		shutdown
-	};
-
 // ctor/dtor
 public:
-	Worker();
-	virtual ~Worker();
+	TcpTransport();
+	virtual ~TcpTransport();
 
 // public member functions
 public:
-	//! starts the worker thread
-	void startup();
-	//! requests and waits for termination of the worker thread
-	void shutdown();
-	//! returns the current thread state
-	ThreadState get_thread_state() const { return m_thread_state; }
-
-	//! returns the worker instance associated with the current thread, if any
-	//! WARNING: Beware of dangling pointers!
-	static Worker* actual();
-
-// protected member functions
-protected:
-	//! implemented by subclasses to do the actual work
-	virtual void action() = 0;
-	//! implemented by subclasses to do anything necessary for startup
-	virtual void do_startup() {};
-	//! implemented by subclasses to do anything necessary for shutdown
-	virtual void do_shutdown() {};
+	//! create a new channel that connects to the given endpoint
+	virtual Channel* connect(const std::string& a_endpoint) override;
 
 // private member functions
 private:
-	//! worker thread entry function
-	void run();
-
-	//! add/remove current thread to/from our bookkeeping
-	void register_thread();
-	void unregister_thread();
 
 // private members
 private:
-	//! the worker thread
-	std::thread m_thread;
-	//! state of worker thread
-	ThreadState m_thread_state;
 };
 
 //------------------------------------------------------------------------------
-	} // end namespace sys
+	} // end namespace trans
 } // end namespace remo
 //------------------------------------------------------------------------------

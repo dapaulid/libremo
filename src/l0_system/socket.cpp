@@ -413,6 +413,23 @@ void Socket::shutdown(ShutdownFlag how)
 
 //------------------------------------------------------------------------------
 //
+void Socket::wait_send_ready(int a_timeout_ms)
+{
+	pollfd pfd {};
+	pfd.fd = m_sockfd;
+	pfd.events = POLLOUT;
+
+	int ret = ::poll(&pfd, 1, a_timeout_ms);
+	if (ret < 0) {
+		int err = get_last_error();
+		throw error(ErrorCode::ERR_SOCKET_POLL_FAILED, 
+			"Polling socket for send ready failed with error %d: %s", 
+			err, get_error_message(err).c_str());		
+	}
+}
+
+//------------------------------------------------------------------------------
+//
 void Socket::set_blocking(bool a_blocking)
 {
 #ifdef REMO_SYS_WIN
@@ -501,7 +518,7 @@ void Socket::receive_ready()
 
 	// invoke callback
 	if (m_receive_ready) {
-		m_receive_ready(this);
+		m_receive_ready();
 	}
 }
 

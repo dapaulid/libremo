@@ -162,14 +162,12 @@ TEST(SocketSet, Poll)
 
 	// set receive handlers
 	bool s1_ready = false;
-	s1.on_receive_ready([&](Socket* s){
+	s1.on_receive_ready([&](){
 		s1_ready = true;
-		EXPECT_EQ(s, &s1);
 	});
 	bool s2_ready = false;
-	s2.on_receive_ready([&](Socket* s){
+	s2.on_receive_ready([&](){
 		s2_ready = true;
-		EXPECT_EQ(s, &s2);
 	});
 
 	// connect s1 <==> s2

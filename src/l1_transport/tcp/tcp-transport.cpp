@@ -7,7 +7,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 //------------------------------------------------------------------------------
-#include "transport.h"
+#include "tcp-transport.h"
 
 //------------------------------------------------------------------------------
 // includes
@@ -15,7 +15,6 @@
 //
 // project
 #include "utils/logger.h"
-#include "utils/contracts.h"
 //
 // C++ 
 //
@@ -28,57 +27,29 @@ namespace remo {
 //------------------------------------------------------------------------------	
 
 //! logger instance
-static Logger logger("Transport");
-
-
-//------------------------------------------------------------------------------	
-// constants
-//------------------------------------------------------------------------------	
-//
-//! maximum number of packets available
-//! NOTE: this was selected as an arbitrary value and probably depends
-//!       on the "concurrencyness" of the system (e.g. max. number of threads)
-const size_t PACKET_POOL_SIZE = 16;
+static Logger logger("TcpTransport");
 
 
 //------------------------------------------------------------------------------
 // class implementation
 //------------------------------------------------------------------------------	
 //
-Transport::Transport():
-	m_packet_pool(),
-	m_accept_handler()
+TcpTransport::TcpTransport()
 {
 }
 
 //------------------------------------------------------------------------------	
 //
-Transport::~Transport()
+TcpTransport::~TcpTransport()
 {
 }
 
 //------------------------------------------------------------------------------	
 //
-void Transport::alloc_packets()
+Channel* TcpTransport::connect(const std::string& a_endpoint)
 {
-    // pre-allocate packets
-    for (size_t i = 0; i < PACKET_POOL_SIZE; i++) {
-        m_packet_pool.add(new Packet());
-    }
-}
-
-//------------------------------------------------------------------------------
-//
-packet_ptr Transport::take_packet()
-{
-	packet_ptr packet(m_packet_pool.take());
-	if (!packet) {
-		throw error(ErrorCode::ERR_OUT_OF_PACKETS, 
-			"out of packets");
-	}
-	REMO_ASSERT(packet->get_size() == 0,
-		"a fresh packet must be empty");
-	return packet;
+	(void)a_endpoint;
+	return nullptr;
 }
 
 

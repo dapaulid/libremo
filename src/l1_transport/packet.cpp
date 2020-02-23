@@ -9,6 +9,7 @@
 //------------------------------------------------------------------------------
 #include "packet.h"
 #include "reader.h"
+#include "utils/contracts.h"
 
 #include <iostream>
 #include <iomanip>
@@ -39,6 +40,17 @@ void Packet::recycle()
     m_size = 0;
     // call base
     Recyclable::recycle();
+}
+
+//------------------------------------------------------------------------------
+
+void Packet::set_size(size_t a_size)
+{
+    REMO_PRECOND({
+        REMO_ASSERT(a_size < get_buffer_size(),
+            "packet size must not exceed buffer size");
+    });
+    m_size = a_size;
 }
 
 //------------------------------------------------------------------------------

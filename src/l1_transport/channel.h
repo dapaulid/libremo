@@ -26,6 +26,22 @@ namespace remo {
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
+// constants
+//------------------------------------------------------------------------------
+//
+//! special return value for determine_packet_size to indicate that
+//! a packet is not yet complete
+static const size_t PACKET_INCOMPLETE = 0;
+
+
+//------------------------------------------------------------------------------
+// forward declarations
+//------------------------------------------------------------------------------
+//
+class Transport;
+
+
+//------------------------------------------------------------------------------
 // class declaration
 //------------------------------------------------------------------------------
 //
@@ -49,12 +65,13 @@ public:
 
 // ctor/dtor
 public:
-	Channel();
+	Channel(Transport* a_transport);
 	virtual ~Channel();
 
 // public member functions
 public:
 	//! send a packet over this channel
+	//! may block if the send buffer is full
 	virtual void send(packet_ptr& a_packet) = 0;
 	
 	//! register a callback function that is invoked when a packet was received by this channel
@@ -69,19 +86,30 @@ public:
 	bool is_open() const { return m_state == State::open; }
 	bool is_closed() const { return m_state == State::closed || m_state == State::closed_by_peer; }
 
+	//! return the transport controller (owner) of this channel 
+	Transport* get_transport() { return m_transport; }
+
 	//! returns the name of the given state
 	static const char* get_state_str(State a_state);
 
 // protected member functions
 protected:
+	//! receive a packet from this channel
+	void receive(packet_ptr& a_packet);
+
 	//! enters the specified state
 	void change_state(State a_new_state);
+
+	//! determine the actual packet size. used for message framing
+	virtual size_t determine_packet_size(const packet_ptr& a_packet);
 
 // private member functions
 private:
 
 // private members
 private:
+	//! transport controller (owner)
+	Transport* m_transport;
 	//! channel state
 	State m_state;
 	//! callback invoked when a packet was received by this channel

@@ -15,6 +15,8 @@
 //
 // project
 #include "channel.h"
+#include "packet.h"
+#include "utils/recycling.h"
 //
 // C++ 
 #include <functional>
@@ -45,17 +47,22 @@ public:
 // public member functions
 public:
 	//! create a new channel that connects to the given endpoint
-	Channel* connect(const std::string& a_endpoint);
+	virtual Channel* connect(const std::string& a_endpoint) = 0;
 
 	//! register a callback function that is invoked when an incoming connection was established
 	void on_accept(const accept_handler& a_handler);
 
+	//! get a new packet from the pool. intended to be used by channels when receiving data
+	packet_ptr take_packet();
 
 // private member functions
 private:
+	void alloc_packets();
 
 // private members
 private:
+	//! packet pool to avoid heap allocations
+	RecyclingPool<Packet> m_packet_pool;
 	//! callback function that is invoked when an incoming connection was established
 	accept_handler m_accept_handler;
 };
