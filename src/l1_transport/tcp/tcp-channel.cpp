@@ -132,7 +132,14 @@ void TcpChannel::receive_chunk()
 
 	// handle peer shutdown
 	if (result == Socket::IOResult::PeerShutdown) {
-		// TODO check for incomplete packet?
+		// did we receive an incomplete packet?
+		if (m_rx_packet->get_size() > 0) {
+			// yes -> discard it
+			REMO_WARN("peer disconnected after sending incomplete packet (%d bytes), discarding it",
+				m_rx_packet->get_size());
+			m_rx_packet.reset();	
+		}
+		// enter 'closed by peer' state
 		change_state(State::closed_by_peer);
 		return;
 	}
