@@ -41,9 +41,9 @@ using namespace sys;
 
 //------------------------------------------------------------------------------	
 //
-TcpChannel::TcpChannel(TcpTransport* a_transport):
+TcpChannel::TcpChannel(TcpTransport* a_transport, Socket&& a_socket):
 	Channel(a_transport),
-	m_socket(SockProto::TCP),
+	m_socket(std::move(a_socket)),
 	m_rx_packet()
 {
 	// enable non-blocking mode
@@ -194,6 +194,13 @@ void TcpChannel::receive_chunk()
 
 	// done
 	receive(complete_packet);
+}
+
+//------------------------------------------------------------------------------	
+//
+void TcpChannel::connect(const SockAddr& a_addr)
+{
+	m_socket.connect(a_addr);
 }
 
 //------------------------------------------------------------------------------	

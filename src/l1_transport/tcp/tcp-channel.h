@@ -25,6 +25,8 @@ namespace remo {
 	namespace trans {
 //------------------------------------------------------------------------------
 
+using namespace sys;
+
 //------------------------------------------------------------------------------
 // forward declarations
 //------------------------------------------------------------------------------
@@ -40,7 +42,7 @@ class TcpChannel: public Channel
 {
 // ctor/dtor
 public:
-	TcpChannel(TcpTransport* a_transport);
+	TcpChannel(TcpTransport* a_transport, Socket&& a_socket);
 	virtual ~TcpChannel();
 
 // public member functions
@@ -52,6 +54,14 @@ public:
 	//! close this channel
 	virtual void close() override;
 
+	Socket& get_socket() { return m_socket; }
+
+// protected member functions called by TcpTransport
+protected:
+	friend class TcpTransport;
+	//! connects the socket to the specified endpoint address
+	void connect(const SockAddr& a_addr);
+
 // private member functions
 private:
 	//! called when socket has data ready to receive
@@ -62,7 +72,7 @@ private:
 // private members
 private:
 	//! socket used for communication
-	sys::Socket m_socket;
+	Socket m_socket;
 	//! current packet in progress of being received
 	packet_ptr m_rx_packet;
 };

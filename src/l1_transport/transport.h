@@ -55,6 +55,11 @@ public:
 	//! get a new packet from the pool. intended to be used by channels when receiving data
 	packet_ptr take_packet();
 
+// public member functions called by Channel & subclasses
+public:
+	//! handle incoming connection
+	void accept(Channel* a_channel);
+
 // private member functions
 private:
 	void alloc_packets();

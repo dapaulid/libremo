@@ -59,6 +59,24 @@ Transport::~Transport()
 
 //------------------------------------------------------------------------------	
 //
+void Transport::on_accept(const accept_handler& a_handler)
+{
+	m_accept_handler = a_handler;
+}
+
+//------------------------------------------------------------------------------	
+//
+void Transport::accept(Channel* a_channel)
+{	
+	// notify observer
+	if (m_accept_handler) {
+		m_accept_handler(a_channel);
+	}
+}
+
+
+//------------------------------------------------------------------------------	
+//
 void Transport::alloc_packets()
 {
     // pre-allocate packets
