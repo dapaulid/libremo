@@ -36,7 +36,9 @@ static Logger logger("TcpTransport");
 // class implementation
 //------------------------------------------------------------------------------	
 //
-TcpTransport::TcpTransport():
+TcpTransport::TcpTransport(const Settings& a_settings):
+	Transport(a_settings),
+	settings(a_settings),
 	m_thread(this)
 {
 	m_thread.startup();
@@ -86,7 +88,7 @@ TcpThread::TcpThread(TcpTransport* a_transport):
 	// setup server socket
 	m_serversock.set_blocking(false);
 	m_serversock.on_receive_ready(std::bind(&TcpThread::handle_incoming_connection, this));
-	m_serversock.bind(SockAddr("0.0.0.0:1986")); // TODO make configurable
+	m_serversock.bind(m_transport->settings.listen_addr);
 	m_serversock.listen();
 
 	// setup inter-thread communication sockets

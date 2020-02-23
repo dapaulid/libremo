@@ -46,6 +46,7 @@ class TcpTransport;
  */
 class TcpThread: public Worker
 {
+
 // ctor/dtor
 public:
 	TcpThread(TcpTransport* a_transport);
@@ -81,9 +82,18 @@ private:
 //
 class TcpTransport: public Transport
 {
+// types
+public:
+	//! class specific settings go here
+	struct Settings: public Transport::Settings {
+		//! "server" socket address
+		SockAddr listen_addr = SockAddr("0.0.0.0:1986");
+		
+	} settings;
+
 // ctor/dtor
 public:
-	TcpTransport();
+	TcpTransport(const Settings& a_settings);
 	virtual ~TcpTransport();
 
 // public member functions
@@ -91,12 +101,9 @@ public:
 	//! create a new channel that connects to the given endpoint
 	virtual Channel* connect(const std::string& a_endpoint) override;
 
-// private member functions
-private:
-
 // private members
 private:
-	// worker thread doing the socket communication
+	//! worker thread doing the socket communication
 	TcpThread m_thread;
 };
 

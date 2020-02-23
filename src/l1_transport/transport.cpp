@@ -45,7 +45,8 @@ const size_t PACKET_POOL_SIZE = 16;
 // class implementation
 //------------------------------------------------------------------------------	
 //
-Transport::Transport():
+Transport::Transport(const Settings& a_settings):
+	settings(a_settings),
 	m_packet_pool(),
 	m_accept_handler()
 {

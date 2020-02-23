@@ -21,7 +21,8 @@ target_sources(
         l0_system/types.cpp
         l0_system/worker.cpp
         utils/colors.cpp
-        utils/logger.cpp        
+        utils/logger.cpp
+        utils/settings.cpp
     PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/remo.h
     )
