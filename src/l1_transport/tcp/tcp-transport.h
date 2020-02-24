@@ -57,6 +57,10 @@ protected:
 	//! handle communication
 	virtual void action() override;
 
+	//! handle startup/shutdown
+	virtual void do_startup() override;
+	virtual void do_shutdown() override;
+
 	//! called when server socket is ready to accept a new connection
 	void handle_incoming_connection();
 	//! called when the receiving end of the "pseudo queue" is ready to receive
@@ -88,7 +92,7 @@ public:
 	struct Settings: public Transport::Settings {
 		//! "server" socket address
 		SockAddr listen_addr = SockAddr("0.0.0.0:1986");
-		
+
 	} settings;
 
 // ctor/dtor

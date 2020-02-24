@@ -4,6 +4,7 @@ add_executable(
     failure.test.cpp
     l0_system/logger.test.cpp
     l0_system/socket.test.cpp
+    l1_transport/transport.test.cpp
 )
 
 target_link_libraries(

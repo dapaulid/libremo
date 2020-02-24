@@ -74,6 +74,7 @@ public:
 	};
 
 public:
+	Socket();
 	Socket(SockProto a_proto, AddrFamily a_family = AddrFamily::Unspec);
 	virtual ~Socket();
 
@@ -104,7 +105,7 @@ public:
 public:
 	// move-only semantics
     Socket(Socket&& a_other);
-    Socket& operator=(Socket&&) = delete; // not sure we need this
+    Socket& operator=(Socket&&);
     Socket(const Socket&) = delete;
     Socket& operator=(const Socket&) = delete;
 

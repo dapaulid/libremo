@@ -91,12 +91,12 @@ static const char* get_sdflag_str(Socket::ShutdownFlag sdf);
 // class implementation
 //------------------------------------------------------------------------------
 //
-Socket::Socket(int a_sockfd):
+// default constructor
+Socket::Socket():
 	m_sockfd(INVALID_SOCKFD),
 	m_receive_ready(),
 	m_log_name()
 {
-	set_sockfd(a_sockfd);
 }
 
 //------------------------------------------------------------------------------
@@ -113,11 +113,36 @@ Socket::Socket(Socket&& a_other):
 
 //------------------------------------------------------------------------------
 //
+// move assignment
+Socket& Socket::operator=(Socket&& a_other)
+{
+	close();
+
+	m_sockfd = a_other.m_sockfd;
+	m_receive_ready = std::move(a_other.m_receive_ready);
+	m_log_name = std::move(a_other.m_log_name);
+	
+	// ensure descriptor is not closed twice
+	a_other.m_sockfd = INVALID_SOCKFD;
+
+	return *this;
+}
+
+//------------------------------------------------------------------------------
+//
 Socket::Socket(SockProto a_proto, AddrFamily a_family):
-	Socket(INVALID_SOCKFD)
+	Socket()
 {
 	// open socket for requested family
 	open(a_proto, a_family);
+}
+
+//------------------------------------------------------------------------------
+//
+Socket::Socket(int a_sockfd):
+	Socket()
+{
+	set_sockfd(a_sockfd);
 }
 
 //------------------------------------------------------------------------------

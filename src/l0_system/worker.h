@@ -18,6 +18,7 @@
 //
 // C++ 
 #include <thread>
+#include <atomic>
 //
 // system
 //
@@ -37,9 +38,10 @@ class Worker
 public:
 	enum class ThreadState {
 		idle,
-		startup,
+		starting,
 		running,
-		shutdown
+		terminated,
+		joined,
 	};
 
 // ctor/dtor
@@ -60,6 +62,9 @@ public:
 	//! WARNING: Beware of dangling pointers!
 	static Worker* actual();
 
+	//! returns the given state name
+	static const char* get_state_str(ThreadState a_state);
+
 // protected member functions
 protected:
 	//! implemented by subclasses to do the actual work
@@ -68,6 +73,11 @@ protected:
 	virtual void do_startup() {};
 	//! implemented by subclasses to do anything necessary for shutdown
 	virtual void do_shutdown() {};
+
+	//! requests the thread to terminate
+	virtual void terminate();
+	//! gets the termination requested flag
+	bool termination_requested() const { return m_termination_requested; }
 
 // private member functions
 private:
@@ -78,12 +88,17 @@ private:
 	void register_thread();
 	void unregister_thread();
 
+	//! enters the given thread state
+	void enter_thread_state(ThreadState a_new_state);
+
 // private members
 private:
 	//! the worker thread
 	std::thread m_thread;
 	//! state of worker thread
-	ThreadState m_thread_state;
+	std::atomic<ThreadState> m_thread_state;
+	//! flag indicating if termination was requested
+	std::atomic<bool>m_termination_requested;
 };
 
 //------------------------------------------------------------------------------

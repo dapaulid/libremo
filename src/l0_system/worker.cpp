@@ -44,7 +44,8 @@ static std::mutex s_workers_lock;
 //
 Worker::Worker():
 	m_thread(),
-	m_thread_state(ThreadState::idle)
+	m_thread_state(ThreadState::idle),
+	m_termination_requested(false)
 {
 }
 
@@ -52,8 +53,8 @@ Worker::Worker():
 //
 Worker::~Worker()
 {
-	REMO_ASSERT(m_thread_state == ThreadState::idle,
-		"worker thread destructor called while not in idle state");
+	REMO_ASSERT(m_thread_state == ThreadState::idle || m_thread_state == ThreadState::joined,
+		"worker thread destructor called while not in idle/joined state");
 }
 
 //------------------------------------------------------------------------------	
@@ -66,9 +67,7 @@ void Worker::startup()
 	});
 
 	// we're starting up
-	m_thread_state = ThreadState::startup;
-	// let subclasses to their stuff
-	do_startup();
+	enter_thread_state(ThreadState::starting);
 	// start the thread
 	m_thread = std::thread(std::bind(&Worker::run, this));
 }
@@ -77,30 +76,36 @@ void Worker::startup()
 //
 void Worker::shutdown()
 {
-	REMO_PRECOND({
-		REMO_ASSERT(m_thread_state == ThreadState::running 
-			|| m_thread_state == ThreadState::startup,
-			"worker thread shutdown only allowed in running or startup state");
-	});
-
-	// we're shutting down
-	m_thread_state = ThreadState::shutdown;
-	// let subclasses do their stuff
-	do_shutdown();
+	// request termination
+	terminate();
 	// wait for thread to terminate
 	m_thread.join();
-	// we're idle now
-	m_thread_state = ThreadState::idle;
+	// we're joined now
+	enter_thread_state(ThreadState::joined);
 }
 
 //------------------------------------------------------------------------------	
 //
 void Worker::run()
 {
+	enter_thread_state(ThreadState::running);
+	
 	register_thread();
-	m_thread_state = ThreadState::running;
-	while (m_thread_state == ThreadState::running) {
+	
+	try {	
+		// let subclasses to their stuff
+		do_startup();
+	} catch (const std::exception& e) {
+		REMO_ERROR("unhandled exception in worker thread during startup: %s", 
+			e.what());
+	} catch (...) {
+		REMO_ERROR("unhandled unknown exception in worker thread during startup");
+	}
+	
+	while (!m_termination_requested) {
+		REMO_WARN("Still running");
 		try {
+			// let subclasses to their stuff
 			action();
 		} catch (const std::exception& e) {
 			REMO_ERROR("unhandled exception in worker thread: %s", 
@@ -109,7 +114,36 @@ void Worker::run()
 			REMO_ERROR("unhandled unknown exception in worker thread");
 		}
 	}
+	
+	try {	
+		// let subclasses to their stuff
+		do_shutdown();
+	} catch (const std::exception& e) {
+		REMO_ERROR("unhandled exception in worker thread during shutdown: %s", 
+			e.what());
+	} catch (...) {
+		REMO_ERROR("unhandled unknown exception in worker thread during shutdown");
+	}
+
 	unregister_thread();
+
+	enter_thread_state(ThreadState::terminated);
+}
+
+//------------------------------------------------------------------------------	
+//
+void Worker::terminate()
+{
+	REMO_INFO("requesting thread to terminate");
+	m_termination_requested = true;
+}
+
+//------------------------------------------------------------------------------	
+//
+void Worker::enter_thread_state(ThreadState a_new_state)
+{
+	m_thread_state = a_new_state;
+	REMO_INFO("thread entered state '%s'", get_state_str(m_thread_state));
 }
 
 //------------------------------------------------------------------------------	
@@ -135,6 +169,21 @@ Worker* Worker::actual()
 	std::lock_guard<std::mutex> lock(s_workers_lock);
 	auto it = s_workers.find(std::this_thread::get_id());
 	return it != s_workers.end() ? it->second : nullptr;
+}
+
+//------------------------------------------------------------------------------	
+//
+const char* Worker::get_state_str(ThreadState a_state)
+{
+	switch (a_state) {
+		case ThreadState::idle: return "idle";
+		case ThreadState::starting: return "starting";
+		case ThreadState::running: return "running";
+		case ThreadState::terminated: return "terminated";
+		case ThreadState::joined: return "joined";
+	}
+	// should not be reached
+	return "(unknown)";
 }
 
 

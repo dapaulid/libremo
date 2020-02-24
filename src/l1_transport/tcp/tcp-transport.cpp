@@ -81,21 +81,40 @@ TcpThread::TcpThread(TcpTransport* a_transport):
 	Worker(),
 	m_transport(a_transport),
 	m_sockets(),
-	m_serversock(SockProto::TCP),
-	m_ctrl_in(SockProto::UDP),
-	m_ctrl_out(SockProto::UDP)
+	m_serversock(),
+	m_ctrl_in(),
+	m_ctrl_out()
+{
+}
+
+//------------------------------------------------------------------------------	
+//
+TcpThread::~TcpThread()
+{
+}
+
+//------------------------------------------------------------------------------	
+//
+void TcpThread::do_startup()
 {
 	// setup server socket
+	REMO_INFO("setting up server socket");
+	m_serversock = Socket(SockProto::TCP);
 	m_serversock.set_blocking(false);
 	m_serversock.on_receive_ready(std::bind(&TcpThread::handle_incoming_connection, this));
 	m_serversock.bind(m_transport->settings.listen_addr);
 	m_serversock.listen();
 
 	// setup inter-thread communication sockets
+	REMO_INFO("setting up inter-thread communication");
+	m_ctrl_in = Socket(SockProto::UDP);
 	m_ctrl_in.set_blocking(false);
 	m_ctrl_in.on_receive_ready(std::bind(&TcpThread::handle_cmd, this));
-	m_ctrl_in.connect(m_ctrl_out.get_socket_addr());
+	m_ctrl_in.bind(SockAddr::localhost);
+	m_ctrl_out = Socket(SockProto::UDP);
+	m_ctrl_out.bind(SockAddr::localhost);
 	m_ctrl_out.connect(m_ctrl_in.get_socket_addr());
+	m_ctrl_in.connect(m_ctrl_out.get_socket_addr());	
 
 	// add special sockets to our set
 	m_sockets.add(&m_ctrl_in);
@@ -104,7 +123,7 @@ TcpThread::TcpThread(TcpTransport* a_transport):
 
 //------------------------------------------------------------------------------	
 //
-TcpThread::~TcpThread()
+void TcpThread::do_shutdown()
 {
 }
 
@@ -131,7 +150,7 @@ void TcpThread::handle_incoming_connection()
 //
 void TcpThread::handle_cmd()
 {
-
+	REMO_WARN("GUGUS");
 }
 
 
