@@ -16,11 +16,9 @@
 // project
 #include "tcp-channel.h"
 #include "utils/logger.h"
+#include "utils/async.h"
 //
 // C++ 
-#include <future> // async
-//
-// system
 //
 //
 //------------------------------------------------------------------------------
@@ -55,11 +53,13 @@ TcpTransport::~TcpTransport()
 //
 Channel* TcpTransport::connect(const std::string& a_endpoint)
 {
+	REMO_VERB("connecting to '%s'", a_endpoint.c_str());
+
 	// create new channel
 	TcpChannel* channel = new TcpChannel(this, Socket(SockProto::TCP), false);
 	
 	// resolve endpoint asynchronously to avoid blocking the caller
-	std::async(std::launch::async, [&](){
+	utils::async([a_endpoint, channel](){
 		// resolve endpoint name to socket address
 		REMO_INFO("resolving endpoint '%s'...", 
 			a_endpoint.c_str());
@@ -69,6 +69,8 @@ Channel* TcpTransport::connect(const std::string& a_endpoint)
 		// connect channel
 		channel->connect(addr);
 	});
+
+	REMO_VERB("connect() returning");
 
 	return channel;
 }
