@@ -46,6 +46,17 @@
 	#include <fcntl.h>
 #endif
 
+//------------------------------------------------------------------------------	
+// macros
+//------------------------------------------------------------------------------	
+//
+//! map POSIX / errno macros to WSA error macros under Windows
+//! example EWOULDBLOCK -> WSAEWOULDBLOCK
+#ifdef REMO_SYS_WIN
+	#define OS_ERROR(name) WSA ## name
+#else
+	#define OS_ERROR(name) name
+#endif 
 
 //------------------------------------------------------------------------------
 namespace remo {
@@ -343,7 +354,7 @@ Socket::IOResult Socket::send(const void* a_buffer, size_t a_bufsize, size_t* o_
 	int ret = ::send(m_sockfd, (const char*)a_buffer, (int)a_bufsize, 0);
 	if (ret < 0) {
 		int err = get_last_error();
-		if (err == EWOULDBLOCK) {
+		if (err == OS_ERROR(EWOULDBLOCK)) {
 			REMO_VERB("socket send would block");
 			return IOResult::WouldBlock;
 		} else {
@@ -385,7 +396,7 @@ Socket::IOResult Socket::recv(void* a_buffer, size_t a_bufsize, size_t* o_bytes_
 	int ret = ::recv(m_sockfd, (char*)a_buffer, (int)a_bufsize, 0);
 	if (ret < 0) {
 		int err = get_last_error();
-		if (err == EWOULDBLOCK) {
+		if (err == OS_ERROR(EWOULDBLOCK)) {
 			REMO_VERB("socket receive would block");
 			return IOResult::WouldBlock;
 		} else {
