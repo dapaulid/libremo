@@ -38,7 +38,7 @@ static Logger logger("Channel");
 //
 Channel::Channel(Transport* a_transport):
 	m_transport(a_transport),
-	m_state(State::closed),
+	m_state(State::opening),
 	m_receive_handler(),
 	m_state_handler()
 {
@@ -78,7 +78,7 @@ void Channel::receive(packet_ptr& a_packet)
 
 //------------------------------------------------------------------------------	
 //
-void Channel::change_state(State a_new_state)
+void Channel::enter_state(State a_new_state)
 {
 	if (a_new_state != m_state) {
 		REMO_INFO("Changed state from '%s' to '%s'",

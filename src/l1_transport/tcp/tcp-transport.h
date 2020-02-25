@@ -17,6 +17,8 @@
 #include "l1_transport/transport.h"
 #include "l0_system/socket.h"
 #include "l0_system/worker.h"
+
+#include "tcp-channel.h"
 //
 // C++ 
 //
@@ -52,6 +54,10 @@ public:
 	TcpThread(TcpTransport* a_transport);
 	virtual ~TcpThread();
 
+	//! add a channel to be handled by this thread
+	//! takes ownership
+	void add_channel(TcpChannel* a_channel);
+
 // protected member functions
 protected:
 	//! handle communication
@@ -65,6 +71,9 @@ protected:
 	void handle_incoming_connection();
 	//! called when the receiving end of the "pseudo queue" is ready to receive
 	void handle_cmd();
+
+	//! internal add channel
+	void do_add_channel(TcpChannel* a_channel);
 
 // private members
 private:
@@ -104,6 +113,9 @@ public:
 public:
 	//! create a new channel that connects to the given endpoint
 	virtual Channel* connect(const std::string& a_endpoint) override;
+
+	//! waits for worker thread to terminate
+	void join() { return m_thread.join(); }
 
 // private members
 private:

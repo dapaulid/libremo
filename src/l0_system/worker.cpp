@@ -148,6 +148,20 @@ void Worker::enter_thread_state(ThreadState a_new_state)
 
 //------------------------------------------------------------------------------	
 //
+void Worker::join()
+{
+	m_thread.join();
+}
+
+//------------------------------------------------------------------------------	
+//
+bool Worker::is_self() const
+{
+	return std::this_thread::get_id() == m_thread.get_id();
+}
+
+//------------------------------------------------------------------------------	
+//
 void Worker::register_thread()
 {
 	std::lock_guard<std::mutex> lock(s_workers_lock);

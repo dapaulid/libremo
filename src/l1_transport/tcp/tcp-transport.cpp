@@ -56,7 +56,7 @@ TcpTransport::~TcpTransport()
 Channel* TcpTransport::connect(const std::string& a_endpoint)
 {
 	// create new channel
-	TcpChannel* channel = new TcpChannel(this, Socket(SockProto::TCP));
+	TcpChannel* channel = new TcpChannel(this, Socket(SockProto::TCP), false);
 	
 	// resolve endpoint asynchronously to avoid blocking the caller
 	std::async(std::launch::async, [&](){
@@ -139,9 +139,9 @@ void TcpThread::action()
 void TcpThread::handle_incoming_connection()
 {
 	// create new channel for accepted socket
-	TcpChannel* channel = new TcpChannel(m_transport, m_serversock.accept());
-	// add socket to our set
-	m_sockets.add(&channel->get_socket());
+	TcpChannel* channel = new TcpChannel(m_transport, m_serversock.accept(), true);
+	// keep track of it
+	do_add_channel(channel);
 	// notify upper layers
 	m_transport->accept(channel);
 }
@@ -150,9 +150,34 @@ void TcpThread::handle_incoming_connection()
 //
 void TcpThread::handle_cmd()
 {
-	REMO_WARN("GUGUS");
+	// "dequeue"
+	TcpChannel* channel = nullptr;
+	m_ctrl_in.recv(&channel, sizeof(channel));
+
+	if (channel) {
+		do_add_channel(channel);
+	}
 }
 
+//------------------------------------------------------------------------------	
+//
+void TcpThread::add_channel(TcpChannel* a_channel)
+{
+	REMO_ASSERT(!is_self(), "must not be called from own thread");
+
+	// "enqueue"
+	m_ctrl_out.send(&a_channel, sizeof(a_channel));
+}
+
+//------------------------------------------------------------------------------	
+//
+void TcpThread::do_add_channel(TcpChannel* a_channel)
+{
+	REMO_ASSERT(is_self(), "must be called from own thread");
+
+	// add channel socket to our set
+	m_sockets.add(a_channel->get_socket());
+}
 
 
 //------------------------------------------------------------------------------

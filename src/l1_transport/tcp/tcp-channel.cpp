@@ -41,7 +41,7 @@ using namespace sys;
 
 //------------------------------------------------------------------------------	
 //
-TcpChannel::TcpChannel(TcpTransport* a_transport, Socket&& a_socket):
+TcpChannel::TcpChannel(TcpTransport* a_transport, Socket&& a_socket, bool a_incoming):
 	Channel(a_transport),
 	m_socket(std::move(a_socket)),
 	m_rx_packet()
@@ -50,8 +50,10 @@ TcpChannel::TcpChannel(TcpTransport* a_transport, Socket&& a_socket):
 	m_socket.set_blocking(false);
 	// set callbacks
 	m_socket.on_receive_ready(std::bind(&TcpChannel::receive_chunk, this));
-	// enter 'opening' state
-	change_state(State::opening);
+	// TODO handle this on TX ready?
+	if (a_incoming) {
+		enter_state(State::open);
+	}
 }
 
 //------------------------------------------------------------------------------	
@@ -140,7 +142,7 @@ void TcpChannel::receive_chunk()
 			m_rx_packet.reset();	
 		}
 		// enter 'closed by peer' state
-		change_state(State::closed_by_peer);
+		enter_state(State::closed_by_peer);
 		return;
 	}
 
@@ -208,7 +210,7 @@ void TcpChannel::connect(const SockAddr& a_addr)
 void TcpChannel::close()
 {
 	// enter 'closing' state
-	change_state(State::closing);
+	enter_state(State::closing);
 	// shutdown socket. This will cancel any pending poll() calls
 	m_socket.shutdown();
 }

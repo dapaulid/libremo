@@ -16,4 +16,9 @@ TEST(Transport, Foo)
 {
 	TcpTransport::Settings settings;
 	TcpTransport transport(settings);
+
+	//Channel* channel = transport.connect("0.0.0.0:1986");
+	//(void)channel;
+
+	//transport.join();
 }

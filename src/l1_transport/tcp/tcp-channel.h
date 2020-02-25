@@ -42,7 +42,7 @@ class TcpChannel: public Channel
 {
 // ctor/dtor
 public:
-	TcpChannel(TcpTransport* a_transport, Socket&& a_socket);
+	TcpChannel(TcpTransport* a_transport, Socket&& a_socket, bool a_incoming);
 	virtual ~TcpChannel();
 
 // public member functions
@@ -54,7 +54,7 @@ public:
 	//! close this channel
 	virtual void close() override;
 
-	Socket& get_socket() { return m_socket; }
+	Socket* get_socket() { return &m_socket; }
 
 // protected member functions called by TcpTransport
 protected:

@@ -58,6 +58,9 @@ public:
 	//! returns the current thread state
 	ThreadState get_thread_state() const { return m_thread_state; }
 
+	//! waits for the worker thread to terminate
+	void join();
+
 	//! returns the worker instance associated with the current thread, if any
 	//! WARNING: Beware of dangling pointers!
 	static Worker* actual();
@@ -78,6 +81,9 @@ protected:
 	virtual void terminate();
 	//! gets the termination requested flag
 	bool termination_requested() const { return m_termination_requested; }
+
+	//! returns true if called from worker thread
+	bool is_self() const;
 
 // private member functions
 private:

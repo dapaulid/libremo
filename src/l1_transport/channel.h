@@ -51,10 +51,10 @@ class Channel
 public:
 	//! channel states
 	enum class State {
-		closed,
 		opening,
 		open,
 		closing,
+		closed,		
 		closed_by_peer
 	};
 
@@ -98,7 +98,7 @@ protected:
 	void receive(packet_ptr& a_packet);
 
 	//! enters the specified state
-	void change_state(State a_new_state);
+	void enter_state(State a_new_state);
 
 	//! determine the actual packet size. used for message framing
 	virtual size_t determine_packet_size(const packet_ptr& a_packet);
