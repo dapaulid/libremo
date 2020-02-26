@@ -78,6 +78,21 @@ TEST(SockAddr, IPv6AndPort)
 
 //------------------------------------------------------------------------------
 //
+TEST(SockAddr, AnyAddr)
+{
+	SockAddr addr(":1234");
+
+	EXPECT_EQ(addr.get_port(), 1234);
+	EXPECT_EQ(addr.get_family(), SockAddr::localhost.get_family());
+	if (addr.get_family() == AddrFamily::IPv4) {
+		EXPECT_STREQ(addr.to_string().c_str(), "0.0.0.0:1234");
+	} else {
+		EXPECT_STREQ(addr.to_string().c_str(), "[::]:1234");
+	}
+}
+
+//------------------------------------------------------------------------------
+//
 TEST(SockAddr, Invalid)
 {
 	try {

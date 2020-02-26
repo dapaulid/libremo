@@ -748,6 +748,16 @@ void SockAddr::from_string(const std::string& a_str)
 			host = a_str;
 		}
 	}
+
+	// handle empty host -> any/wildcard address
+	if (host.empty()) {
+		const AddrFamily def_family = localhost.get_family();
+		if (def_family == AddrFamily::IPv4) {
+			host = "0.0.0.0";
+		} else if (def_family == AddrFamily::IPv6) {
+			host = "::";
+		}
+	}
 	
 	struct addrinfo* result = nullptr;
 	int err = ::getaddrinfo(host.c_str(), service.c_str(), &hints, &result);
