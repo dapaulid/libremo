@@ -501,6 +501,24 @@ void Socket::set_blocking(bool a_blocking)
 
 //------------------------------------------------------------------------------
 //
+void Socket::set_reuse_addr(bool a_reuse_addr)
+{
+	const int enable = a_reuse_addr ? 1 : 0;
+	int ret = ::setsockopt(m_sockfd, 
+		SOL_SOCKET, SO_REUSEADDR, (const char*)&enable, sizeof(enable));
+	if (ret < 0) {
+		int err = get_last_error();
+		throw error(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
+			"Syscall setsockopt(SO_REUSEADDR) failed with error %d: %s", 
+			err, get_error_message(err).c_str());		
+	}
+
+	REMO_INFO("socket option SO_REUSEADDR %s",
+		a_reuse_addr ? "set" : "cleared");
+}
+
+//------------------------------------------------------------------------------
+//
 void Socket::on_receive_ready(const ready_handler& a_handler)
 {
 	m_receive_ready = a_handler;

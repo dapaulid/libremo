@@ -94,6 +94,8 @@ public:
 
 	//! change between blocking and non-blocking mode
 	void set_blocking(bool a_blocking);
+	//! allow/disallow reusing the same address
+	void set_reuse_addr(bool a_reuse_addr);
 
 	void on_receive_ready(const ready_handler& a_handler);
 

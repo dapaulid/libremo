@@ -104,6 +104,7 @@ void TcpThread::do_startup()
 	m_serversock = Socket(SockProto::TCP);
 	m_serversock.set_blocking(false);
 	m_serversock.on_receive_ready(std::bind(&TcpThread::handle_incoming_connection, this));
+	m_serversock.set_reuse_addr(true);
 	m_serversock.bind(m_transport->settings.listen_addr);
 	m_serversock.listen();
 
