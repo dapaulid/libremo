@@ -76,12 +76,21 @@ void Worker::startup()
 //
 void Worker::shutdown()
 {
+	REMO_INFO("requesting thread to terminate");
 	// request termination
 	terminate();
+}
+
+//------------------------------------------------------------------------------	
+//
+void Worker::join()
+{
+	REMO_INFO("waiting for thread to terminate...");
 	// wait for thread to terminate
 	m_thread.join();
 	// we're joined now
 	enter_thread_state(ThreadState::joined);
+	REMO_INFO("thread terminated");
 }
 
 //------------------------------------------------------------------------------	
@@ -134,7 +143,6 @@ void Worker::run()
 //
 void Worker::terminate()
 {
-	REMO_INFO("requesting thread to terminate");
 	m_termination_requested = true;
 }
 
@@ -144,13 +152,6 @@ void Worker::enter_thread_state(ThreadState a_new_state)
 {
 	m_thread_state = a_new_state;
 	REMO_INFO("thread entered state '%s'", get_state_str(m_thread_state));
-}
-
-//------------------------------------------------------------------------------	
-//
-void Worker::join()
-{
-	m_thread.join();
 }
 
 //------------------------------------------------------------------------------	

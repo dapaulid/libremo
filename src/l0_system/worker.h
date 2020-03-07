@@ -52,14 +52,14 @@ public:
 // public member functions
 public:
 	//! starts the worker thread
-	void startup();
-	//! requests and waits for termination of the worker thread
-	void shutdown();
+	virtual void startup();
+	//! requests termination of the worker thread
+	virtual void shutdown();
+	//! waits for  termination of the worker thread
+	void join();
+
 	//! returns the current thread state
 	ThreadState get_thread_state() const { return m_thread_state; }
-
-	//! waits for the worker thread to terminate
-	void join();
 
 	//! returns the worker instance associated with the current thread, if any
 	//! WARNING: Beware of dangling pointers!

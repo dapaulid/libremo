@@ -46,33 +46,40 @@ TcpTransport::TcpTransport(const Settings& a_settings):
 //
 TcpTransport::~TcpTransport()
 {
+	close_channels(); // TODO move into thread
 	m_thread.shutdown();
+	m_thread.join();
 }
 
 //------------------------------------------------------------------------------	
 //
 Channel* TcpTransport::connect(const std::string& a_endpoint)
 {
-	REMO_VERB("connecting to '%s'", a_endpoint.c_str());
+	// resolve endpoint name to socket address
+	REMO_INFO("resolving endpoint '%s'...", 
+		a_endpoint.c_str());
+	SockAddr addr(a_endpoint);
+	REMO_INFO("endpoint '%s' is at '%s'", 
+		a_endpoint.c_str(), addr.to_string().c_str());
 
 	// create new channel
 	TcpChannel* channel = new TcpChannel(this, Socket(SockProto::TCP), false);
+	// connect channel
+	channel->connect(addr);
+	// add to bookkeeping
+	add_channel(channel);
+	// listen on it
+	m_thread.add_channel(channel);
 	
-	// resolve endpoint asynchronously to avoid blocking the caller
-	utils::async([a_endpoint, channel](){
-		// resolve endpoint name to socket address
-		REMO_INFO("resolving endpoint '%s'...", 
-			a_endpoint.c_str());
-		SockAddr addr(a_endpoint);
-		REMO_INFO("endpoint '%s' is at '%s'", 
-			a_endpoint.c_str(), addr.to_string().c_str());
-		// connect channel
-		channel->connect(addr);
-	});
-
-	REMO_VERB("connect() returning");
-
 	return channel;
+}
+
+//------------------------------------------------------------------------------	
+//
+void TcpTransport::closed(Channel* a_channel)
+{
+	// stop listening on this channel
+	m_thread.remove_channel((TcpChannel*)a_channel);
 }
 
 //------------------------------------------------------------------------------
@@ -87,19 +94,9 @@ TcpThread::TcpThread(TcpTransport* a_transport):
 	m_ctrl_in(),
 	m_ctrl_out()
 {
-}
-
-//------------------------------------------------------------------------------	
-//
-TcpThread::~TcpThread()
-{
-}
-
-//------------------------------------------------------------------------------	
-//
-void TcpThread::do_startup()
-{
 	// setup server socket
+	// do this here instead of asynchronously in thread startup,
+	// to avoid tests connecting to socket before it is listening
 	REMO_INFO("setting up server socket");
 	m_serversock = Socket(SockProto::TCP);
 	m_serversock.set_blocking(false);
@@ -126,6 +123,18 @@ void TcpThread::do_startup()
 
 //------------------------------------------------------------------------------	
 //
+TcpThread::~TcpThread()
+{
+}
+
+//------------------------------------------------------------------------------	
+//
+void TcpThread::do_startup()
+{
+}
+
+//------------------------------------------------------------------------------	
+//
 void TcpThread::do_shutdown()
 {
 }
@@ -134,7 +143,12 @@ void TcpThread::do_shutdown()
 //
 void TcpThread::action()
 {
+	// handle socket events
 	m_sockets.poll();
+	// terminate when no sockets left
+	if (m_sockets.count() == 0) {
+		terminate();
+	}
 }
 
 //------------------------------------------------------------------------------	
@@ -156,9 +170,15 @@ void TcpThread::handle_cmd()
 	// "dequeue"
 	TcpChannel* channel = nullptr;
 	m_ctrl_in.recv(&channel, sizeof(channel));
-
 	if (channel) {
 		do_add_channel(channel);
+	} else {
+		// shutdown sentinel received
+		REMO_INFO("Shutdown signal received");
+		m_ctrl_in.shutdown();
+		m_sockets.remove(&m_ctrl_in);
+		m_serversock.shutdown();
+		m_sockets.remove(&m_serversock);
 	}
 }
 
@@ -182,6 +202,23 @@ void TcpThread::do_add_channel(TcpChannel* a_channel)
 	m_sockets.add(a_channel->get_socket());
 }
 
+//------------------------------------------------------------------------------	
+//
+void TcpThread::remove_channel(TcpChannel* a_channel)
+{
+	REMO_ASSERT(is_self(), "must be called from own thread");
+
+	// remove channel socket to our set
+	m_sockets.remove(a_channel->get_socket());
+}
+
+//------------------------------------------------------------------------------	
+//
+void TcpThread::shutdown()
+{
+	// send sentinel to thread
+	add_channel(nullptr);
+}
 
 //------------------------------------------------------------------------------
 	} // end namespace trans

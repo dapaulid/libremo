@@ -104,6 +104,9 @@ public:
 
 	int get_fd() const { return m_sockfd; }
 
+	//! socket name for logging purposes
+	std::string get_log_name() const { return m_log_name; }
+
 public:
 	// move-only semantics
     Socket(Socket&& a_other);
@@ -118,7 +121,6 @@ protected:
 	void close();
 
 	void set_sockfd(int asockfd);
-	std::string get_log_name() const { return m_log_name; }
 
 	//! event handlers
 	virtual void receive_ready();

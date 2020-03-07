@@ -351,7 +351,18 @@ Socket::IOResult Socket::send(const void* a_buffer, size_t a_bufsize, size_t* o_
 		*o_bytes_sent = 0;
 	}
 
-	int ret = ::send(m_sockfd, (const char*)a_buffer, (int)a_bufsize, 0);
+	REMO_VERB("socket sending %d bytes %p",
+		a_bufsize, a_buffer);
+
+#ifdef REMO_SYS_WIN
+	int flags = 0;
+#else
+	// ignore SIGPIPE signal in favor of error 107: Transport endpoint is not connected
+	// see https://stackoverflow.com/questions/108183/how-to-prevent-sigpipes-or-handle-them-properly
+	int flags = MSG_NOSIGNAL;
+#endif
+
+	int ret = ::send(m_sockfd, (const char*)a_buffer, (int)a_bufsize, flags);
 	if (ret < 0) {
 		int err = get_last_error();
 		if (err == OS_ERROR(EWOULDBLOCK)) {
@@ -621,6 +632,9 @@ void SocketSet::add(Socket* a_socket)
 
 	pimpl->m_sockets.push_back(a_socket);
 	pimpl->m_pollfds.push_back(pfd);
+
+	REMO_INFO("added socket %s to set (count: %d)", 
+		a_socket->get_log_name().c_str(), count());
 }
 
 //------------------------------------------------------------------------------
@@ -642,6 +656,8 @@ void SocketSet::remove(Socket* a_socket)
 		if (pimpl->m_sockets[i] == a_socket) {
 			pimpl->m_sockets.erase(pimpl->m_sockets.begin() + i);
 			pimpl->m_pollfds.erase(pimpl->m_pollfds.begin() + i);
+			REMO_INFO("removed socket %s from set (count: %d)", 
+				a_socket->get_log_name().c_str(), count());
 			return;
 		}
 	}
@@ -669,7 +685,8 @@ size_t SocketSet::poll(int a_timeout_ms)
 		"incosistent array size");
 
 	// check for events
-	for (size_t i = 0; i < n; i++) {
+	// iterate downwards, to allow callbacks removing the socket
+	for (size_t i = n; i --> 0 ;) {
 		REMO_ASSERT((int)pimpl->m_pollfds[i].fd == pimpl->m_sockets[i]->get_fd(),
 			"inconsistent socket descriptors");
 		if (pimpl->m_pollfds[i].revents & POLLIN) {

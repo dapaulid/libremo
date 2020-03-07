@@ -42,16 +42,17 @@ using namespace sys;
 //------------------------------------------------------------------------------	
 //
 TcpChannel::TcpChannel(TcpTransport* a_transport, Socket&& a_socket, bool a_incoming):
-	Channel(a_transport),
+	Channel(a_transport, a_socket.get_log_name()),
 	m_socket(std::move(a_socket)),
 	m_rx_packet()
 {
-	// enable non-blocking mode
-	m_socket.set_blocking(false);
 	// set callbacks
 	m_socket.on_receive_ready(std::bind(&TcpChannel::receive_chunk, this));
 	// TODO handle this on TX ready?
 	if (a_incoming) {
+		// enable non-blocking mode
+		m_socket.set_blocking(false);
+		// channel is open now
 		enter_state(State::open);
 	}
 }
@@ -106,6 +107,9 @@ void TcpChannel::send(packet_ptr& a_packet)
 //
 void TcpChannel::receive_chunk()
 {
+	REMO_WARN("receive_chunk");
+	// TODO add header in send
+
 	REMO_PRECOND({
 		REMO_ASSERT(!is_closed(), 
 			"channel must not receive data while closed");
@@ -141,8 +145,8 @@ void TcpChannel::receive_chunk()
 				m_rx_packet->get_size());
 			m_rx_packet.reset();	
 		}
-		// enter 'closed by peer' state
-		enter_state(State::closed_by_peer);
+		// we're closed now
+		closed();
 		return;
 	}
 
@@ -202,7 +206,12 @@ void TcpChannel::receive_chunk()
 //
 void TcpChannel::connect(const SockAddr& a_addr)
 {
+	// connect the socket
 	m_socket.connect(a_addr);
+	// enable non-blocking mode
+	m_socket.set_blocking(false);
+	// channel is open now
+	enter_state(State::open);
 }
 
 //------------------------------------------------------------------------------	

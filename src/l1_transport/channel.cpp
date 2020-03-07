@@ -36,20 +36,26 @@ static Logger logger("Channel");
 // class implementation
 //------------------------------------------------------------------------------	
 //
-Channel::Channel(Transport* a_transport):
+Channel::Channel(Transport* a_transport, const std::string& a_log_name):
 	m_transport(a_transport),
+	m_log_name(a_log_name),
 	m_state(State::opening),
 	m_receive_handler(),
 	m_state_handler()
 {
+	REMO_INFO("creating channel %s", m_log_name.c_str());
 }
 
 //------------------------------------------------------------------------------	
 //
 Channel::~Channel()
 {
-	REMO_ASSERT(is_closed(), 
-		"channel must be closed before destroying");
+	REMO_PRECOND({
+		REMO_ASSERT(is_closed(), 
+			"channel must be closed before destroying");
+	});
+	
+	REMO_INFO("destroyed channel %s", m_log_name.c_str());
 }
 
 //------------------------------------------------------------------------------	
@@ -75,6 +81,18 @@ void Channel::receive(packet_ptr& a_packet)
 		m_receive_handler(this, a_packet);
 	}
 }
+
+//------------------------------------------------------------------------------	
+//
+void Channel::closed()
+{
+	// enter closed state
+	// an unsolicited close means that the peer closed the channel
+	enter_state(m_state == State::closing ? State::closed : State::closed_by_peer);
+	// notify controller
+	m_transport->closed(this);
+}
+
 
 //------------------------------------------------------------------------------	
 //

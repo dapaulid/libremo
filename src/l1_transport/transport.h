@@ -20,6 +20,7 @@
 #include "utils/settings.h"
 //
 // C++ 
+#include <unordered_set>
 #include <functional>
 #include <string>
 //
@@ -65,13 +66,30 @@ public:
 public:
 	//! handle incoming connection
 	void accept(Channel* a_channel);
+	//! handle close event
+	virtual void closed(Channel* a_channel);
+
+// protected member functions
+protected:
+	//! adds a new channel to be handled by this transport
+	//! takes ownership
+	void add_channel(Channel* a_channel);
+	// removes (and deletes) a channel from this transport
+	void remove_channel(Channel* a_channel);
+
+	void close_channels();
 
 // private member functions
 private:
 	void alloc_packets();
+	void remove_channels();
+
 
 // private members
 private:
+	//! set of channels handled by this transport
+	typedef std::unordered_set<Channel*> Channels;
+	Channels m_channels;
 	//! packet pool to avoid heap allocations
 	RecyclingPool<Packet> m_packet_pool;
 	//! callback function that is invoked when an incoming connection was established

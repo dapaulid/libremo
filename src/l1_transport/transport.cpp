@@ -47,15 +47,18 @@ const size_t PACKET_POOL_SIZE = 16;
 //
 Transport::Transport(const Settings& a_settings):
 	settings(a_settings),
+	m_channels(),
 	m_packet_pool(),
 	m_accept_handler()
 {
+	alloc_packets();
 }
 
 //------------------------------------------------------------------------------	
 //
 Transport::~Transport()
 {
+	remove_channels();
 }
 
 //------------------------------------------------------------------------------	
@@ -69,12 +72,65 @@ void Transport::on_accept(const accept_handler& a_handler)
 //
 void Transport::accept(Channel* a_channel)
 {	
+	// add to bookkeeping
+	add_channel(a_channel);
 	// notify observer
 	if (m_accept_handler) {
 		m_accept_handler(a_channel);
 	}
 }
 
+//------------------------------------------------------------------------------	
+//
+void Transport::closed(Channel* a_channel)
+{
+	// implemented by subclasses
+	(void)a_channel;
+}
+
+//------------------------------------------------------------------------------	
+//
+void Transport::add_channel(Channel* a_channel)
+{
+	REMO_PRECOND({
+		REMO_ASSERT(m_channels.find(a_channel) == m_channels.end(),
+			"channel must not yet exist");
+	});
+
+	m_channels.insert(a_channel);
+}
+
+//------------------------------------------------------------------------------	
+//
+void Transport::remove_channel(Channel* a_channel)
+{
+	REMO_PRECOND({
+		REMO_ASSERT(m_channels.find(a_channel) != m_channels.end(),
+			"channel must exist");
+	});
+
+	m_channels.erase(a_channel);
+	delete a_channel;
+}
+
+//------------------------------------------------------------------------------	
+//
+void Transport::remove_channels()
+{
+	for (auto it = m_channels.begin(); it != m_channels.end(); it++) {
+		delete *it;
+	}
+	m_channels.clear();
+}
+
+//------------------------------------------------------------------------------	
+//
+void Transport::close_channels()
+{
+	for (auto it = m_channels.begin(); it != m_channels.end(); it++) {
+		(*it)->close();
+	}
+}
 
 //------------------------------------------------------------------------------	
 //

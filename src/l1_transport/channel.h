@@ -65,7 +65,7 @@ public:
 
 // ctor/dtor
 public:
-	Channel(Transport* a_transport);
+	Channel(Transport* a_transport, const std::string& a_log_name);
 	virtual ~Channel();
 
 // public member functions
@@ -89,6 +89,9 @@ public:
 	//! return the transport controller (owner) of this channel 
 	Transport* get_transport() { return m_transport; }
 
+	//! channel name for logging purposes
+	virtual std::string get_log_name() const { return m_log_name; }	
+
 	//! returns the name of the given state
 	static const char* get_state_str(State a_state);
 
@@ -96,6 +99,9 @@ public:
 protected:
 	//! receive a packet from this channel
 	void receive(packet_ptr& a_packet);
+
+	//! marks this socket as closed
+	void closed();
 
 	//! enters the specified state
 	void enter_state(State a_new_state);
@@ -110,6 +116,8 @@ private:
 private:
 	//! transport controller (owner)
 	Transport* m_transport;
+	//! name for logging purposes
+	std::string m_log_name;
 	//! channel state
 	State m_state;
 	//! callback invoked when a packet was received by this channel
@@ -122,3 +130,4 @@ private:
 	} // end namespace trans
 } // end namespace remo
 //------------------------------------------------------------------------------
+

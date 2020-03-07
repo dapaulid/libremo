@@ -57,6 +57,9 @@ public:
 	//! add a channel to be handled by this thread
 	//! takes ownership
 	void add_channel(TcpChannel* a_channel);
+	void remove_channel(TcpChannel* a_channel);
+
+	void shutdown() override;
 
 // protected member functions
 protected:
@@ -113,9 +116,8 @@ public:
 public:
 	//! create a new channel that connects to the given endpoint
 	virtual Channel* connect(const std::string& a_endpoint) override;
-
-	//! waits for worker thread to terminate
-	void join() { return m_thread.join(); }
+	//! handle close event
+	virtual void closed(Channel* a_channel) override;
 
 // private members
 private:
