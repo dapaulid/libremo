@@ -103,7 +103,7 @@ public:
 	//! class specific settings go here
 	struct Settings: public Transport::Settings {
 		//! "server" socket address
-		SockAddr listen_addr = SockAddr("0.0.0.0:1986");
+		SockAddr listen_addr = SockAddr(":1986");
 
 	} settings;
 
