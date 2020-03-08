@@ -25,6 +25,8 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         file: build/Debug/coverage.info
+    - name: stresstest
+      run: ci/stresstest.sh
   build-windows:
     runs-on: windows-latest
     steps:
@@ -35,3 +37,5 @@ jobs:
       run: ci\build.cmd
     - name: test
       run: ci\test.cmd
+    - name: stresstest
+      run: ci\stresstest.cmd
