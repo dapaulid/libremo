@@ -143,10 +143,12 @@ void TcpThread::do_shutdown()
 //
 void TcpThread::action()
 {
-	// handle socket events
-	m_sockets.poll();
-	// terminate when no sockets left
-	if (m_sockets.count() == 0) {
+	// do we have any sockets left?
+	if (m_sockets.count() > 0) {
+		// yes -> handle socket events
+		m_sockets.poll();
+	} else {
+		// no -> we're done
 		terminate();
 	}
 }
@@ -175,10 +177,10 @@ void TcpThread::handle_cmd()
 	} else {
 		// shutdown sentinel received
 		REMO_INFO("Shutdown signal received");
-		// TODO necessary? Windows returns WSAENOTCONN for this
+		// TODO shutdown necessary/useful? Windows returns WSAENOTCONN for this
 		//m_ctrl_in.shutdown();
+		//m_serversock.shutdown();
 		m_sockets.remove(&m_ctrl_in);
-		m_serversock.shutdown();
 		m_sockets.remove(&m_serversock);
 	}
 }
