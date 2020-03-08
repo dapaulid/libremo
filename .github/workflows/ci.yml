@@ -1,4 +1,4 @@
-name: build
+name: CI
 
 on: [push]
 
@@ -6,7 +6,7 @@ env:
   REMO_COLORS: always
 
 jobs:
-  build-linux:
+  Linux:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
@@ -27,7 +27,7 @@ jobs:
         file: build/Debug/coverage.info
     - name: stresstest
       run: ci/stresstest.sh
-  build-windows:
+  Windows:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v1
