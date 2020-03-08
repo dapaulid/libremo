@@ -175,7 +175,8 @@ void TcpThread::handle_cmd()
 	} else {
 		// shutdown sentinel received
 		REMO_INFO("Shutdown signal received");
-		m_ctrl_in.shutdown();
+		// TODO necessary? Windows returns WSAENOTCONN for this
+		//m_ctrl_in.shutdown();
 		m_sockets.remove(&m_ctrl_in);
 		m_serversock.shutdown();
 		m_sockets.remove(&m_serversock);
