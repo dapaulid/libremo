@@ -69,6 +69,11 @@ public:
 	//! handle close event
 	virtual void closed(Channel* a_channel);
 
+// protected member functions called by TcpThread
+protected:
+	friend class TcpThread;
+	void close_channels();
+
 // protected member functions
 protected:
 	//! adds a new channel to be handled by this transport
@@ -76,8 +81,6 @@ protected:
 	void add_channel(Channel* a_channel);
 	// removes (and deletes) a channel from this transport
 	void remove_channel(Channel* a_channel);
-
-	void close_channels();
 
 // private member functions
 private:

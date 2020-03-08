@@ -46,7 +46,6 @@ TcpTransport::TcpTransport(const Settings& a_settings):
 //
 TcpTransport::~TcpTransport()
 {
-	close_channels(); // TODO move into thread
 	m_thread.shutdown();
 	m_thread.join();
 }
@@ -182,6 +181,8 @@ void TcpThread::handle_cmd()
 		//m_serversock.shutdown();
 		m_sockets.remove(&m_ctrl_in);
 		m_sockets.remove(&m_serversock);
+		// close all channels
+		m_transport->close_channels();
 	}
 }
 
