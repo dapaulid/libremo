@@ -14,6 +14,7 @@ TEST(Logger, example)
 	REMO_ERROR("This is an example error message");
 	REMO_WARN("This is an example warning message");
 	REMO_NOTE("This is an example notice message");
+	REMO_EXCPT("This is an example exception message");
 	REMO_INFO("This is an example info message");
 	REMO_VERB("This is an example verbose message");
 }

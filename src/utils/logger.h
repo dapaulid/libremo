@@ -36,6 +36,7 @@ namespace remo {
 #define REMO_ERROR(/*a_format,*/ ...) REMO_LOG(remo::LogLevel::eLogError, __VA_ARGS__)
 #define REMO_WARN(/*a_format,*/ ...)  REMO_LOG(remo::LogLevel::eLogWarn, __VA_ARGS__)
 #define REMO_NOTE(/*a_format,*/ ...)  REMO_LOG(remo::LogLevel::eLogNote, __VA_ARGS__)
+#define REMO_EXCPT(/*a_format,*/ ...) REMO_LOG(remo::LogLevel::eLogExcpt, __VA_ARGS__)
 #define REMO_INFO(/*a_format,*/ ...)  REMO_LOG(remo::LogLevel::eLogInfo, __VA_ARGS__)
 #define REMO_VERB(/*a_format,*/ ...)  REMO_LOG(remo::LogLevel::eLogVerb, __VA_ARGS__)
 
@@ -44,10 +45,11 @@ enum LogLevel
 	eLogNone     = -1,
 	eLogFatal    = 0,
 	eLogError    = 1,
-	eLogWarn  = 2,
+	eLogWarn     = 2,
 	eLogNote     = 3,
-	eLogInfo     = 4,
-	eLogVerb  = 5,
+	eLogExcpt    = 4,
+	eLogInfo     = 5,
+	eLogVerb     = 6,
 	eLogAll      = 9999
 };
 

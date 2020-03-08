@@ -193,7 +193,7 @@ void Socket::open(SockProto a_proto, AddrFamily a_family)
 		af_str = "IPv6";
 		break;
 	default:
-		throw error(ErrorCode::ERR_SOCKET_UNSUPPORTED_FAMILY, 
+		REMO_THROW(ErrorCode::ERR_SOCKET_UNSUPPORTED_FAMILY, 
 			"Unsupported socket family: %d", a_family);
 	}
 
@@ -209,7 +209,7 @@ void Socket::open(SockProto a_proto, AddrFamily a_family)
 		proto_str = "TCP";
 		break;
 	default:
-		throw error(ErrorCode::ERR_SOCKET_UNSUPPORTED_PROTOCOL, 
+		REMO_THROW(ErrorCode::ERR_SOCKET_UNSUPPORTED_PROTOCOL, 
 			"Unsupported socket protocol: %d", a_proto);		
 	}
 
@@ -220,7 +220,7 @@ void Socket::open(SockProto a_proto, AddrFamily a_family)
 	int sockfd = (int)::socket(af, type, proto);
 	if (sockfd < 0) {
 		int err = get_last_error();
-		throw error(ErrorCode::ERR_SOCKET_OPEN_FAILED, 
+		REMO_THROW(ErrorCode::ERR_SOCKET_OPEN_FAILED, 
 			"Opening socket failed with error %d: %s", 
 			err, get_error_message(err).c_str());
 	}
@@ -242,7 +242,7 @@ void Socket::close()
 	m_sockfd = INVALID_SOCKFD;
 	if (err) {
 		err = get_last_error();
-		throw error(ErrorCode::ERR_SOCKET_CLOSE_FAILED, 
+		REMO_THROW(ErrorCode::ERR_SOCKET_CLOSE_FAILED, 
 			"Closing socket failed with error %d: %s", 
 			err, get_error_message(err).c_str());		
 	}
@@ -263,7 +263,7 @@ void Socket::connect(const SockAddr& a_addr)
 		a_addr.m_addrlen);
 	if (err) {
 		err = get_last_error();
-		throw error(ErrorCode::ERR_SOCKET_CONNECT_FAILED, 
+		REMO_THROW(ErrorCode::ERR_SOCKET_CONNECT_FAILED, 
 			"Connecting socket to '%s' failed with error %d: %s", 
 			a_addr.to_string().c_str(), 
 			err, get_error_message(err).c_str());		
@@ -287,7 +287,7 @@ void Socket::bind(const SockAddr& a_addr)
 		a_addr.m_addrlen);
 	if (err) {
 		err = get_last_error();
-		throw error(ErrorCode::ERR_SOCKET_BIND_FAILED, 
+		REMO_THROW(ErrorCode::ERR_SOCKET_BIND_FAILED, 
 			"Binding socket to '%s' failed with error %d: %s", 
 			a_addr.to_string().c_str(), 
 			err, get_error_message(err).c_str());		
@@ -309,7 +309,7 @@ void Socket::listen(int a_backlog)
 	int err = ::listen(m_sockfd, a_backlog);
 	if (err) {
 		err = get_last_error();
-		throw error(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
+		REMO_THROW(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
 			"Syscall listen() failed with error %d: %s", 
 			err, get_error_message(err).c_str());		
 	}
@@ -329,7 +329,7 @@ Socket Socket::accept()
 	int sockfd = (int)::accept(m_sockfd, nullptr, nullptr);
 	if (sockfd < 0) {
 		int err = get_last_error();
-		throw error(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
+		REMO_THROW(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
 			"Syscall accept() failed with error %d: %s", 
 			err, get_error_message(err).c_str());		
 	}
@@ -369,7 +369,7 @@ Socket::IOResult Socket::send(const void* a_buffer, size_t a_bufsize, size_t* o_
 			REMO_VERB("socket send would block");
 			return IOResult::WouldBlock;
 		} else {
-			throw error(ErrorCode::ERR_SOCKET_SEND_FAILED, 
+			REMO_THROW(ErrorCode::ERR_SOCKET_SEND_FAILED, 
 				"Sending to '%s' failed with error %d: %s", 
 				get_remote_addr().to_string().c_str(), 
 				err, get_error_message(err).c_str());		
@@ -384,7 +384,7 @@ Socket::IOResult Socket::send(const void* a_buffer, size_t a_bufsize, size_t* o_
 	} else {
 		// no -> caller expects whole buffer to be sent
 		if (bytes_sent != a_bufsize) {
-			throw error(ErrorCode::ERR_SOCKET_SEND_INCOMPLETE, 
+			REMO_THROW(ErrorCode::ERR_SOCKET_SEND_INCOMPLETE, 
 				"Failed to send complete buffer: Expected %d bytes, actual %d bytes", 
 				a_bufsize, bytes_sent);
 		}
@@ -411,7 +411,7 @@ Socket::IOResult Socket::recv(void* a_buffer, size_t a_bufsize, size_t* o_bytes_
 			REMO_VERB("socket receive would block");
 			return IOResult::WouldBlock;
 		} else {
-			throw error(ErrorCode::ERR_SOCKET_SEND_FAILED, 
+			REMO_THROW(ErrorCode::ERR_SOCKET_SEND_FAILED, 
 				"Receiving from '%s' failed with error %d: %s", 
 				get_remote_addr().to_string().c_str(), 
 				err, get_error_message(err).c_str());
@@ -431,7 +431,7 @@ Socket::IOResult Socket::recv(void* a_buffer, size_t a_bufsize, size_t* o_bytes_
 	} else {
 		// no -> caller expects whole buffer to be received
 		if (bytes_received != a_bufsize) {
-			throw error(ErrorCode::ERR_SOCKET_RECV_INCOMPLETE, 
+			REMO_THROW(ErrorCode::ERR_SOCKET_RECV_INCOMPLETE, 
 				"Failed to receive complete buffer: Expected %d bytes, actual %d bytes", 
 				a_bufsize, bytes_received);
 		}
@@ -449,7 +449,7 @@ void Socket::shutdown(ShutdownFlag how)
 	int err = ::shutdown(m_sockfd, (int)how);
 	if (err) {
 		err = get_last_error();
-		throw error(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
+		REMO_THROW(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
 			"Syscall shutdown() failed with error %d: %s", 
 			err, get_error_message(err).c_str());		
 	}
@@ -469,7 +469,7 @@ void Socket::wait_send_ready(int a_timeout_ms)
 	int ret = ::poll(&pfd, 1, a_timeout_ms);
 	if (ret < 0) {
 		int err = get_last_error();
-		throw error(ErrorCode::ERR_SOCKET_POLL_FAILED, 
+		REMO_THROW(ErrorCode::ERR_SOCKET_POLL_FAILED, 
 			"Polling socket for send ready failed with error %d: %s", 
 			err, get_error_message(err).c_str());		
 	}
@@ -484,7 +484,7 @@ void Socket::set_blocking(bool a_blocking)
    int ret = ::ioctlsocket(m_sockfd, FIONBIO, &mode);
    if (ret != 0) {
 		int err = get_last_error();
-		throw error(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
+		REMO_THROW(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
 			"Setting socket blocking mode using ioctlsocket() failed with error %d: %s", 
 			err, get_error_message(err).c_str());
    }
@@ -492,7 +492,7 @@ void Socket::set_blocking(bool a_blocking)
    int flags = ::fcntl(m_sockfd, F_GETFL, 0);
    if (flags == -1) {
 		int err = get_last_error();
-		throw error(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
+		REMO_THROW(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
 			"Getting socket flags using fcntl() failed with error %d: %s", 
 			err, get_error_message(err).c_str());
    }
@@ -500,7 +500,7 @@ void Socket::set_blocking(bool a_blocking)
    int ret = ::fcntl(m_sockfd, F_SETFL, flags);
    if (ret != 0) {
 		int err = get_last_error();
-		throw error(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
+		REMO_THROW(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
 			"Setting socket blocking mode using fcntl() failed with error %d: %s", 
 			err, get_error_message(err).c_str());
    }
@@ -519,7 +519,7 @@ void Socket::set_reuse_addr(bool a_reuse_addr)
 		SOL_SOCKET, SO_REUSEADDR, (const char*)&enable, sizeof(enable));
 	if (ret < 0) {
 		int err = get_last_error();
-		throw error(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
+		REMO_THROW(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
 			"Syscall setsockopt(SO_REUSEADDR) failed with error %d: %s", 
 			err, get_error_message(err).c_str());		
 	}
@@ -544,7 +544,7 @@ SockAddr Socket::get_socket_addr() const
 	int err = ::getsockname(m_sockfd, (sockaddr*)&addr.m_addr, &addr.m_addrlen);
 	if (err) {
 		err = get_last_error();
-		throw error(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
+		REMO_THROW(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
 			"Syscall getsockname() failed with error %d: %s", 
 			err, get_error_message(err).c_str());		
 	}
@@ -560,7 +560,7 @@ SockAddr Socket::get_remote_addr() const
 	int err = ::getpeername(m_sockfd, (sockaddr*)&addr.m_addr, &addr.m_addrlen);
 	if (err) {
 		err = get_last_error();
-		throw error(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
+		REMO_THROW(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
 			"Syscall getpeername() failed with error %d: %s", 
 			err, get_error_message(err).c_str());		
 	}
@@ -674,7 +674,7 @@ size_t SocketSet::poll(int a_timeout_ms)
 		"set size must not change during poll");
 	if (ret < 0) {
 		int err = get_last_error();
-		throw error(ErrorCode::ERR_SOCKET_POLL_FAILED, 
+		REMO_THROW(ErrorCode::ERR_SOCKET_POLL_FAILED, 
 			"Polling sockets failed with error %d: %s", 
 			err, get_error_message(err).c_str());		
 	}
@@ -779,14 +779,14 @@ void SockAddr::from_string(const std::string& a_str)
 	struct addrinfo* result = nullptr;
 	int err = ::getaddrinfo(host.c_str(), service.c_str(), &hints, &result);
 	if (err) {
-		throw error(ErrorCode::ERR_GETADDRINFO_FAILED, "getaddrinfo(\"%s\", \"%s\") failed with code %d: %s",
+		REMO_THROW(ErrorCode::ERR_GETADDRINFO_FAILED, "getaddrinfo(\"%s\", \"%s\") failed with code %d: %s",
 			host.c_str(), service.c_str(), err, gai_strerror(err)
 		);
 	}
 
 	// check buffer size
 	if (result->ai_addrlen > sizeof(m_addr)) {
-		throw error(ErrorCode::ERR_SOCKET_BUFFER_TOO_SMALL, 
+		REMO_THROW(ErrorCode::ERR_SOCKET_BUFFER_TOO_SMALL, 
 			"Buffer to hold socket address too small: Expected %d bytes, got %d",
 			sizeof(m_addr), result->ai_addrlen);
 	}
@@ -810,7 +810,7 @@ std::string SockAddr::to_string() const
 		hbuf, sizeof(hbuf), sbuf, sizeof(sbuf), 
 		NI_NUMERICHOST | NI_NUMERICSERV);
 	if (err) {
-		throw error(ErrorCode::ERR_GETNAMEINFO_FAILED, "getnameinfo() failed with code %d: %s",
+		REMO_THROW(ErrorCode::ERR_GETNAMEINFO_FAILED, "getnameinfo() failed with code %d: %s",
 			err, gai_strerror(err)
 		);
 	}

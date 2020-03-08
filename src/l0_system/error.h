@@ -9,6 +9,8 @@
 //------------------------------------------------------------------------------
 #pragma once
 
+#include "utils/utils.h" // basename
+
 #include <stdexcept>
 
 //------------------------------------------------------------------------------
@@ -58,6 +60,26 @@ enum ErrorCode {
 	ERR_WORKER_BAD_THREAD_STATE = 38,
 };
 
+//------------------------------------------------------------------------------
+// macros
+//------------------------------------------------------------------------------
+//
+//! throw an exception
+#define REMO_THROW(code, msg, ...) {                                           \
+	auto e = remo::error(code, msg, __VA_ARGS__);                              \
+	REMO_EXCPT("exception at %s:%d: %s", __FILE__, __LINE__, e.what());        \
+	throw e;	                                                               \
+}
+
+//! throw an exception if condition is fulfilled
+#define REMO_THROW_IF(cond, code, msg, ...) \
+	if (cond) { REMO_THROW(code, msg, __VA_ARGS__); }
+
+
+//------------------------------------------------------------------------------
+// class definition
+//------------------------------------------------------------------------------
+//
 class error: public std::runtime_error
 {
 public:

@@ -140,6 +140,11 @@ void Logger::log(LogLevel a_level,  const std::string& a_log_name,
 		fcol = Color::bright_white;
 		style = Style::bold;
 		break;
+	case eLogExcpt:
+		level = "excpt";
+		fcol = Color::bright_magenta;
+		style = Style::bold;
+		break;
 	case eLogInfo:
 		level = "info ";
 		fcol = Color::none;
