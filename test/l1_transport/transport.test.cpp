@@ -24,6 +24,7 @@ TEST(Transport, SendReceive)
 	packet_ptr packet(pool.take());
 
 	TcpTransport::Settings settings;
+	settings.listen_addr = SockAddr("localhost:1986");
 	TcpTransport transport(settings);
 
 	std::promise<void> p;
@@ -35,7 +36,7 @@ TEST(Transport, SendReceive)
 		});
 	});
 
-	Channel* channel = transport.connect(":1986");
+	Channel* channel = transport.connect("localhost:1986");
 	BinaryWriter writer(*packet);
 	writer.write(5);
 	writer.write(0);
