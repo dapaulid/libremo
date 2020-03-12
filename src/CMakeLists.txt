@@ -13,6 +13,7 @@ target_sources(
         l1_transport/packet.cpp
         l1_transport/reader.cpp
         l1_transport/writer.cpp
+        l1_transport/url.cpp
         l1_transport/tcp/tcp-transport.cpp
         l1_transport/tcp/tcp-channel.cpp
         l0_system/error.cpp
