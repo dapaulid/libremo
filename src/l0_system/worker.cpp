@@ -112,7 +112,6 @@ void Worker::run()
 	}
 	
 	while (!m_termination_requested) {
-		REMO_WARN("Still running");
 		try {
 			// let subclasses to their stuff
 			action();

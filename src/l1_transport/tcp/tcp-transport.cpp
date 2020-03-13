@@ -142,6 +142,8 @@ void TcpThread::do_shutdown()
 //
 void TcpThread::action()
 {
+	REMO_VERB("polling %d sockets", m_sockets.count());
+
 	// do we have any sockets left?
 	if (m_sockets.count() > 0) {
 		// yes -> handle socket events

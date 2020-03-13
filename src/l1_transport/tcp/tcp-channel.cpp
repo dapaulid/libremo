@@ -108,9 +108,6 @@ void TcpChannel::send(packet_ptr& a_packet)
 //
 void TcpChannel::receive_chunk()
 {
-	REMO_WARN("receive_chunk");
-	// TODO add header in send
-
 	REMO_PRECOND({
 		REMO_ASSERT(!is_closed(), 
 			"channel must not receive data while closed");
