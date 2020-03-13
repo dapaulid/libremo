@@ -134,24 +134,29 @@ void TcpThread::do_startup()
 
 //------------------------------------------------------------------------------	
 //
-void TcpThread::do_shutdown()
+void TcpThread::action()
 {
+	REMO_VERB("polling %d sockets", m_sockets.count());
+	m_sockets.poll();
 }
 
 //------------------------------------------------------------------------------	
 //
-void TcpThread::action()
+void TcpThread::do_shutdown()
 {
-	REMO_VERB("polling %d sockets", m_sockets.count());
-
-	// do we have any sockets left?
-	if (m_sockets.count() > 0) {
-		// yes -> handle socket events
+	// TODO shutdown necessary/useful? Windows returns WSAENOTCONN for this
+	//m_ctrl_in.shutdown();
+	//m_serversock.shutdown();
+	m_sockets.remove(&m_ctrl_in);
+	m_sockets.remove(&m_serversock);
+	// close all channels
+	m_transport->close_channels();
+	
+	// wait for sockets to properly disconnect
+	while (m_sockets.count() > 0) {
+		REMO_VERB("polling %d sockets (shutdown)", m_sockets.count());		
 		m_sockets.poll();
-	} else {
-		// no -> we're done
-		terminate();
-	}
+	};
 }
 
 //------------------------------------------------------------------------------	
@@ -178,13 +183,6 @@ void TcpThread::handle_cmd()
 	} else {
 		// shutdown sentinel received
 		REMO_INFO("Shutdown signal received");
-		// TODO shutdown necessary/useful? Windows returns WSAENOTCONN for this
-		//m_ctrl_in.shutdown();
-		//m_serversock.shutdown();
-		m_sockets.remove(&m_ctrl_in);
-		m_sockets.remove(&m_serversock);
-		// close all channels
-		m_transport->close_channels();
 	}
 }
 
@@ -222,7 +220,9 @@ void TcpThread::remove_channel(TcpChannel* a_channel)
 //
 void TcpThread::shutdown()
 {
-	// send sentinel to thread
+	// call base to set termination flag
+	Worker::shutdown();
+	// send sentinel to thread to wake it from poll()
 	add_channel(nullptr);
 }
 

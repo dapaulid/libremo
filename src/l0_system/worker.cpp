@@ -97,10 +97,9 @@ void Worker::join()
 //
 void Worker::run()
 {
-	enter_thread_state(ThreadState::running);
-	
 	register_thread();
 	
+	enter_thread_state(ThreadState::startup);
 	try {	
 		// let subclasses to their stuff
 		do_startup();
@@ -111,6 +110,7 @@ void Worker::run()
 		REMO_ERROR("unhandled unknown exception in worker thread during startup");
 	}
 	
+	enter_thread_state(ThreadState::running);
 	while (!m_termination_requested) {
 		try {
 			// let subclasses to their stuff
@@ -123,6 +123,7 @@ void Worker::run()
 		}
 	}
 	
+	enter_thread_state(ThreadState::shutdown);
 	try {	
 		// let subclasses to their stuff
 		do_shutdown();
@@ -192,7 +193,9 @@ const char* Worker::get_state_str(ThreadState a_state)
 	switch (a_state) {
 		case ThreadState::idle: return "idle";
 		case ThreadState::starting: return "starting";
+		case ThreadState::startup: return "startup";
 		case ThreadState::running: return "running";
+		case ThreadState::shutdown: return "shutdown";
 		case ThreadState::terminated: return "terminated";
 		case ThreadState::joined: return "joined";
 	}

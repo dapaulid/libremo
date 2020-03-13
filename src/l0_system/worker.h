@@ -39,7 +39,9 @@ public:
 	enum class ThreadState {
 		idle,
 		starting,
+		startup,
 		running,
+		shutdown,
 		terminated,
 		joined,
 	};
