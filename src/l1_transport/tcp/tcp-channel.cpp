@@ -48,6 +48,7 @@ TcpChannel::TcpChannel(TcpTransport* a_transport, Socket&& a_socket, bool a_inco
 {
 	// set callbacks
 	m_socket.on_receive_ready(std::bind(&TcpChannel::receive_chunk, this));
+	m_socket.on_disconnected(std::bind(&TcpChannel::closed, this));
 	// TODO handle this on TX ready?
 	if (a_incoming) {
 		// enable non-blocking mode

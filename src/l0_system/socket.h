@@ -98,6 +98,7 @@ public:
 	void set_reuse_addr(bool a_reuse_addr);
 
 	void on_receive_ready(const ready_handler& a_handler);
+	void on_disconnected(const ready_handler& a_handler);
 
 	SockAddr get_socket_addr() const;
 	SockAddr get_remote_addr() const;
@@ -124,6 +125,7 @@ protected:
 
 	//! event handlers
 	virtual void receive_ready();
+	virtual void disconnected();
 
 private:
 	//! socket descriptor
@@ -132,6 +134,7 @@ private:
 	friend SocketSet;
 	//! ready event callbacks
 	ready_handler m_receive_ready;
+	ready_handler m_disconnected_handler;
 	//! socket name used for logging
 	std::string m_log_name;
 };

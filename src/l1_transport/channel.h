@@ -81,6 +81,8 @@ public:
 
 	//! close this channel
 	virtual void close() = 0;
+	//! marks this socket as closed
+	void closed();	
 
 	State get_state() const { return m_state; }
 	bool is_open() const { return m_state == State::open; }
@@ -100,8 +102,7 @@ protected:
 	//! receive a packet from this channel
 	void receive(packet_ptr& a_packet);
 
-	//! marks this socket as closed
-	void closed();
+
 
 	//! enters the specified state
 	void enter_state(State a_new_state);

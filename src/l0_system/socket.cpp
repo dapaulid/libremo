@@ -106,6 +106,7 @@ static const char* get_sdflag_str(Socket::ShutdownFlag sdf);
 Socket::Socket():
 	m_sockfd(INVALID_SOCKFD),
 	m_receive_ready(),
+	m_disconnected_handler(),
 	m_log_name()
 {
 }
@@ -116,6 +117,7 @@ Socket::Socket():
 Socket::Socket(Socket&& a_other):
 	m_sockfd(a_other.m_sockfd),
 	m_receive_ready(std::move(a_other.m_receive_ready)),
+	m_disconnected_handler(std::move(a_other.m_disconnected_handler)),
 	m_log_name(std::move(a_other.m_log_name))
 {
 	// ensure descriptor is not closed twice
@@ -131,6 +133,7 @@ Socket& Socket::operator=(Socket&& a_other)
 
 	m_sockfd = a_other.m_sockfd;
 	m_receive_ready = std::move(a_other.m_receive_ready);
+	m_disconnected_handler = std::move(a_other.m_disconnected_handler);
 	m_log_name = std::move(a_other.m_log_name);
 	
 	// ensure descriptor is not closed twice
@@ -351,8 +354,7 @@ Socket::IOResult Socket::send(const void* a_buffer, size_t a_bufsize, size_t* o_
 		*o_bytes_sent = 0;
 	}
 
-	REMO_VERB("socket sending %d bytes %p",
-		a_bufsize, a_buffer);
+	REMO_VERB("socket sending %d bytes", a_bufsize);
 
 #ifdef REMO_SYS_WIN
 	int flags = 0;
@@ -530,13 +532,6 @@ void Socket::set_reuse_addr(bool a_reuse_addr)
 
 //------------------------------------------------------------------------------
 //
-void Socket::on_receive_ready(const ready_handler& a_handler)
-{
-	m_receive_ready = a_handler;
-}
-
-//------------------------------------------------------------------------------
-//
 SockAddr Socket::get_socket_addr() const
 {
 	SockAddr addr;
@@ -577,6 +572,13 @@ void Socket::set_sockfd(int a_sockfd)
 
 //------------------------------------------------------------------------------
 //
+void Socket::on_receive_ready(const ready_handler& a_handler)
+{
+	m_receive_ready = a_handler;
+}
+
+//------------------------------------------------------------------------------
+//
 void Socket::receive_ready()
 {
 	REMO_VERB("socket ready to receive");
@@ -584,6 +586,25 @@ void Socket::receive_ready()
 	// invoke callback
 	if (m_receive_ready) {
 		m_receive_ready();
+	}
+}
+
+//------------------------------------------------------------------------------
+//
+void Socket::on_disconnected(const ready_handler& a_handler)
+{
+	m_disconnected_handler = a_handler;
+}
+
+//------------------------------------------------------------------------------
+//
+void Socket::disconnected()
+{
+	REMO_INFO("socket disconnected");
+
+	// invoke callback
+	if (m_disconnected_handler) {
+		m_disconnected_handler();
 	}
 }
 
@@ -686,16 +707,21 @@ size_t SocketSet::poll(int a_timeout_ms)
 
 	// check for events
 	// iterate downwards, to allow callbacks removing the socket
+	size_t num_receive_ready = 0;
 	for (size_t i = n; i --> 0 ;) {
 		REMO_ASSERT((int)pimpl->m_pollfds[i].fd == pimpl->m_sockets[i]->get_fd(),
 			"inconsistent socket descriptors");
-		if (pimpl->m_pollfds[i].revents & POLLIN) {
-			pimpl->m_sockets[i]->receive_ready();
-		}
+		auto revents = pimpl->m_pollfds[i].revents;
+		Socket* socket = pimpl->m_sockets[i];	
+		if (revents & POLLIN) {
+			socket->receive_ready();
+			++num_receive_ready;
+		} else if (revents & POLLHUP) {
+			socket->disconnected();
+		}		
 	}
 
-	// return number of sockets that triggered at least one event
-	return (size_t)ret;
+	return num_receive_ready;
 }
 
 //------------------------------------------------------------------------------
