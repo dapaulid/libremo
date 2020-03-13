@@ -10,6 +10,7 @@
 #pragma once
 
 #include "utils/recycling.h"
+#include "l0_system/system.h" // REMO_MSVC_WARN_SUPPRESS
 #include "../l0_system/error.h"
 
 #include <iostream>
@@ -74,6 +75,7 @@ protected:
     void recycle() override;
 
 private:
+	REMO_MSVC_WARN_SUPPRESS(4324) // structure was padded -> sure
     alignas(std::max_align_t) char m_buffer [1024];
     size_t m_size;
 };
