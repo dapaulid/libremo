@@ -80,10 +80,10 @@ void RemoteEndpoint::handle_packet(packet_ptr& a_packet)
 
     uint8_t type = a_packet->get_byte(0);
     switch (type) {
-    case PacketType::packet_call:
+    case trans::PacketType::packet_call:
         handle_call(a_packet);
         break;
-    case PacketType::packet_result:
+    case trans::PacketType::packet_result:
         handle_result(a_packet);
         break;
     default:
@@ -95,14 +95,14 @@ void RemoteEndpoint::handle_packet(packet_ptr& a_packet)
 //
 void RemoteEndpoint::handle_call(packet_ptr& a_packet)
 {
-    BinaryReader reader(*a_packet);
+    trans::BinaryReader reader(*a_packet);
     reader.read_call();
 
     // call it
     TypedValue result = m_local->call(reader.get_function(), reader.get_args());
 
     packet_ptr reply = take_packet();
-    BinaryWriter reply_writer(*reply);
+    trans::BinaryWriter reply_writer(*reply);
 
     reply_writer.write_result(result, reader.get_args());
 
@@ -124,7 +124,7 @@ void RemoteEndpoint::alloc_packets()
 {
     // pre-allocate packets
     for (size_t i = 0; i < PACKET_POOL_SIZE; i++) {
-        m_packet_pool.add(new Packet());
+        m_packet_pool.add(new trans::Packet());
     }
 }
 

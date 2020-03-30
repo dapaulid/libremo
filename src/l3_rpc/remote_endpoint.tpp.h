@@ -25,7 +25,7 @@ template<typename... Args>
 TypedValue RemoteEndpoint::call(const std::string& a_function, Args... args)
 {
     packet_ptr packet = take_packet();
-    BinaryWriter writer(*packet);
+    trans::BinaryWriter writer(*packet);
     writer.write_call(a_function, args...);
 
     send_packet(packet);
@@ -33,7 +33,7 @@ TypedValue RemoteEndpoint::call(const std::string& a_function, Args... args)
 
     packet_ptr reply = std::move(m_received_result);
 
-    BinaryReader reader(*reply);
+    trans::BinaryReader reader(*reply);
     return reader.read_result(args...);
 }
 

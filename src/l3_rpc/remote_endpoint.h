@@ -54,7 +54,7 @@ private:
 	//! the local endpoint that this endpoint represents to the outside
 	LocalEndpoint* m_local;
 	//! packet pool to avoid heap allocations
-	RecyclingPool<Packet> m_packet_pool;
+	RecyclingPool<trans::Packet> m_packet_pool;
 	//! TODO use some data structure
 	packet_ptr m_received_result {};
 
