@@ -9,9 +9,10 @@
 //------------------------------------------------------------------------------
 #pragma once
 
-#include "utils/recycling.h"
+#include "buffer.h"
 #include "l0_system/system.h" // REMO_MSVC_WARN_SUPPRESS
-#include "../l0_system/error.h"
+#include "l0_system/error.h"
+#include "utils/recycling.h"
 
 #include <iostream>
 #include <memory>
@@ -78,6 +79,8 @@ private:
 	REMO_MSVC_WARN_SUPPRESS(4324) // structure was padded -> sure
     alignas(std::max_align_t) char m_buffer [1024];
     size_t m_size;
+    trans::LBuffer m_header;
+    trans::RBuffer m_payload;
 };
 
 

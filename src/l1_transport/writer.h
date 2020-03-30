@@ -11,6 +11,7 @@
 
 #include "packet.h"
 #include "../l0_system/types.h"
+#include "../l0_system/endianness.h"
 
 #include <stdlib.h>
 #include <iostream> // debugging
@@ -25,6 +26,7 @@ public:
 	Writer(Packet& a_packet);
 
 	void write(unsigned char byte);
+
 private:
 	Packet& m_packet;
 };
