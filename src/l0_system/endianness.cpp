@@ -14,6 +14,7 @@
 //
 // project
 #include "endianness.h"
+#include "system.h"
 //
 // C++ 
 #include <cstring>
