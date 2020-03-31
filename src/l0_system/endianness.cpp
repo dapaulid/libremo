@@ -28,9 +28,18 @@ namespace remo {
 // macros
 //------------------------------------------------------------------------------
 //
-#define REMO_BSWAP16(x) __builtin_bswap16(x)
-#define REMO_BSWAP32(x) __builtin_bswap32(x)
-#define REMO_BSWAP64(x) __builtin_bswap64(x)
+#ifdef REMO_SYS_WIN
+	// Windows
+	#include <stdlib.h>
+	#define REMO_BSWAP16(x) _byteswap_ushort(x)
+	#define REMO_BSWAP32(x) _byteswap_ulong(x)
+	#define REMO_BSWAP64(x) _byteswap_uint64(x)
+#else
+	// UNIX / Linux
+	#define REMO_BSWAP16(x) __builtin_bswap16(x)
+	#define REMO_BSWAP32(x) __builtin_bswap32(x)
+	#define REMO_BSWAP64(x) __builtin_bswap64(x)	
+#endif
 
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 
