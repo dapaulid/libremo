@@ -38,40 +38,17 @@ public:
     Packet();
     virtual ~Packet();
 
-    void append(char a_byte);
+    void set_header_capacity(size_t a_capacity);
+    size_t get_header_capacity() const;
 
-    char get_byte(size_t a_offset) const;
-
-    template<typename T>
-    const T* get_ptr(size_t a_offset) const {
-        // TODO check alignment
-        if (a_offset + sizeof(T) <= m_size) {
-            return reinterpret_cast<const T*>(&m_buffer[a_offset]);
-        } else {
-            throw error(ErrorCode::ERR_BAD_PACKET_ACCESS, "Bad packet access: size=%zu, offset=%zu, ptrsize=%zu", 
-                m_size, a_offset, sizeof(T));
-        }
-    }
-
-    template<typename T>
-    T* get_ptr(size_t a_offset) {
-        // TODO check alignment
-        if (a_offset + sizeof(T) <= m_size) {
-            return reinterpret_cast<T*>(&m_buffer[a_offset]);
-        } else {
-            throw error(ErrorCode::ERR_BAD_PACKET_ACCESS, "Bad packet access: size=%zu, offset=%zu, ptrsize=%zu", 
-                m_size, a_offset, sizeof(T));
-        }
-    }
-
-    void set_size(size_t a_size);
+    Buffer& get_header() { return m_header; }
+    Buffer& get_payload() { return m_payload; }
 
     char* get_buffer() { return m_buffer; }
-    size_t get_size() const { return m_size; }
+    size_t get_size() const { return m_header.get_size() + m_payload.get_size(); }
     size_t get_buffer_size() const { return sizeof(m_buffer); }
 
     std::string to_string(); //const;
-    std::string to_hex() const;
 
 protected:
     void recycle() override;
@@ -79,9 +56,8 @@ protected:
 private:
 	REMO_MSVC_WARN_SUPPRESS(4324) // structure was padded -> sure
     alignas(std::max_align_t) char m_buffer [1024];
-    size_t m_size;
-    trans::LBuffer m_header;
-    trans::RBuffer m_payload;
+    LBuffer m_header;
+    RBuffer m_payload;
 };
 
 
@@ -96,6 +72,7 @@ std::ostream& operator<<(std::ostream& os, /*const*/ Packet& a_packet);
 //------------------------------------------------------------------------------
     } // end namespace trans
 
+// some aliases for library namespace
 typedef trans::packet_ptr packet_ptr;
 
 } // end namespace remo

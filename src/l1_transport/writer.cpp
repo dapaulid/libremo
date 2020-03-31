@@ -15,8 +15,8 @@ namespace remo {
 	namespace trans {
 //------------------------------------------------------------------------------	
 
-Writer::Writer(Packet& a_packet):
-	m_packet(a_packet)
+Writer::Writer(Buffer& a_buffer):
+	m_buffer(a_buffer)
 {
 }
 
@@ -24,7 +24,7 @@ Writer::Writer(Packet& a_packet):
 
 void Writer::write(unsigned char byte)
 {
-	m_packet.append(byte);
+	*static_cast<unsigned char*>(m_buffer.grow(1)) = byte;
 }
 
 //------------------------------------------------------------------------------

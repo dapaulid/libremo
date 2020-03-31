@@ -17,6 +17,7 @@
 //
 // C++ 
 #include <stddef.h>
+#include <string>
 //
 //
 //------------------------------------------------------------------------------
@@ -37,19 +38,22 @@ public:
 // public member functions
 public:
 	void init(void* a_data, size_t a_capacity, size_t a_size = 0);
+	virtual void* grow(size_t a_size) = 0;	
 
-	virtual void* grow(size_t a_size) = 0;
-	
+	const void* access_read(size_t a_offset, size_t a_size) const;
+	void* access_write(size_t a_offset, size_t a_size);
+
 	void* get_data() const { return m_data; }
 	size_t get_size() const { return m_size; }
 	size_t get_capacity() const { return m_capacity; }
 
 	void set_size(size_t a_size);
 
+	std::string to_hex() const;	
 
 // protected members
 protected:
-	void* m_data;
+	uint8_t* m_data;
 	size_t m_size;
 	size_t m_capacity;
 };
@@ -61,7 +65,7 @@ protected:
 //
 //! right-growing buffer
 class RBuffer: public Buffer {
-// public member functions
+// protected member functions
 public:
 	virtual void* grow(size_t a_size) override;
 };
@@ -73,7 +77,7 @@ public:
 //
 //! left-growing buffer
 class LBuffer: public Buffer {
-// public member functions
+// protected member functions
 public:
 	virtual void* grow(size_t a_size) override;
 };

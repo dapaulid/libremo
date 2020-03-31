@@ -10,6 +10,7 @@
 #pragma once
 
 #include "packet.h"
+#include "buffer.h"
 #include "../l0_system/types.h"
 
 #include <iostream>
@@ -27,24 +28,24 @@ namespace remo {
 class Reader
 {
 public:
-	Reader(Packet& a_packet);
+	Reader(Buffer& a_buffer);
 
 	unsigned char peek() {
-		return m_packet.get_byte(m_offset);
+		return *(unsigned char*)m_buffer.access_read(m_offset, 1);
 	}
 
 	unsigned char read_byte() {
-		return m_packet.get_byte(m_offset++);
+		return *(unsigned char*)m_buffer.access_read(m_offset++, 1);
 	}
 
 	bool has_more() const {
-		return m_offset < m_packet.get_size();
+		return m_offset < m_buffer.get_size();
 	}
 
 	void skip_array(size_t a_arraylength, size_t a_item_size);
 
 protected:
-	Packet& m_packet;
+	Buffer& m_buffer;
 	size_t m_offset;
 };
 
@@ -55,7 +56,7 @@ protected:
 class BinaryReader: public Reader
 {
 public:
-	BinaryReader(Packet& a_packet): Reader(a_packet), 
+	BinaryReader(Buffer& a_buffer): Reader(a_buffer), 
 		m_args() {}
 
 	void read_call();
@@ -145,7 +146,7 @@ public:
 	T* read_ptr(size_t a_arraylength)
 	{
 		a_arraylength = 1; // TODO modify caller for correct value
-		T* ptr = m_packet.get_ptr<T>(m_offset);
+		T* ptr = (T*)m_buffer.access_write(m_offset, sizeof(T));
 		// TODO convert endianness
 		skip_array(a_arraylength, sizeof(T));
 		return ptr;
@@ -167,7 +168,7 @@ public:
 	// read string
 	const char* read_cstr()
 	{
-		const char* str = m_packet.get_ptr<const char>(m_offset);
+		const char* str = (const char*)m_buffer.access_write(m_offset, 1);
 		// forward until NUL byte
 		while (read_byte()) {};
 		return str;

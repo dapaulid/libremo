@@ -22,8 +22,8 @@ namespace remo {
 // class Reader
 //------------------------------------------------------------------------------
 
-Reader::Reader(Packet& a_packet):
-	m_packet(a_packet), m_offset(0)
+Reader::Reader(Buffer& a_buffer):
+	m_buffer(a_buffer), m_offset(0)
 {
 }
 
@@ -32,7 +32,7 @@ Reader::Reader(Packet& a_packet):
 void Reader::skip_array(size_t a_arraylength, size_t a_item_size)
 {
 	size_t total_size = a_arraylength * a_item_size;
-	if (m_offset + total_size > m_packet.get_size()) {
+	if (m_offset + total_size > m_buffer.get_size()) {
 		throw error(ErrorCode::ERR_INVALID_ARRAY_LENGTH, 
 			"invalid array length: %zu", a_arraylength);
 	}
@@ -146,7 +146,7 @@ TypedValue BinaryReader::read_typed_value()
 
 std::string BinaryReader::to_string()
 {
-	if (m_packet.get_size() > 0) {
+	if (m_buffer.get_size() > 0) {
 		// check packet type
 		switch (read_byte()) {
 		case PacketType::packet_call:
@@ -158,8 +158,8 @@ std::string BinaryReader::to_string()
 		default:
 			// unknown packet type
 			std::stringstream ss;
-			ss << "unknown packet of size " << m_packet.get_size() << ": ";
-			ss << '[' << m_packet.to_hex() << ']';
+			ss << "unknown packet of size " << m_buffer.get_size() << ": ";
+			ss << '[' << m_buffer.to_hex() << ']';
 			return ss.str();
 		}
 	} else {

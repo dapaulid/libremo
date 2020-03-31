@@ -78,7 +78,9 @@ void RemoteEndpoint::handle_packet(packet_ptr& a_packet)
         return;
     }
 
-    uint8_t type = a_packet->get_byte(0);
+    trans::Reader reader(a_packet->get_payload());
+
+    uint8_t type = reader.read_byte();
     switch (type) {
     case trans::PacketType::packet_call:
         handle_call(a_packet);
@@ -95,14 +97,14 @@ void RemoteEndpoint::handle_packet(packet_ptr& a_packet)
 //
 void RemoteEndpoint::handle_call(packet_ptr& a_packet)
 {
-    trans::BinaryReader reader(*a_packet);
+    trans::BinaryReader reader(a_packet->get_payload());
     reader.read_call();
 
     // call it
     TypedValue result = m_local->call(reader.get_function(), reader.get_args());
 
     packet_ptr reply = take_packet();
-    trans::BinaryWriter reply_writer(*reply);
+    trans::BinaryWriter reply_writer(reply->get_payload());
 
     reply_writer.write_result(result, reader.get_args());
 

@@ -10,6 +10,7 @@
 #pragma once
 
 #include "packet.h"
+#include "buffer.h"
 #include "../l0_system/types.h"
 #include "../l0_system/endianness.h"
 
@@ -24,18 +25,18 @@ namespace remo {
 
 class Writer {
 public:
-	Writer(Packet& a_packet);
+	Writer(Buffer& a_buffer);
 
 	void write(unsigned char byte);
 
 private:
-	Packet& m_packet;
+	Buffer& m_buffer;
 };
 
 class BinaryWriter: public Writer
 {
 public:
-	BinaryWriter(Packet& a_packet): Writer(a_packet) {}
+	BinaryWriter(Buffer& a_buffer): Writer(a_buffer) {}
 
 	template<typename... Args>
 	void write_call(const std::string a_function, Args... args)

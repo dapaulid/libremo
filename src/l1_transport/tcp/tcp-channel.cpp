@@ -155,7 +155,7 @@ void TcpChannel::receive_chunk()
 	}
 
 	// update packet size
-	m_rx_packet->set_size(m_rx_packet->get_size() + bytes_received);
+	m_rx_packet->get_payload().grow(bytes_received);
 
 	// packet complete?
 	const size_t actual_size = determine_packet_size(m_rx_packet);
@@ -188,12 +188,12 @@ void TcpChannel::receive_chunk()
 			excess_bytes);
 		
 		// copy excess bytes to next packet
-		m_rx_packet->set_size(excess_bytes);			
+		m_rx_packet->get_payload().set_size(excess_bytes);			
 		std::memcpy(m_rx_packet->get_buffer(), 
 			complete_packet->get_buffer() + actual_size, excess_bytes);
 		
 		// truncate excess bytes from complete packet
-		complete_packet->set_size(actual_size);
+		complete_packet->get_payload().set_size(actual_size);
 	}
 
 	// done
