@@ -67,7 +67,7 @@ size_t Packet::get_header_capacity() const
 
 //------------------------------------------------------------------------------
 
-std::string Packet::to_string() //const
+std::string Packet::to_string() const
 {
     // TODO refactor to other class that can take const reference
     return BinaryReader(get_payload()).to_string();

@@ -22,7 +22,7 @@ namespace remo {
 // class Reader
 //------------------------------------------------------------------------------
 
-Reader::Reader(Buffer& a_buffer):
+Reader::Reader(const Buffer& a_buffer):
 	m_buffer(a_buffer), m_offset(0)
 {
 }

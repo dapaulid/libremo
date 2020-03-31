@@ -42,13 +42,16 @@ public:
     size_t get_header_capacity() const;
 
     Buffer& get_header() { return m_header; }
+    const Buffer& get_header() const { return m_header; }
+    
     Buffer& get_payload() { return m_payload; }
+    const Buffer& get_payload() const { return m_payload; }
 
     char* get_buffer() { return m_buffer; }
     size_t get_size() const { return m_header.get_size() + m_payload.get_size(); }
     size_t get_buffer_size() const { return sizeof(m_buffer); }
 
-    std::string to_string(); //const;
+    std::string to_string() const;
 
 protected:
     void recycle() override;

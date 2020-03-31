@@ -28,7 +28,7 @@ namespace remo {
 class Reader
 {
 public:
-	Reader(Buffer& a_buffer);
+	Reader(const Buffer& a_buffer);
 
 	unsigned char peek() {
 		return *(unsigned char*)m_buffer.access_read(m_offset, 1);
@@ -45,7 +45,7 @@ public:
 	void skip_array(size_t a_arraylength, size_t a_item_size);
 
 protected:
-	Buffer& m_buffer;
+	const Buffer& m_buffer;
 	size_t m_offset;
 };
 
@@ -56,7 +56,7 @@ protected:
 class BinaryReader: public Reader
 {
 public:
-	BinaryReader(Buffer& a_buffer): Reader(a_buffer), 
+	BinaryReader(const Buffer& a_buffer): Reader(a_buffer), 
 		m_args() {}
 
 	void read_call();
@@ -146,7 +146,8 @@ public:
 	T* read_ptr(size_t a_arraylength)
 	{
 		a_arraylength = 1; // TODO modify caller for correct value
-		T* ptr = (T*)m_buffer.access_write(m_offset, sizeof(T));
+		// TODO eliminate const cast? 
+		T* ptr = (T*)m_buffer.access_read(m_offset, sizeof(T));
 		// TODO convert endianness
 		skip_array(a_arraylength, sizeof(T));
 		return ptr;
@@ -168,7 +169,7 @@ public:
 	// read string
 	const char* read_cstr()
 	{
-		const char* str = (const char*)m_buffer.access_write(m_offset, 1);
+		const char* str = (const char*)m_buffer.access_read(m_offset, 1);
 		// forward until NUL byte
 		while (read_byte()) {};
 		return str;
