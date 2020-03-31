@@ -47,7 +47,7 @@ public:
     Buffer& get_payload() { return m_payload; }
     const Buffer& get_payload() const { return m_payload; }
 
-    char* get_buffer() { return m_buffer; }
+    uint8_t* get_buffer() { return m_buffer; }
     size_t get_size() const { return m_header.get_size() + m_payload.get_size(); }
     size_t get_buffer_size() const { return sizeof(m_buffer); }
 
@@ -58,7 +58,7 @@ protected:
 
 private:
 	REMO_MSVC_WARN_SUPPRESS(4324) // structure was padded -> sure
-    alignas(std::max_align_t) char m_buffer [1024];
+    alignas(std::max_align_t) uint8_t m_buffer [1024];
     LBuffer m_header;
     RBuffer m_payload;
 };

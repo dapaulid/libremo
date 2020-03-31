@@ -68,7 +68,7 @@ TcpChannel::~TcpChannel()
 //
 void TcpChannel::send(packet_ptr& a_packet)
 {
-	const char* ptr = a_packet->get_buffer();
+	const uint8_t* data = a_packet->get_buffer();
 	size_t size = a_packet->get_size();
 
 	/**
@@ -83,7 +83,7 @@ void TcpChannel::send(packet_ptr& a_packet)
 		
 		// send data over socket
 		size_t bytes_sent = 0;
-		Socket::IOResult result = m_socket.send(ptr, size, &bytes_sent);
+		Socket::IOResult result = m_socket.send(data, size, &bytes_sent);
 		
 		// consistency checks
 		REMO_ASSERT(result != Socket::IOResult::PeerShutdown,
@@ -99,7 +99,7 @@ void TcpChannel::send(packet_ptr& a_packet)
 		}
 		
 		// determine remaining buffer to send
-		ptr += bytes_sent;
+		data += bytes_sent;
 		size -= bytes_sent;
 	}
 }
