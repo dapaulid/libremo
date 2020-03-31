@@ -36,7 +36,7 @@ static Logger logger("Buffer");
 // class implementation
 //------------------------------------------------------------------------------	
 //
-Buffer::Buffer(void* a_data, size_t a_capacity, size_t a_size)
+Buffer::Buffer(uint8_t* a_data, size_t a_capacity, size_t a_size)
 {
 	init(a_data, a_capacity, a_size);
 }
@@ -49,9 +49,9 @@ Buffer::~Buffer()
 
 //------------------------------------------------------------------------------	
 //
-void Buffer::init(void* a_data, size_t a_capacity, size_t a_size)
+void Buffer::init(uint8_t* a_data, size_t a_capacity, size_t a_size)
 {
-	m_data = static_cast<uint8_t*>(a_data);
+	m_data = a_data;
 	m_capacity = a_capacity;
 	set_size(a_size);
 }

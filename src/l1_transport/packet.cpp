@@ -53,7 +53,7 @@ void Packet::set_header_capacity(size_t a_capacity)
         REMO_ASSERT(a_capacity <= get_buffer_size(),
             "header capacity must not exceed buffer size");
     });
-    void* border = &m_buffer[a_capacity];
+    uint8_t* border = &m_buffer[a_capacity];
     m_header.init(border, a_capacity);
     m_payload.init(border, get_buffer_size() - a_capacity);
 }

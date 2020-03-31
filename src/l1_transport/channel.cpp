@@ -119,7 +119,7 @@ size_t Channel::determine_packet_size(const packet_ptr& a_packet)
 	// packet header complete?
 	if (a_packet->get_size() >= sizeof(actual_packet_size)) {
 		// yes -> read actual packet size
-		actual_packet_size = *(uint32_t*)a_packet->get_buffer();
+		actual_packet_size = *(uint32_t*)a_packet->get_data();
 		// packet complete?
 		if (actual_packet_size <= a_packet->get_size()) {
 			// yes -> return actual size

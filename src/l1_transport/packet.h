@@ -47,8 +47,8 @@ public:
     Buffer& get_payload() { return m_payload; }
     const Buffer& get_payload() const { return m_payload; }
 
-    uint8_t* get_buffer() { return m_buffer; }
-    size_t get_size() const { return m_header.get_size() + m_payload.get_size(); }
+    uint8_t* get_data() { return m_header.get_data(); }
+    size_t get_size() const { return m_header.get_size() + m_payload.get_size(); }        
     size_t get_buffer_size() const { return sizeof(m_buffer); }
 
     std::string to_string() const;

@@ -32,18 +32,18 @@ namespace remo {
 class Buffer {
 // ctor/dtor
 public:
-	Buffer(void* a_data = nullptr, size_t a_capacity = 0, size_t a_size = 0);
+	Buffer(uint8_t* a_data = nullptr, size_t a_capacity = 0, size_t a_size = 0);
 	virtual ~Buffer();
 
 // public member functions
 public:
-	void init(void* a_data, size_t a_capacity, size_t a_size = 0);
+	void init(uint8_t* a_data, size_t a_capacity, size_t a_size = 0);
 	virtual void* grow(size_t a_size) = 0;	
 
 	const void* access_read(size_t a_offset, size_t a_size) const;
 	void* access_write(size_t a_offset, size_t a_size);
 
-	void* get_data() const { return m_data; }
+	uint8_t* get_data() const { return m_data; }
 	size_t get_size() const { return m_size; }
 	size_t get_capacity() const { return m_capacity; }
 

@@ -68,7 +68,7 @@ TcpChannel::~TcpChannel()
 //
 void TcpChannel::send(packet_ptr& a_packet)
 {
-	const uint8_t* data = a_packet->get_buffer();
+	const uint8_t* data = a_packet->get_data();
 	size_t size = a_packet->get_size();
 
 	/**
@@ -123,12 +123,12 @@ void TcpChannel::receive_chunk()
 	prepare_rx_packet();
 
 	// determine remaining buffer to receive
-	void* ptr = m_rx_packet->get_buffer() + m_rx_packet->get_size();
+	uint8_t* data = m_rx_packet->get_data() + m_rx_packet->get_size();
 	size_t size = m_rx_packet->get_buffer_size() - m_rx_packet->get_size();
 	
 	// receive data from socket
 	size_t bytes_received = 0;
-	Socket::IOResult result = m_socket.recv(ptr, size, &bytes_received);
+	Socket::IOResult result = m_socket.recv(data, size, &bytes_received);
 
 	// consistency checks
 	REMO_ASSERT(bytes_received <= size,
@@ -189,8 +189,8 @@ void TcpChannel::receive_chunk()
 		
 		// copy excess bytes to next packet
 		m_rx_packet->get_payload().set_size(excess_bytes);			
-		std::memcpy(m_rx_packet->get_buffer(), 
-			complete_packet->get_buffer() + actual_size, excess_bytes);
+		std::memcpy(m_rx_packet->get_data(), 
+			complete_packet->get_data() + actual_size, excess_bytes);
 		
 		// truncate excess bytes from complete packet
 		complete_packet->get_payload().set_size(actual_size);
