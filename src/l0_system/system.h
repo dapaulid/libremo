@@ -26,13 +26,15 @@
  * #endif
  */
 #define REMO_SYS_UNKNOWN         0UL
-#define REMO_SYS_WIN       0
-#define REMO_SYS_WINDOWS         (REMO_SYS_WINDOWS_32BIT | REMO_SYS_WINDOWS_64BIT)
-#define REMO_SYS_WINDOWS_32      (1UL << 0)
-#define REMO_SYS_WINDOWS_64      (1UL << 1)
-#define REMO_SYS_POSIX           (1UL << 2)
-#define REMO_SYS_UNIX            ((1UL << 3) | REMO_SYS_POSIX)
-#define REMO_SYS_LINUX           ((1UL << 4) | REMO_SYS_UNIX)
+// Unix family
+#define REMO_SYS_POSIX           ((1UL << 0))
+#define REMO_SYS_UNIX            ((1UL << 1) | REMO_SYS_POSIX)
+#define REMO_SYS_LINUX           ((1UL << 2) | REMO_SYS_UNIX)
+// Windows family
+#define REMO_SYS_WINDOWS         ((1UL << 4))
+#define REMO_SYS_WINDOWS_32      ((1UL << 5) | REMO_SYS_WINDOWS)
+#define REMO_SYS_WINDOWS_64      ((1UL << 6) | REMO_SYS_WINDOWS)
+
 
 //! determine actual system
 #ifndef REMO_SYSTEM
