@@ -74,6 +74,14 @@ void Channel::on_state_changed(const Channel::state_handler& a_handler)
 
 //------------------------------------------------------------------------------	
 //
+void Channel::send(packet_ptr& a_packet)
+{
+	prepare_to_send(a_packet);
+	do_send(a_packet);
+}
+
+//------------------------------------------------------------------------------	
+//
 void Channel::receive(packet_ptr& a_packet)
 {	
 	// notify observer
@@ -119,7 +127,8 @@ size_t Channel::determine_packet_size(const packet_ptr& a_packet)
 	// packet header complete?
 	if (a_packet->get_size() >= sizeof(actual_packet_size)) {
 		// yes -> read actual packet size
-		actual_packet_size = *(uint32_t*)a_packet->get_data();
+		size_t payload_size = *(uint32_t*)a_packet->get_data();
+		size_t actual_packet_size = payload_size + 4;
 		// packet complete?
 		if (actual_packet_size <= a_packet->get_size()) {
 			// yes -> return actual size

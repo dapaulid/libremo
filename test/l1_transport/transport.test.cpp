@@ -38,11 +38,7 @@ TEST(Transport, SendReceive)
 
 	Channel* channel = transport.connect("localhost:1986");
 	BinaryWriter writer(packet->get_payload());
-	writer.write(5);
-	writer.write(0);
-	writer.write(0);
-	writer.write(0);
-	writer.write(6);
+	writer.write_deprecated(6);
 	channel->send(packet);
 
 	f.wait();

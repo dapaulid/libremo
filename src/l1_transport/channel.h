@@ -72,7 +72,7 @@ public:
 public:
 	//! send a packet over this channel
 	//! may block if the send buffer is full
-	virtual void send(packet_ptr& a_packet) = 0;
+	void send(packet_ptr& a_packet);
 	
 	//! register a callback function that is invoked when a packet was received by this channel
 	void on_receive(const receive_handler& a_handler);
@@ -99,6 +99,13 @@ public:
 
 // protected member functions
 protected:
+	//! prepares a packet to be sent over this channel
+	//! subclasses can override this to write headers, do masking etc.
+	virtual void prepare_to_send(packet_ptr& a_packet) { (void)a_packet; };
+	//! send a packet over this channel
+	//! to be implemented by subclasses
+	virtual void do_send(packet_ptr& a_packet) = 0;
+
 	//! receive a packet from this channel
 	void receive(packet_ptr& a_packet);
 

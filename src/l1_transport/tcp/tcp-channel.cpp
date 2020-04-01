@@ -15,6 +15,7 @@
 //
 // project
 #include "tcp-transport.h"
+#include "l1_transport/writer.h"
 #include "utils/logger.h"
 #include "utils/contracts.h"
 //
@@ -66,7 +67,24 @@ TcpChannel::~TcpChannel()
 
 //------------------------------------------------------------------------------	
 //
-void TcpChannel::send(packet_ptr& a_packet)
+void TcpChannel::prepare_to_send(packet_ptr& a_packet)
+{
+	/**
+	 * write header used for message framing
+	 * 
+	 * NOTE: subclasses that do their own framing (e.g. WebSockets)
+	 * are not expected to call this.
+	 */
+	Writer writer(a_packet->get_header());
+
+	// write payload size
+	size_t payload_size = a_packet->get_payload().get_size();
+	writer.write_uint32(payload_size);
+}
+
+//------------------------------------------------------------------------------	
+//
+void TcpChannel::do_send(packet_ptr& a_packet)
 {
 	const uint8_t* data = a_packet->get_data();
 	size_t size = a_packet->get_size();

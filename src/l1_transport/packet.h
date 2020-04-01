@@ -35,6 +35,11 @@ enum PacketType: uint8_t
 class Packet: public Recyclable<Packet>
 {
 public:
+    //! constants
+    enum {
+        DEFAULT_HEADER_CAPACITY = 128 // bytes
+    };
+
     Packet();
     virtual ~Packet();
 

@@ -27,7 +27,32 @@ class Writer {
 public:
 	Writer(Buffer& a_buffer);
 
-	void write(unsigned char byte);
+	// TODO eliminate
+	void write_deprecated(unsigned char byte);
+
+	//! wrappers for generic function to make protocol-specific types explicit
+	inline void write_uint8(const uint8_t& a_value) {
+		write(a_value);
+	}
+	inline void write_uint16(const uint16_t& a_value) {
+		write(a_value);
+	}
+	inline void write_uint32(const uint32_t& a_value) {
+		write(a_value);
+	}
+	inline void write_uint64(const uint64_t& a_value) {
+		write(a_value);
+	}
+
+// protected member functions
+protected:
+	//! generic function to write a value to the buffer
+	template<typename T>
+	void write(const T& a_value)
+	{
+		// append to buffer as little-endian
+		sys::set_le(static_cast<T*>(m_buffer.grow(sizeof(a_value))), a_value);
+	}
 
 private:
 	Buffer& m_buffer;
@@ -42,7 +67,7 @@ public:
 	void write_call(const std::string a_function, Args... args)
 	{
 		// write packet type
-		write(PacketType::packet_call);
+		write_deprecated(PacketType::packet_call);
 		// write function name
 		write_value(a_function.c_str());
 		// write arguments
@@ -52,7 +77,7 @@ public:
 	void write_result(const TypedValue& a_result, const ArgList& a_args)
 	{
 		// write packet type
-		write(PacketType::packet_result);
+		write_deprecated(PacketType::packet_result);
 		// write function result
 		write_value(a_result);
 		// write output parameters
@@ -84,11 +109,11 @@ public:
 		value = a_value;
 
 		// write type info byte
-		write((wire_size << 4) | TypeInfo<T>::id());
+		write_deprecated((wire_size << 4) | TypeInfo<T>::id());
 
 		// output actual bytes		
 		LITTLE_ENDIAN_FOR(i, wire_size) {
-			write(p[i]);
+			write_deprecated(p[i]);
 		}
 	}
 
@@ -111,12 +136,12 @@ public:
 		unsigned char* p = reinterpret_cast<unsigned char*>(a_ptr);
 		
 		// write type info byte
-		write(TypeInfo<T*>::id());
+		write_deprecated(TypeInfo<T*>::id());
 
 		// output actual bytes
 		for (size_t j = 0; j < m_arraysize.value; j++) {
 			LITTLE_ENDIAN_FOR(i, sizeof(*a_ptr)) {
-				write(p[i]);
+				write_deprecated(p[i]);
 			}
 		}
 	}	

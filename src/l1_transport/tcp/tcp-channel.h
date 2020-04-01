@@ -47,14 +47,17 @@ public:
 
 // public member functions
 public:
-	//! send a packet over this channel
-	//! may block if the send buffer is full
-	virtual void send(packet_ptr& a_packet) override;
-	
 	//! close this channel
 	virtual void close() override;
 
 	Socket* get_socket() { return &m_socket; }
+
+// protected member functions
+protected:
+	//! prepares a packet to be sent over this channel
+	virtual void prepare_to_send(packet_ptr& a_packet) override;
+	//! send a packet over this channel
+	virtual void do_send(packet_ptr& a_packet) override;
 
 // protected member functions called by TcpTransport
 protected:
