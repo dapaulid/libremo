@@ -78,7 +78,7 @@ void TcpChannel::prepare_to_send(packet_ptr& a_packet)
 	Writer writer(a_packet->get_header());
 
 	// write payload size
-	size_t payload_size = a_packet->get_payload().get_size();
+	uint32_t payload_size = static_cast<uint32_t>(a_packet->get_payload().get_size());
 	writer.write_uint32(payload_size);
 }
 

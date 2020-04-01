@@ -122,17 +122,18 @@ void Channel::enter_state(State a_new_state)
 //
 size_t Channel::determine_packet_size(const packet_ptr& a_packet)
 {
-	uint32_t actual_packet_size = 0;
+	uint32_t payload_size = 0;
 
 	// packet header complete?
-	if (a_packet->get_size() >= sizeof(actual_packet_size)) {
-		// yes -> read actual packet size
-		size_t payload_size = *(uint32_t*)a_packet->get_data();
-		size_t actual_packet_size = payload_size + 4;
+	if (a_packet->get_size() >= sizeof(payload_size)) {
+		// yes -> read payload size
+		payload_size = *(uint32_t*)a_packet->get_data();
+		// determine actual packet size
+		size_t actual_packet_size = static_cast<size_t>(payload_size) + sizeof(payload_size);
 		// packet complete?
 		if (actual_packet_size <= a_packet->get_size()) {
 			// yes -> return actual size
-			return (size_t)actual_packet_size;
+			return actual_packet_size;
 		}
 	}
 	return PACKET_INCOMPLETE;
