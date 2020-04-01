@@ -17,7 +17,6 @@ target_sources(
         l1_transport/url.cpp
         l1_transport/tcp/tcp-transport.cpp
         l1_transport/tcp/tcp-channel.cpp
-        l0_system/endianness.cpp
         l0_system/error.cpp
         l0_system/socket.cpp
         l0_system/system.cpp
