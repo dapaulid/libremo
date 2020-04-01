@@ -188,7 +188,7 @@ private:
 	typedef uint64_t Storage [16];
 	Storage m_addr;
 	// actual number of bytes used in storage
-#ifdef REMO_SYS_WIN
+#if REMO_SYSTEM & REMO_SYS_WINDOWS
 	typedef int socklen_t;
 #else
 	typedef unsigned int socklen_t;

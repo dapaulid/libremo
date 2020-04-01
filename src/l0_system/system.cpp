@@ -41,7 +41,7 @@ std::string format_timestamp(const time_point& a_timestamp)
 	// get local time (in seconds precision)
     time_t ttimestamp = std::chrono::system_clock::to_time_t(a_timestamp);	
     struct tm local_time{};
-#ifdef REMO_SYS_WIN
+#if REMO_SYSTEM & REMO_SYS_WINDOWS
 	localtime_s(&local_time, &ttimestamp);
 #else
 	localtime_r(&ttimestamp, &local_time);

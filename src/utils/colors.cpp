@@ -13,7 +13,7 @@
 
 #include <stdlib.h>
 
-#ifdef REMO_SYS_WIN
+#if REMO_SYSTEM & REMO_SYS_WINDOWS
 	#include <windows.h> // GetConsoleMode
 	#include <io.h> // _isatty
 #else
@@ -108,7 +108,7 @@ bool Colors::colors_requested() const
 		// no standard stream
 		return false;
 	}
-#ifdef REMO_SYS_WIN
+#if REMO_SYSTEM & REMO_SYS_WINDOWS
 	return ::_isatty(::_fileno(stream)) != 0;
 #else
 	return ::isatty(::fileno(stream));
@@ -119,7 +119,7 @@ bool Colors::colors_requested() const
 //
 bool Colors::request_color_support()
 {
-#ifdef REMO_SYS_WIN
+#if REMO_SYSTEM & REMO_SYS_WINDOWS
 	// get standard device handle
 	DWORD stdhandle = 0;
 	if (&m_out == &std::cout) {

@@ -29,7 +29,7 @@ namespace remo {
 // macros
 //------------------------------------------------------------------------------
 //
-#ifdef REMO_SYS_WIN
+#if REMO_SYSTEM & REMO_SYS_WINDOWS
 	// Windows
 	#include <stdlib.h>
 	#define REMO_BSWAP16(x) _byteswap_ushort(x)

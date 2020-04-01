@@ -16,7 +16,7 @@
 #include <array>
 #include <stdio.h>
 
-#ifdef REMO_SYS_WIN
+#if REMO_SYSTEM & REMO_SYS_WINDOWS
 	#include <io.h> // _isatty
 #else
 	#include <unistd.h> // isatty

@@ -23,7 +23,7 @@
 //------------------------------------------------------------------------------	
 //
 // include platform specific libraries
-#ifdef REMO_SYS_WIN
+#if REMO_SYSTEM & REMO_SYS_WINDOWS
 	// Windows
 	#include <winsock2.h>
 	#include <ws2tcpip.h>
@@ -52,7 +52,7 @@
 //
 //! map POSIX / errno macros to WSA error macros under Windows
 //! example EWOULDBLOCK -> WSAEWOULDBLOCK
-#ifdef REMO_SYS_WIN
+#if REMO_SYSTEM & REMO_SYS_WINDOWS
 	#define OS_ERROR(name) WSA ## name
 #else
 	#define OS_ERROR(name) name
@@ -73,7 +73,7 @@ static const int INVALID_SOCKFD = -1;
 // static variables
 //------------------------------------------------------------------------------
 //
-#ifdef REMO_SYS_WIN
+#if REMO_SYSTEM & REMO_SYS_WINDOWS
 // singleton for initializing Winsock
 static struct WinsockGuard {
 	WinsockGuard() {
@@ -87,7 +87,7 @@ static struct WinsockGuard {
 		::WSACleanup();
 	}
 } winsock_guard;
-#endif // REMO_SYS_WIN
+#endif
 
 //------------------------------------------------------------------------------
 // forward declarations
@@ -356,7 +356,7 @@ Socket::IOResult Socket::send(const void* a_buffer, size_t a_bufsize, size_t* o_
 
 	REMO_VERB("socket sending %d bytes", a_bufsize);
 
-#ifdef REMO_SYS_WIN
+#if REMO_SYSTEM & REMO_SYS_WINDOWS
 	int flags = 0;
 #else
 	// ignore SIGPIPE signal in favor of error 107: Transport endpoint is not connected
@@ -481,7 +481,7 @@ void Socket::wait_send_ready(int a_timeout_ms)
 //
 void Socket::set_blocking(bool a_blocking)
 {
-#ifdef REMO_SYS_WIN
+#if REMO_SYSTEM & REMO_SYS_WINDOWS
    unsigned long mode = a_blocking ? 0 : 1;
    int ret = ::ioctlsocket(m_sockfd, FIONBIO, &mode);
    if (ret != 0) {
@@ -890,7 +890,7 @@ uint16_t SockAddr::get_port() const
 //
 static int get_last_error()
 {
-#ifdef REMO_SYS_WIN
+#if REMO_SYSTEM & REMO_SYS_WINDOWS
 	return ::WSAGetLastError();
 #else
 	return errno;
@@ -903,7 +903,7 @@ static std::string get_error_message(int err)
 {
 	// allocate enough buffer to hold message
 	std::string msg(256, 0);
-#ifdef REMO_SYS_WIN	
+#if REMO_SYSTEM & REMO_SYS_WINDOWS
 	::FormatMessage(
 		FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,   // flags
 		NULL,                // lpsource
