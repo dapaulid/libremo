@@ -34,9 +34,6 @@ public:
 		sys::set_le(static_cast<T*>(m_buffer.grow(sizeof(a_value))), a_value);
 	}
 
-	// TODO eliminate
-	void write_deprecated(unsigned char byte);
-
 private:
 	Buffer& m_buffer;
 };
@@ -50,7 +47,7 @@ public:
 	void write_call(const std::string a_function, Args... args)
 	{
 		// write packet type
-		write_deprecated(PacketType::packet_call);
+		write<uint8_t>(PacketType::packet_call);
 		// write function name
 		write_value(a_function.c_str());
 		// write arguments
@@ -60,7 +57,7 @@ public:
 	void write_result(const TypedValue& a_result, const ArgList& a_args)
 	{
 		// write packet type
-		write_deprecated(PacketType::packet_result);
+		write<uint8_t>(PacketType::packet_result);
 		// write function result
 		write_value(a_result);
 		// write output parameters
@@ -92,11 +89,11 @@ public:
 		value = a_value;
 
 		// write type info byte
-		write_deprecated((wire_size << 4) | TypeInfo<T>::id());
+		write<uint8_t>((wire_size << 4) | TypeInfo<T>::id());
 
 		// output actual bytes		
 		LITTLE_ENDIAN_FOR(i, wire_size) {
-			write_deprecated(p[i]);
+			write<uint8_t>(p[i]);
 		}
 	}
 
@@ -119,12 +116,12 @@ public:
 		unsigned char* p = reinterpret_cast<unsigned char*>(a_ptr);
 		
 		// write type info byte
-		write_deprecated(TypeInfo<T*>::id());
+		write<uint8_t>(TypeInfo<T*>::id());
 
 		// output actual bytes
 		for (size_t j = 0; j < m_arraysize.value; j++) {
 			LITTLE_ENDIAN_FOR(i, sizeof(*a_ptr)) {
-				write_deprecated(p[i]);
+				write<uint8_t>(p[i]);
 			}
 		}
 	}	

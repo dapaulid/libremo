@@ -22,25 +22,18 @@ Writer::Writer(Buffer& a_buffer):
 
 //------------------------------------------------------------------------------
 
-void Writer::write_deprecated(unsigned char byte)
-{
-	*static_cast<unsigned char*>(m_buffer.grow(1)) = byte;
-}
-
-//------------------------------------------------------------------------------
-
 void BinaryWriter::write_value(const char* a_string)
 {
 	// write type info byte
-	write_deprecated(TypeId::type_cstr);
+	write<uint8_t>(TypeId::type_cstr);
 	
 	// output characters
 	for (const char* p = a_string; *p; ++p) {
-		write_deprecated(*p);
+		write<uint8_t>(*p);
 	}
 
 	// output terminating NUL character
-	write_deprecated(0);
+	write<uint8_t>(0);
 }
 
 //------------------------------------------------------------------------------
@@ -55,7 +48,7 @@ void BinaryWriter::write_value(char* a_string)
 void BinaryWriter::write_value(bool a_bool)
 {
 	// header: combine value and type id
-	write_deprecated(((a_bool & 1) << 4) | TypeId::type_bool);
+	write<uint8_t>(((a_bool & 1) << 4) | TypeId::type_bool);
 }
 
 //------------------------------------------------------------------------------
@@ -76,7 +69,7 @@ void BinaryWriter::write_value(const TypedValue& a_value)
 {
 	switch (a_value.type()) {
 	case type_null: 
-		return write_deprecated(TypeId::type_null);
+		return write<uint8_t>(TypeId::type_null);
 	case type_uint8:
 		return write_value(a_value.get<uint8_t>());
 	case type_uint16:
@@ -94,9 +87,9 @@ void BinaryWriter::write_value(const TypedValue& a_value)
 	case type_int64:
 		return write_value(a_value.get<int64_t>());
 	case type_void:
-		return write_deprecated(TypeId::type_void);
+		return write<uint8_t>(TypeId::type_void);
 	case type_any:
-		return write_deprecated(TypeId::type_any);
+		return write<uint8_t>(TypeId::type_any);
 	case type_bool:
 		return write_value(a_value.get<bool>());
 	case type_cstr:
