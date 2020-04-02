@@ -56,6 +56,8 @@ public:
     size_t get_size() const { return m_header.get_size() + m_payload.get_size(); }        
     size_t get_buffer_size() const { return sizeof(m_buffer); }
 
+    void drop_header(size_t a_size);
+
     std::string to_string() const;
 
 protected:

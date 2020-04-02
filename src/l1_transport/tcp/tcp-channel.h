@@ -59,6 +59,9 @@ protected:
 	//! send a packet over this channel
 	virtual void do_send(packet_ptr& a_packet) override;
 
+	//! prepares a packet to be received from this channel
+	virtual void prepare_to_receive(packet_ptr& a_packet) override;	
+
 // protected member functions called by TcpTransport
 protected:
 	friend class TcpTransport;

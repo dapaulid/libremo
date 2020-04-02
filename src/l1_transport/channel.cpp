@@ -84,6 +84,7 @@ void Channel::send(packet_ptr& a_packet)
 //
 void Channel::receive(packet_ptr& a_packet)
 {	
+	prepare_to_receive(a_packet);
 	// notify observer
 	if (m_receive_handler) {
 		m_receive_handler(this, a_packet);

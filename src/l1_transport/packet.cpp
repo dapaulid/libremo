@@ -67,9 +67,21 @@ size_t Packet::get_header_capacity() const
 
 //------------------------------------------------------------------------------
 
+void Packet::drop_header(size_t a_size)
+{
+    REMO_PRECOND({
+        REMO_ASSERT(a_size <= m_payload.get_size(),
+            "header size to drop must not exceed payload size");
+    });
+
+    m_payload.init(m_payload.get_data() + a_size, m_payload.get_capacity(),
+        m_payload.get_size() - a_size);
+}
+
+//------------------------------------------------------------------------------
+
 std::string Packet::to_string() const
 {
-    // TODO refactor to other class that can take const reference
     return BinaryReader(get_payload()).to_string();
 }
 

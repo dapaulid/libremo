@@ -79,7 +79,15 @@ void TcpChannel::prepare_to_send(packet_ptr& a_packet)
 
 	// write payload size
 	uint32_t payload_size = static_cast<uint32_t>(a_packet->get_payload().get_size());
-	writer.write_uint32(payload_size);
+	writer.write<uint32_t>(payload_size);
+}
+
+//------------------------------------------------------------------------------	
+//
+void TcpChannel::prepare_to_receive(packet_ptr& a_packet)
+{
+	// remove header used for message framing
+	a_packet->drop_header(sizeof(uint32_t));
 }
 
 //------------------------------------------------------------------------------	

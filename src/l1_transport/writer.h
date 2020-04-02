@@ -27,32 +27,15 @@ class Writer {
 public:
 	Writer(Buffer& a_buffer);
 
-	// TODO eliminate
-	void write_deprecated(unsigned char byte);
-
-	//! wrappers for generic function to make protocol-specific types explicit
-	inline void write_uint8(const uint8_t& a_value) {
-		write(a_value);
-	}
-	inline void write_uint16(const uint16_t& a_value) {
-		write(a_value);
-	}
-	inline void write_uint32(const uint32_t& a_value) {
-		write(a_value);
-	}
-	inline void write_uint64(const uint64_t& a_value) {
-		write(a_value);
-	}
-
-// protected member functions
-protected:
-	//! generic function to write a value to the buffer
 	template<typename T>
 	void write(const T& a_value)
 	{
 		// append to buffer as little-endian
 		sys::set_le(static_cast<T*>(m_buffer.grow(sizeof(a_value))), a_value);
 	}
+
+	// TODO eliminate
+	void write_deprecated(unsigned char byte);
 
 private:
 	Buffer& m_buffer;

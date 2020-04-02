@@ -106,10 +106,11 @@ protected:
 	//! to be implemented by subclasses
 	virtual void do_send(packet_ptr& a_packet) = 0;
 
+	//! prepares a packet to be received from this channel
+	//! subclasses can override this to consume headers, do unmasking etc.
+	virtual void prepare_to_receive(packet_ptr& a_packet) { (void)a_packet; };
 	//! receive a packet from this channel
 	void receive(packet_ptr& a_packet);
-
-
 
 	//! enters the specified state
 	void enter_state(State a_new_state);

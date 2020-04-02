@@ -11,7 +11,8 @@
 
 #include "packet.h"
 #include "buffer.h"
-#include "../l0_system/types.h"
+#include "l0_system/types.h"
+#include "l0_system/endianness.h"
 
 #include <iostream>
 #include <stdio.h>
@@ -29,6 +30,15 @@ class Reader
 {
 public:
 	Reader(const Buffer& a_buffer);
+
+	//! generic function read a value from the buffer
+	template<typename T>
+	T read()
+	{
+		const void* ptr = m_buffer.access_read(m_offset, sizeof(T));
+		m_offset += sizeof(T);
+		return sys::get_le(static_cast<const T*>(ptr));
+	}
 
 	unsigned char peek() {
 		return *(unsigned char*)m_buffer.access_read(m_offset, 1);

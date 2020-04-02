@@ -1,6 +1,7 @@
 #include "../test.h"
 
 #include "l1_transport/transport.h"
+#include "l1_transport/reader.h"
 #include "l1_transport/writer.h"
 #include "l1_transport/tcp/tcp-transport.h"
 
@@ -32,13 +33,20 @@ TEST(Transport, SendReceive)
 	transport.on_accept([&p](Channel* a_channel) {
 		a_channel->on_receive([&p](Channel*, packet_ptr& a_packet) {
 			p.set_value();
-			EXPECT_EQ(a_packet->get_size(), (size_t)5);
+			// check packet size
+			EXPECT_EQ(a_packet->get_size(), (size_t)4);
+			// check packet contents
+			Reader reader(a_packet->get_payload());
+			EXPECT_EQ(reader.read<uint32_t>(), 1234);
 		});
 	});
 
+	// connect to remote
 	Channel* channel = transport.connect("localhost:1986");
-	BinaryWriter writer(packet->get_payload());
-	writer.write_deprecated(6);
+	// write some packet content
+	Writer writer(packet->get_payload());
+	writer.write<uint32_t>(1234);
+	// send the packet
 	channel->send(packet);
 
 	f.wait();
