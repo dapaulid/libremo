@@ -20,10 +20,6 @@ using namespace remo;
 //
 TEST(Transport, SendReceive)
 {
-	RecyclingPool<Packet> pool;
-	pool.add(new Packet());
-	packet_ptr packet(pool.take());
-
 	TcpTransport::Settings settings;
 	settings.listen_addr = SockAddr("localhost:1986");
 	TcpTransport transport(settings);
@@ -43,7 +39,9 @@ TEST(Transport, SendReceive)
 
 	// connect to remote
 	Channel* channel = transport.connect("localhost:1986");
-	// write some packet content
+	// get a fresh packet
+	packet_ptr packet = transport.take_packet();
+	// write some content
 	Writer writer(packet->get_payload());
 	writer.write<uint32_t>(1234);
 	// send the packet
