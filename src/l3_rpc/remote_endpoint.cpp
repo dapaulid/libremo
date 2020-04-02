@@ -80,7 +80,7 @@ void RemoteEndpoint::handle_packet(packet_ptr& a_packet)
 
     trans::Reader reader(a_packet->get_payload());
 
-    uint8_t type = reader.read_byte();
+    uint8_t type = reader.read<uint8_t>();
     switch (type) {
     case trans::PacketType::packet_call:
         handle_call(a_packet);

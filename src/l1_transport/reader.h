@@ -40,14 +40,6 @@ public:
 		return sys::get_le(static_cast<const T*>(ptr));
 	}
 
-	unsigned char peek() {
-		return *(unsigned char*)m_buffer.access_read(m_offset, 1);
-	}
-
-	unsigned char read_byte() {
-		return *(unsigned char*)m_buffer.access_read(m_offset++, 1);
-	}
-
 	bool has_more() const {
 		return m_offset < m_buffer.get_size();
 	}
@@ -75,7 +67,7 @@ public:
 	TypedValue read_result(Args... args)
 	{
 		// expect 'call' packet
-		if (read_byte() != PacketType::packet_result) {
+		if (read<uint8_t>() != PacketType::packet_result) {
 			throw error(ErrorCode::ERR_BAD_PACKET, "not a 'result' packet");
 		}
 
@@ -121,7 +113,7 @@ public:
 	TypeId read_type(uint8_t& o_modifier)
 	{
 		// TODO use modifier constant
-		unsigned char h = read_byte();
+		uint8_t h = read<uint8_t>();
 		o_modifier = (h >> 4) & 0xF;
 		if (o_modifier < 0xA) {
 			// wire size
@@ -141,11 +133,11 @@ public:
 	T read_value(size_t a_wire_size)
 	{
 		T value{};
-		unsigned char* p = reinterpret_cast<unsigned char*>(&value);
+		uint8_t* p = reinterpret_cast<unsigned char*>(&value);
 		
 		// read actual bytes
 		LITTLE_ENDIAN_FOR(i, a_wire_size) {
-			p[i] = read_byte();
+			p[i] = read<uint8_t>();
 		}
 
 		return value;
@@ -167,11 +159,11 @@ public:
 	template<typename T>
 	void copy_to_ptr(T a_dest, size_t a_arraylength)
 	{
-		unsigned char* p = reinterpret_cast<unsigned char*>(a_dest);
+		uint8_t* p = reinterpret_cast<unsigned char*>(a_dest);
 		// read actual bytes
 		for (size_t i = 0; i < a_arraylength; i++) {
 			LITTLE_ENDIAN_FOR(j, sizeof(*a_dest)) {
-				p[j] = read_byte();
+				p[j] = read<uint8_t>();
 			} // end for
 		} // end for
 	}	
@@ -181,7 +173,7 @@ public:
 	{
 		const char* str = (const char*)m_buffer.access_read(m_offset, 1);
 		// forward until NUL byte
-		while (read_byte()) {};
+		while (read<uint8_t>()) {};
 		return str;
 	}
 

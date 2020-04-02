@@ -37,7 +37,7 @@ TEST(Transport, SendReceive)
 			EXPECT_EQ(a_packet->get_size(), (size_t)4);
 			// check packet contents
 			Reader reader(a_packet->get_payload());
-			EXPECT_EQ(reader.read<uint32_t>(), 1234);
+			EXPECT_EQ(reader.read<uint32_t>(), (uint32_t)1234);
 		});
 	});
 
