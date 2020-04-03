@@ -10,11 +10,16 @@
 #include "item.h"
 
 #include "local_endpoint.h"
+#include "utils/logger.h"
 
 
 //------------------------------------------------------------------------------
 namespace remo {
 //------------------------------------------------------------------------------
+
+//! logger instance
+static Logger logger("Item");
+
 
 //------------------------------------------------------------------------------
 // class implementation
@@ -26,7 +31,7 @@ Item::Item(const std::string& a_name):
 {
     // check item name
     if (!is_valid_name(m_name)) {
-        throw error(ErrorCode::ERR_INVALID_IDENTIFIER, 
+        REMO_THROW(ErrorCode::ERR_INVALID_IDENTIFIER, 
             "invalid identifier: \"%s\"", m_name.c_str());
     }
 }

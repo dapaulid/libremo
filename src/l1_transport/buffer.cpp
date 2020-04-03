@@ -73,7 +73,7 @@ const void* Buffer::access_read(size_t a_offset, size_t a_size) const
 {
 	// check range
 	if (a_offset + a_size > m_size) {
-		throw error(ErrorCode::ERR_BAD_PACKET_ACCESS, "Bad packet buffer read access: offset=%zu, size=%zu, bufsize=%zu", 
+		REMO_THROW(ErrorCode::ERR_BAD_PACKET_ACCESS, "Bad packet buffer read access: offset=%zu, size=%zu, bufsize=%zu", 
 			a_offset, a_size, m_size);
 	}
 	// calculate pointer into buffer
@@ -86,7 +86,7 @@ void* Buffer::access_write(size_t a_offset, size_t a_size)
 {
 	// check range
 	if (a_offset + a_size > m_size) {
-		throw error(ErrorCode::ERR_BAD_PACKET_ACCESS, "Bad packet buffer write access: offset=%zu, size=%zu, bufsize=%zu", 
+		REMO_THROW(ErrorCode::ERR_BAD_PACKET_ACCESS, "Bad packet buffer write access: offset=%zu, size=%zu, bufsize=%zu", 
 			a_offset, a_size, m_size);
 	}
 	// calculate pointer into buffer
@@ -113,7 +113,7 @@ void* RBuffer::grow(size_t a_size)
 {
 	if (m_size + a_size > m_capacity) {
 		// full
-		throw error(ErrorCode::ERR_PACKET_FULL, "Packet payload is full (%zu bytes)", m_capacity);
+		REMO_THROW(ErrorCode::ERR_PACKET_FULL, "Packet payload is full (%zu bytes)", m_capacity);
 	}
 	size_t offset = m_size;
 	set_size(m_size + a_size);
@@ -126,7 +126,7 @@ void* LBuffer::grow(size_t a_size)
 {
 	if (m_size + a_size > m_capacity) {
 		// full
-		throw error(ErrorCode::ERR_PACKET_FULL, "Packet header is full (%zu bytes)", m_capacity);
+		REMO_THROW(ErrorCode::ERR_PACKET_FULL, "Packet header is full (%zu bytes)", m_capacity);
 	}
 	set_size(m_size + a_size);
 	m_data -= a_size;

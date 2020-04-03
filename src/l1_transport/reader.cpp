@@ -9,6 +9,8 @@
 //------------------------------------------------------------------------------
 #include "reader.h"
 
+#include "utils/logger.h"
+
 #include <stdio.h>
 #include <sstream>
 #include <iomanip>
@@ -17,6 +19,10 @@
 namespace remo {
 	namespace trans {
 //------------------------------------------------------------------------------
+
+//! logger instance
+static Logger logger("Reader");
+
 
 //------------------------------------------------------------------------------
 // class Reader
@@ -33,7 +39,7 @@ void Reader::skip_array(size_t a_arraylength, size_t a_item_size)
 {
 	size_t total_size = a_arraylength * a_item_size;
 	if (m_offset + total_size > m_buffer.get_size()) {
-		throw error(ErrorCode::ERR_INVALID_ARRAY_LENGTH, 
+		REMO_THROW(ErrorCode::ERR_INVALID_ARRAY_LENGTH, 
 			"invalid array length: %zu", a_arraylength);
 	}
 	m_offset += total_size;
@@ -51,12 +57,12 @@ void BinaryReader::read_call()
 
 	// expect 'call' packet
 	if (read<uint8_t>() != PacketType::packet_call) {
-		throw error(ErrorCode::ERR_BAD_PACKET, "not a 'call' packet");
+		REMO_THROW(ErrorCode::ERR_BAD_PACKET, "not a 'call' packet");
 	}
 
 	// expect function name
 	if (read_type(modifier) != TypeId::type_cstr) {
-		throw error(ErrorCode::ERR_FUNC_NAME_MISSING, "Function name missing");
+		REMO_THROW(ErrorCode::ERR_FUNC_NAME_MISSING, "Function name missing");
 	}
 
 	// read function name
@@ -137,7 +143,7 @@ TypedValue BinaryReader::read_typed_value()
 	case type_float_ptr:
 		return TypedValue(read_ptr<float>(modifier));
 	default:
-		throw error(ErrorCode::ERR_PARAM_TYPE_INVALID, 
+		REMO_THROW(ErrorCode::ERR_PARAM_TYPE_INVALID, 
 			"invalid parameter type: %s (0x%02X)", get_type_name(type), type);
 	} // end switch
 }
@@ -314,6 +320,27 @@ std::string BinaryReader::format_value()
 
 	return ss.str();
 }
+
+//------------------------------------------------------------------------------
+//
+void BinaryReader::check_param_type(TypeId a_actual_type, TypeId a_expected_type) const
+{
+	if (a_actual_type != a_expected_type) {
+		REMO_THROW(ErrorCode::ERR_OUTPARAM_TYPE_MISMATCH, 
+			"out parameter type mismatch: expected %s, got %s", 
+			get_type_name(a_expected_type), get_type_name(a_actual_type));
+	}
+}
+
+//------------------------------------------------------------------------------
+//
+void BinaryReader::check_result_packet(PacketType a_packet_type) const
+{
+	if (a_packet_type != PacketType::packet_result) {
+		REMO_THROW(ErrorCode::ERR_BAD_PACKET, "not a 'result' packet");
+	}
+}
+
 
 //------------------------------------------------------------------------------
 	} // end namespace trans

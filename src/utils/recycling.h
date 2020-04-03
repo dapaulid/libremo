@@ -74,7 +74,7 @@ public:
 		// pool assigned?
 		if (m_pool) {
 			// yes -> destroy not allowed
-			throw error(ErrorCode::ERR_MUST_RECYCLE,
+			REMO_THROW_NOLOG(ErrorCode::ERR_MUST_RECYCLE,
 				"not allowed to destroy object, call recycle() instead");
 		}
 	}
@@ -88,7 +88,7 @@ protected:
 			m_pool->add(static_cast<SubClass*>(this));
 		} else {
 			// no -> cannot recycle
-			throw error(ErrorCode::ERR_CANNOT_RECYCLE, 
+			REMO_THROW_NOLOG(ErrorCode::ERR_CANNOT_RECYCLE, 
 				"cannot recycle object, destroy it instead");
 		}
 	}

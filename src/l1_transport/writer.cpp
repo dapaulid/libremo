@@ -9,12 +9,21 @@
 //------------------------------------------------------------------------------
 #include "writer.h"
 
+#include "utils/logger.h"
 
 //------------------------------------------------------------------------------
 namespace remo {
 	namespace trans {
 //------------------------------------------------------------------------------	
 
+//! logger instance
+static Logger logger("Writer");
+
+
+//------------------------------------------------------------------------------	
+// class Writer
+//------------------------------------------------------------------------------	
+//
 Writer::Writer(Buffer& a_buffer):
 	m_buffer(a_buffer)
 {
@@ -56,7 +65,7 @@ void BinaryWriter::write_value(bool a_bool)
 void BinaryWriter::write_value(arraysize_t a_size)
 {
 	if (m_has_arraysize) {
-		throw error(ErrorCode::ERR_POINTER_NEEDS_SIZE, 
+		REMO_THROW(ErrorCode::ERR_POINTER_NEEDS_SIZE, 
 			"arraysize_t parameter required before pointer type");
 	}
 	m_arraysize = a_size;
@@ -127,7 +136,7 @@ void BinaryWriter::write_value(const TypedValue& a_value)
 	case type_float_ptr:
 		return write_value(a_value.get<float*>());
 	default:
-		throw error(ErrorCode::ERR_INVALID_VALUE_TYPE, 
+		REMO_THROW(ErrorCode::ERR_INVALID_VALUE_TYPE, 
 			"invalid value type: %s (0x%02X)", get_type_name(a_value.type()), a_value.type());
 	} // end switch
 }

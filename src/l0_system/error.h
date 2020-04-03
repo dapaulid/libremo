@@ -65,9 +65,14 @@ enum ErrorCode {
 //------------------------------------------------------------------------------
 //
 //! throw an exception
-#define REMO_THROW(code, msg, ...) {                                           \
-	auto e = remo::error(code, msg, __VA_ARGS__);                              \
+#define REMO_THROW(code, /*msg,*/ ...) {                                       \
+	auto e = remo::error(code, /*msg,*/ __VA_ARGS__);                          \
 	REMO_EXCPT("exception at %s:%d: %s", __FILE__, __LINE__, e.what());        \
+	throw e;	                                                               \
+}
+//! throw an exception without logging
+#define REMO_THROW_NOLOG(code, /*msg,*/ ...) {                                 \
+	auto e = remo::error(code, /*msg,*/ __VA_ARGS__);                          \
 	throw e;	                                                               \
 }
 

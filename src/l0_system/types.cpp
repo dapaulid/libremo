@@ -9,16 +9,40 @@
 //------------------------------------------------------------------------------
 #include "types.h"
 
+#include "utils/logger.h"
+
 //------------------------------------------------------------------------------
 namespace remo {
 //------------------------------------------------------------------------------	
 
+//! logger instance
+static Logger logger("TypedValue");
 
+//------------------------------------------------------------------------------
+// struct implementation
+//------------------------------------------------------------------------------
+//
+void TypedValue::check_type(TypeId a_expected) const
+{
+	if (a_expected != m_type) {
+		REMO_THROW(ErrorCode::ERR_BAD_VALUE_ACCESS, 
+			"bad typed value access: expected '%s', got '%s'",
+			get_type_name(a_expected), get_type_name(m_type));
+	}
+}
+
+
+//------------------------------------------------------------------------------
+// functions
+//------------------------------------------------------------------------------
+//
 bool is_ptr_type(TypeId id)
 {
 	return (id & modifier_ptr) == modifier_ptr;
 }
 
+//------------------------------------------------------------------------------
+//
 const char* get_type_name(TypeId id)
 {
 	switch (id) {
@@ -59,8 +83,8 @@ const char* get_type_name(TypeId id)
 	}
 }
 
-//------------------------------------------------------------------------------	
-
+//------------------------------------------------------------------------------
+//
 size_t get_type_size(TypeId id)
 {
 	switch (id) {

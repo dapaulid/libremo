@@ -9,13 +9,18 @@
 //------------------------------------------------------------------------------
 #include "function.h"
 
-#include "../l0_system/error.h"
+#include "l0_system/error.h"
+#include "utils/logger.h"
 
 #include <sstream>
 
 //------------------------------------------------------------------------------
 namespace remo {
 //------------------------------------------------------------------------------
+
+//! logger instance
+static Logger logger("function");
+
 
 //------------------------------------------------------------------------------
 // class function
@@ -57,7 +62,7 @@ void function::check_args(const ArgList& args)
 {
     // check number of arguments
     if (m_param_types.size() != args.size()) {
-        throw error(ErrorCode::ERR_PARAM_NUM_MISMATCH, "Parameter number mismatch: expected %zu, got %zu",
+        REMO_THROW(ErrorCode::ERR_PARAM_NUM_MISMATCH, "Parameter number mismatch: expected %zu, got %zu",
             m_param_types.size(), args.size());
     }
 
@@ -65,7 +70,7 @@ void function::check_args(const ArgList& args)
     // TODO allow cast here? For now we do an exact match
     for (size_t i = 0; i < m_param_types.size(); i++) {
         if (args[i].type() != m_param_types[i]) {
-            throw error(ErrorCode::ERR_PARAM_TYPE_MISMATCH, 
+            REMO_THROW(ErrorCode::ERR_PARAM_TYPE_MISMATCH, 
                 "cannot convert '%s' to '%s' for argument %zu to remote function '%s'",
                 get_type_name(args[i].type()), get_type_name(m_param_types[i]),
                 i+1, to_string().c_str());

@@ -66,11 +66,8 @@ public:
 	template<typename... Args>
 	TypedValue read_result(Args... args)
 	{
-		// expect 'call' packet
-		if (read<uint8_t>() != PacketType::packet_result) {
-			throw error(ErrorCode::ERR_BAD_PACKET, "not a 'result' packet");
-		}
-
+		// expect 'result' packet
+		check_result_packet(PacketType(read<uint8_t>()));
 		// read result
 		TypedValue result = read_typed_value();
 		// read "out" parameters
@@ -88,11 +85,7 @@ public:
 		// check if out parameter type matches
 		uint8_t modifier = 0;
 		TypeId actual_type = read_type(modifier);
-		if (actual_type != expected_type) {
-			throw error(ErrorCode::ERR_OUTPARAM_TYPE_MISMATCH, 
-				"out parameter type mismatch: expected %s, got %s", 
-				get_type_name(expected_type), get_type_name(actual_type));
-		}
+		check_param_type(actual_type, expected_type);
 
 		copy_to_ptr(arg, 1); // TODO handle array length
 	}
@@ -184,6 +177,10 @@ public:
 
 	const std::string& get_function() { return m_function; }
 	const ArgList& get_args() const { return m_args; }
+
+protected:
+	void check_param_type(TypeId a_actual_type, TypeId a_expected_type) const;
+	void check_result_packet(PacketType a_packet_type) const;
 
 private:
 	std::string m_function;

@@ -64,7 +64,7 @@ void LocalEndpoint::register_item(Item* a_item)
     // already registered at some endpoint?
     if (a_item->get_endpoint()) {
         // yes -> not allowed
-        throw error(ErrorCode::ERR_ITEM_ALREADY_REGISTERED, "%s is already registered: '%s'",
+        REMO_THROW(ErrorCode::ERR_ITEM_ALREADY_REGISTERED, "%s is already registered: '%s'",
             a_item->item_type(), a_item->get_full_name().c_str());
     } // end if
 
@@ -76,7 +76,7 @@ void LocalEndpoint::register_item(Item* a_item)
         a_item->set_endpoint(this);
     } else {
         // no -> item with same name already existing
-        throw error(ErrorCode::ERR_ITEM_ALREADY_EXISTING, "%s with same name already exists: '%s'",
+        REMO_THROW(ErrorCode::ERR_ITEM_ALREADY_EXISTING, "%s with same name already exists: '%s'",
             ret.first->second->item_type(), ret.first->first.c_str());
     } // end if
 
@@ -102,7 +102,7 @@ void LocalEndpoint::unregister_item(Item* a_item)
         a_item->set_endpoint(nullptr);
     } else {
         // no -> item not found
-        throw error(ErrorCode::ERR_ITEM_NOT_FOUND, "%s not found for unregistration: '%s'",
+        REMO_THROW(ErrorCode::ERR_ITEM_NOT_FOUND, "%s not found for unregistration: '%s'",
             a_item->item_type(), a_item->get_full_name().c_str());
     }
 
@@ -136,7 +136,7 @@ TypedValue LocalEndpoint::call(const std::string& a_func_name, const ArgList& ar
     // get function item
     Item* item = find_item(a_func_name);
     if (!item) {
-        throw error(ErrorCode::ERR_RPC_NOT_FOUND, "remote procedure not found: '%s'",
+        REMO_THROW(ErrorCode::ERR_RPC_NOT_FOUND, "remote procedure not found: '%s'",
             a_func_name.c_str());
     }
 

@@ -243,14 +243,7 @@ struct TypedValue
 
 	template<typename T>
 	T get() const {
-		// check type
-		TypeId expected = TypeInfo<T>::id();
-		if (expected != m_type) {
-			throw error(ErrorCode::ERR_BAD_VALUE_ACCESS, 
-				"bad typed value access: expected '%s', got '%s'",
-				get_type_name(expected), get_type_name(m_type));
-		}
-		// return value
+		check_type(TypeInfo<T>::id());
 		return reinterpret_cast<const T&>(m_value);
 	}
 
@@ -261,6 +254,10 @@ struct TypedValue
 	const char* type_name() const {
 		return get_type_name(m_type);
 	}
+
+// protected member functions
+protected:
+	void check_type(TypeId a_expected) const;
 
 private:
 	//! value type

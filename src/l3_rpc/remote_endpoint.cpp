@@ -136,7 +136,7 @@ packet_ptr RemoteEndpoint::take_packet()
 {
 	packet_ptr packet(m_packet_pool.take());
 	if (!packet) {
-		throw error(ErrorCode::ERR_OUT_OF_PACKETS, 
+		REMO_THROW(ErrorCode::ERR_OUT_OF_PACKETS, 
 			"out of packets. maybe some transport plugin leaking?");
 	}
 	return packet;
