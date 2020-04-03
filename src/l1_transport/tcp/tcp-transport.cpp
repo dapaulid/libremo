@@ -182,7 +182,9 @@ void TcpThread::handle_cmd()
 		do_add_channel(channel);
 	} else {
 		// shutdown sentinel received
-		REMO_INFO("Shutdown signal received");
+		REMO_INFO("shutdown signal received");
+		// set termination flag
+		terminate();
 	}
 }
 
@@ -220,8 +222,12 @@ void TcpThread::remove_channel(TcpChannel* a_channel)
 //
 void TcpThread::shutdown()
 {
-	// call base to set termination flag
-	Worker::shutdown();
+	/**
+	 * NOTE: do NOT call base to set termination flag, as we may then
+	 * terminate before processing the command queue and miss some channels
+	 * we need to close.
+	 */
+	REMO_INFO("requesting thread to terminate");
 	// send sentinel to thread to wake it from poll()
 	add_channel(nullptr);
 }
