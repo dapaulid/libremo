@@ -9,6 +9,7 @@
 //------------------------------------------------------------------------------
 #include "packet.h"
 #include "reader.h"
+#include "utils/logger.h"
 #include "utils/contracts.h"
 
 #include <iostream>
@@ -20,7 +21,14 @@ namespace remo {
     namespace trans {
 //------------------------------------------------------------------------------	
 
+//! logger instance
+static Logger logger("Packet");
 
+
+//------------------------------------------------------------------------------	
+// class Packet
+//------------------------------------------------------------------------------	
+//
 Packet::Packet():
     m_buffer(),
     m_header(),

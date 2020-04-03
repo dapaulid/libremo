@@ -19,7 +19,17 @@
 //
 
 // assert wrapper
-#define REMO_ASSERT(cond, msg) assert(msg && (cond))
+#ifndef NDEBUG
+	// assertions enabled
+	#define REMO_ASSERT(cond, msg)                                             \
+		if (!(cond)) {                                                         \
+			REMO_FATAL("assertion failed: %s", msg);                           \
+			assert(!msg);                                                      \
+		}
+#else
+	// assertions disabled
+	#define REMO_ASSERT(cond, msg)
+#endif
 
 // precondition block: list assertions to be evaluated at function scope entry
 #define REMO_PRECOND(block) block
