@@ -19,6 +19,25 @@
 #include <cstddef> // max_align_t
 
 //------------------------------------------------------------------------------
+// defines
+//------------------------------------------------------------------------------
+//
+//! maximum allowed packet size (header and payload)
+#ifndef REMO_MAX_PACKET_SIZE
+#define REMO_MAX_PACKET_SIZE           1024
+#endif 
+
+//! maximum allowed packet header size
+#ifndef REMO_MAX_PACKET_HEADER_SIZE
+#define REMO_MAX_PACKET_HEADER_SIZE    128
+#endif 
+
+//! maximum allowed packet payload size
+static_assert(REMO_MAX_PACKET_HEADER_SIZE < REMO_MAX_PACKET_SIZE,
+    "max header size must be smaller than total packet size");
+#define REMO_MAX_PACKET_PAYLOAD_SIZE   (REMO_MAX_PACKET_SIZE - REMO_MAX_PACKET_HEADER_SIZE) 
+
+//------------------------------------------------------------------------------
 namespace remo {
     namespace trans {
 //------------------------------------------------------------------------------	
@@ -35,11 +54,6 @@ enum PacketType: uint8_t
 class Packet: public Recyclable<Packet>
 {
 public:
-    //! constants
-    enum {
-        DEFAULT_HEADER_CAPACITY = 128 // bytes
-    };
-
     Packet();
     virtual ~Packet();
 
@@ -65,7 +79,7 @@ protected:
 
 private:
 	REMO_MSVC_WARN_SUPPRESS(4324) // structure was padded -> sure
-    alignas(std::max_align_t) uint8_t m_buffer [1024];
+    alignas(std::max_align_t) uint8_t m_buffer [REMO_MAX_PACKET_SIZE];
     LBuffer m_header;
     RBuffer m_payload;
 };

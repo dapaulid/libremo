@@ -18,7 +18,7 @@ using namespace remo;
 
 //------------------------------------------------------------------------------
 //
-TEST(Transport, SendReceive)
+static void TestSendReceive(size_t a_payload_size)
 {
 	TcpTransport::Settings settings;
 	settings.listen_addr = SockAddr("localhost:1986");
@@ -26,14 +26,16 @@ TEST(Transport, SendReceive)
 
 	std::promise<void> p;
 	auto f = p.get_future();
-	transport.on_accept([&p](Channel* a_channel) {
-		a_channel->on_receive([&p](Channel*, packet_ptr& a_packet) {
+	transport.on_accept([&p, a_payload_size](Channel* a_channel) {
+		a_channel->on_receive([&p, a_payload_size](Channel*, packet_ptr& a_packet) {
 			p.set_value();
 			// check packet size
-			EXPECT_EQ(a_packet->get_size(), (size_t)4);
+			EXPECT_EQ(a_packet->get_size(), a_payload_size);
 			// check packet contents
 			Reader reader(a_packet->get_payload());
-			EXPECT_EQ(reader.read<uint32_t>(), (uint32_t)1234);
+			for (size_t i = 0; i < a_payload_size; i++)	{
+				EXPECT_EQ(reader.read<uint8_t>(), (uint8_t)(i & 0xff));
+			}
 		});
 	});
 
@@ -41,11 +43,47 @@ TEST(Transport, SendReceive)
 	Channel* channel = transport.connect("localhost:1986");
 	// get a fresh packet
 	packet_ptr packet = transport.take_packet();
-	// write some content
+	// write content
 	Writer writer(packet->get_payload());
-	writer.write<uint32_t>(1234);
+	for (size_t i = 0; i < a_payload_size; i++)	{
+		writer.write<uint8_t>(i & 0xff);
+	}
 	// send the packet
 	channel->send(packet);
 
 	f.wait();
+}
+
+//------------------------------------------------------------------------------
+//
+TEST(Transport, SendReceive)
+{
+	// just send some bytes
+	TestSendReceive(32);
+}
+
+//------------------------------------------------------------------------------
+//
+TEST(Transport, SendReceive_EmptyPayload)
+{
+	TestSendReceive(0);
+}
+
+//------------------------------------------------------------------------------
+//
+TEST(Transport, SendReceive_MaxPayload)
+{
+	TestSendReceive(REMO_MAX_PACKET_PAYLOAD_SIZE);
+}
+
+//------------------------------------------------------------------------------
+//
+TEST(Transport, SendReceive_Bad_TooLarge)
+{
+	try {
+		TestSendReceive(REMO_MAX_PACKET_PAYLOAD_SIZE + 1);		
+        FAIL() << "must throw an exception";
+    } catch (const remo::error& e) {
+        EXPECT_EQ(e.code(), remo::ErrorCode::ERR_PACKET_FULL);
+    }
 }

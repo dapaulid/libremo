@@ -254,7 +254,10 @@ void TcpChannel::prepare_rx_packet()
 {
 	// allocate packet if needed
 	if (!m_rx_packet) {
+		// get a fresh packet from our transport
 		m_rx_packet = get_transport()->take_packet();
+		// use whole buffer for payload, we'll determine header later
+		m_rx_packet->set_header_capacity(0);
 	}
 }
 

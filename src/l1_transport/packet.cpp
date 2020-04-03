@@ -26,7 +26,7 @@ Packet::Packet():
     m_header(),
     m_payload()
 {
-    set_header_capacity(DEFAULT_HEADER_CAPACITY);
+    set_header_capacity(REMO_MAX_PACKET_HEADER_SIZE);
 }
 
 //------------------------------------------------------------------------------
@@ -40,7 +40,7 @@ Packet::~Packet()
 void Packet::recycle()
 {
     // reset state
-    set_header_capacity(DEFAULT_HEADER_CAPACITY);
+    set_header_capacity(REMO_MAX_PACKET_HEADER_SIZE);
     // call base
     Recyclable::recycle();
 }
