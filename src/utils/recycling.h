@@ -11,6 +11,8 @@
 
 #include "l0_system/error.h"
 
+#include <mutex>
+
 //------------------------------------------------------------------------------
 namespace remo {
 //------------------------------------------------------------------------------	
@@ -20,7 +22,8 @@ template<typename Recyclable>
 class RecyclingPool {
 public:
 	RecyclingPool():
-		m_first(nullptr)
+		m_first(nullptr),
+		m_lock()
 	{
 	}
 
@@ -36,6 +39,8 @@ public:
 
 	void add(Recyclable* a_object) 
 	{
+		std::lock_guard<std::mutex> lock(m_lock);
+
 		a_object->set_pool(nullptr);
 		a_object->set_next(m_first);
 		m_first = a_object;
@@ -43,6 +48,8 @@ public:
 
 	Recyclable* take() 
 	{
+		std::lock_guard<std::mutex> lock(m_lock);
+
 		if (m_first) {
 			// remove first object from our list
 			Recyclable* object = m_first;
@@ -58,6 +65,8 @@ public:
 
 private:
 	Recyclable* m_first;
+	// TODO eliminate?
+	std::mutex m_lock;
 };
 
 //------------------------------------------------------------------------------
