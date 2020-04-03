@@ -204,7 +204,13 @@ void Logger::log(LogLevel a_level,  const std::string& a_log_name,
 	// output log level
 	ss << "[" << m_colors.colorize(level, fcol, bcol, style) << "] ";
 	// output thread id
-	ss << "[" << m_colors.colorize('T' + std::to_string(thread_num), thread_color) << "] ";
+	ss << "[";
+		// add marker if thread is unwinding (exception pending)
+		if (std::uncaught_exception()) {
+			ss << m_colors.colorize("U", Color::bright_magenta, Color::none, Style::bold) << ':';
+		}
+		ss << m_colors.colorize('T' + std::to_string(thread_num), thread_color);
+	ss << "] ";
 	// output logger name and optional object name
 	ss << "[" << m_colors.cyan(m_name);
 	if (!a_log_name.empty()) {
