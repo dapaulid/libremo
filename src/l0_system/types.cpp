@@ -24,11 +24,10 @@ static Logger logger("TypedValue");
 //
 void TypedValue::check_type(TypeId a_expected) const
 {
-	if (a_expected != m_type) {
-		REMO_THROW(ErrorCode::ERR_BAD_VALUE_ACCESS, 
-			"bad typed value access: expected '%s', got '%s'",
-			get_type_name(a_expected), get_type_name(m_type));
-	}
+	REMO_THROW_IF(a_expected != m_type, 
+		ErrorCode::ERR_BAD_VALUE_ACCESS, 
+		"bad typed value access: expected '%s', got '%s'",
+		get_type_name(a_expected), get_type_name(m_type));
 }
 
 

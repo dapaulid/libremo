@@ -61,20 +61,19 @@ std::string function::to_string() const
 void function::check_args(const ArgList& args)
 {
     // check number of arguments
-    if (m_param_types.size() != args.size()) {
-        REMO_THROW(ErrorCode::ERR_PARAM_NUM_MISMATCH, "Parameter number mismatch: expected %zu, got %zu",
-            m_param_types.size(), args.size());
-    }
+    REMO_THROW_IF(m_param_types.size() != args.size(),
+        ErrorCode::ERR_PARAM_NUM_MISMATCH, 
+        "Parameter number mismatch: expected %zu, got %zu",
+        m_param_types.size(), args.size());
 
     // check if argument and parameter types match
     // TODO allow cast here? For now we do an exact match
     for (size_t i = 0; i < m_param_types.size(); i++) {
-        if (args[i].type() != m_param_types[i]) {
-            REMO_THROW(ErrorCode::ERR_PARAM_TYPE_MISMATCH, 
-                "cannot convert '%s' to '%s' for argument %zu to remote function '%s'",
-                get_type_name(args[i].type()), get_type_name(m_param_types[i]),
-                i+1, to_string().c_str());
-        }
+        REMO_THROW_IF(args[i].type() != m_param_types[i], 
+            ErrorCode::ERR_PARAM_TYPE_MISMATCH, 
+            "cannot convert '%s' to '%s' for argument %zu to remote function '%s'",
+            get_type_name(args[i].type()), get_type_name(m_param_types[i]),
+            i+1, to_string().c_str());
     }
 }
 

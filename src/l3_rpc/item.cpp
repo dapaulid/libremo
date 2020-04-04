@@ -30,10 +30,9 @@ Item::Item(const std::string& a_name):
     m_name(a_name)
 {
     // check item name
-    if (!is_valid_name(m_name)) {
-        REMO_THROW(ErrorCode::ERR_INVALID_IDENTIFIER, 
-            "invalid identifier: \"%s\"", m_name.c_str());
-    }
+    REMO_THROW_IF(!is_valid_name(m_name),
+        ErrorCode::ERR_INVALID_IDENTIFIER, 
+        "invalid identifier: \"%s\"", m_name.c_str());
 }
 
 //------------------------------------------------------------------------------

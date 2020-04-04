@@ -38,10 +38,10 @@ Reader::Reader(const Buffer& a_buffer):
 void Reader::skip_array(size_t a_arraylength, size_t a_item_size)
 {
 	size_t total_size = a_arraylength * a_item_size;
-	if (m_offset + total_size > m_buffer.get_size()) {
-		REMO_THROW(ErrorCode::ERR_INVALID_ARRAY_LENGTH, 
-			"invalid array length: %zu", a_arraylength);
-	}
+	REMO_THROW_IF(m_offset + total_size > m_buffer.get_size(), 
+		ErrorCode::ERR_INVALID_ARRAY_LENGTH, 
+		"invalid array length: %zu", 
+		a_arraylength);
 	m_offset += total_size;
 }
 
@@ -56,14 +56,16 @@ void BinaryReader::read_call()
 	uint8_t modifier = 0;
 
 	// expect 'call' packet
-	if (read<uint8_t>() != PacketType::packet_call) {
-		REMO_THROW(ErrorCode::ERR_BAD_PACKET, "not a 'call' packet");
-	}
+	uint8_t packet_type = read<uint8_t>();
+	REMO_THROW_IF(packet_type != PacketType::packet_call, 
+		ErrorCode::ERR_BAD_PACKET, 
+		"not a 'call' packet");
 
 	// expect function name
-	if (read_type(modifier) != TypeId::type_cstr) {
-		REMO_THROW(ErrorCode::ERR_FUNC_NAME_MISSING, "Function name missing");
-	}
+	TypeId type = read_type(modifier);
+	REMO_THROW_IF(type != TypeId::type_cstr, 
+		ErrorCode::ERR_FUNC_NAME_MISSING, 
+		"Function name missing");
 
 	// read function name
 	size_t start_offset = m_offset;
@@ -325,20 +327,19 @@ std::string BinaryReader::format_value()
 //
 void BinaryReader::check_param_type(TypeId a_actual_type, TypeId a_expected_type) const
 {
-	if (a_actual_type != a_expected_type) {
-		REMO_THROW(ErrorCode::ERR_OUTPARAM_TYPE_MISMATCH, 
-			"out parameter type mismatch: expected %s, got %s", 
-			get_type_name(a_expected_type), get_type_name(a_actual_type));
-	}
+	REMO_THROW_IF(a_actual_type != a_expected_type, 
+		ErrorCode::ERR_OUTPARAM_TYPE_MISMATCH, 
+		"out parameter type mismatch: expected %s, got %s", 
+		get_type_name(a_expected_type), get_type_name(a_actual_type));
 }
 
 //------------------------------------------------------------------------------
 //
 void BinaryReader::check_result_packet(PacketType a_packet_type) const
 {
-	if (a_packet_type != PacketType::packet_result) {
-		REMO_THROW(ErrorCode::ERR_BAD_PACKET, "not a 'result' packet");
-	}
+	REMO_THROW_IF(a_packet_type != PacketType::packet_result, 
+		ErrorCode::ERR_BAD_PACKET, 
+		"not a 'result' packet");
 }
 
 

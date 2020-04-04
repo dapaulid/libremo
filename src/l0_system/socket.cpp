@@ -385,11 +385,10 @@ Socket::IOResult Socket::send(const void* a_buffer, size_t a_bufsize, size_t* o_
 		*o_bytes_sent = bytes_sent;
 	} else {
 		// no -> caller expects whole buffer to be sent
-		if (bytes_sent != a_bufsize) {
-			REMO_THROW(ErrorCode::ERR_SOCKET_SEND_INCOMPLETE, 
-				"Failed to send complete buffer: Expected %d bytes, actual %d bytes", 
-				a_bufsize, bytes_sent);
-		}
+		REMO_THROW_IF(bytes_sent != a_bufsize, 
+			ErrorCode::ERR_SOCKET_SEND_INCOMPLETE, 
+			"Failed to send complete buffer: Expected %d bytes, actual %d bytes", 
+			a_bufsize, bytes_sent);
 	}
 
 	// success
@@ -432,11 +431,10 @@ Socket::IOResult Socket::recv(void* a_buffer, size_t a_bufsize, size_t* o_bytes_
 		*o_bytes_received = bytes_received;
 	} else {
 		// no -> caller expects whole buffer to be received
-		if (bytes_received != a_bufsize) {
-			REMO_THROW(ErrorCode::ERR_SOCKET_RECV_INCOMPLETE, 
-				"Failed to receive complete buffer: Expected %d bytes, actual %d bytes", 
-				a_bufsize, bytes_received);
-		}
+		REMO_THROW_IF(bytes_received != a_bufsize, 
+			ErrorCode::ERR_SOCKET_RECV_INCOMPLETE, 
+			"Failed to receive complete buffer: Expected %d bytes, actual %d bytes", 
+			a_bufsize, bytes_received);
 	}
 
 	REMO_VERB("socket received %d bytes (bufsize=%zu)",
@@ -804,18 +802,17 @@ void SockAddr::from_string(const std::string& a_str)
 	
 	struct addrinfo* result = nullptr;
 	int err = ::getaddrinfo(host.c_str(), service.c_str(), &hints, &result);
-	if (err) {
-		REMO_THROW(ErrorCode::ERR_GETADDRINFO_FAILED, "getaddrinfo(\"%s\", \"%s\") failed with code %d: %s",
-			host.c_str(), service.c_str(), err, gai_strerror(err)
-		);
-	}
+	REMO_THROW_IF(err, 
+		ErrorCode::ERR_GETADDRINFO_FAILED, 
+		"getaddrinfo(\"%s\", \"%s\") failed with code %d: %s",
+		host.c_str(), service.c_str(), err, gai_strerror(err)
+	);
 
 	// check buffer size
-	if (result->ai_addrlen > sizeof(m_addr)) {
-		REMO_THROW(ErrorCode::ERR_SOCKET_BUFFER_TOO_SMALL, 
-			"Buffer to hold socket address too small: Expected %d bytes, got %d",
-			sizeof(m_addr), result->ai_addrlen);
-	}
+	REMO_THROW_IF(result->ai_addrlen > sizeof(m_addr), 
+		ErrorCode::ERR_SOCKET_BUFFER_TOO_SMALL, 
+		"Buffer to hold socket address too small: Expected %d bytes, got %d",
+		sizeof(m_addr), result->ai_addrlen);
 
 	// copy address
 	memcpy(m_addr, result->ai_addr, result->ai_addrlen);
@@ -829,17 +826,17 @@ void SockAddr::from_string(const std::string& a_str)
 //
 std::string SockAddr::to_string() const
 {
-  char hbuf[NI_MAXHOST], sbuf[NI_MAXSERV];
+	char hbuf[NI_MAXHOST], sbuf[NI_MAXSERV];
 
-  int err = ::getnameinfo(
+	int err = ::getnameinfo(
 		(sockaddr*)&m_addr, m_addrlen, 
 		hbuf, sizeof(hbuf), sbuf, sizeof(sbuf), 
 		NI_NUMERICHOST | NI_NUMERICSERV);
-	if (err) {
-		REMO_THROW(ErrorCode::ERR_GETNAMEINFO_FAILED, "getnameinfo() failed with code %d: %s",
-			err, gai_strerror(err)
-		);
-	}
+	REMO_THROW_IF(err, 
+		ErrorCode::ERR_GETNAMEINFO_FAILED, 
+		"getnameinfo() failed with code %d: %s",
+		err, gai_strerror(err)
+	);
 
 	// has port?
 	if (get_port()) {

@@ -64,10 +64,9 @@ void BinaryWriter::write_value(bool a_bool)
 
 void BinaryWriter::write_value(arraysize_t a_size)
 {
-	if (m_has_arraysize) {
-		REMO_THROW(ErrorCode::ERR_POINTER_NEEDS_SIZE, 
-			"arraysize_t parameter required before pointer type");
-	}
+	REMO_THROW_IF(m_has_arraysize, 
+		ErrorCode::ERR_POINTER_NEEDS_SIZE, 
+		"arraysize_t parameter required before pointer type");
 	m_arraysize = a_size;
 	m_has_arraysize = true;
 }

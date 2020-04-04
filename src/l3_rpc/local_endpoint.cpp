@@ -61,24 +61,21 @@ void LocalEndpoint::register_item(Item* a_item)
         return;
     }
 
-    // already registered at some endpoint?
-    if (a_item->get_endpoint()) {
-        // yes -> not allowed
-        REMO_THROW(ErrorCode::ERR_ITEM_ALREADY_REGISTERED, "%s is already registered: '%s'",
-            a_item->item_type(), a_item->get_full_name().c_str());
-    } // end if
+    // fail if already registered at some endpoint
+    REMO_THROW_IF(a_item->get_endpoint(),
+        ErrorCode::ERR_ITEM_ALREADY_REGISTERED, 
+        "%s is already registered: '%s'",
+        a_item->item_type(), a_item->get_full_name().c_str());
 
-    // try to insert item
+    // insert item
     auto ret = m_items.insert(std::pair<std::string, Item*>(a_item->get_full_name(), a_item));
-    // inserted?
-    if (ret.second) {
-        // yes -> remember us
-        a_item->set_endpoint(this);
-    } else {
-        // no -> item with same name already existing
-        REMO_THROW(ErrorCode::ERR_ITEM_ALREADY_EXISTING, "%s with same name already exists: '%s'",
-            ret.first->second->item_type(), ret.first->first.c_str());
-    } // end if
+    REMO_THROW_IF(!ret.second, 
+        ErrorCode::ERR_ITEM_ALREADY_EXISTING, 
+        "%s with same name already exists: '%s'",
+        ret.first->second->item_type(), ret.first->first.c_str());
+
+    // remember us
+    a_item->set_endpoint(this);
 
 	// success
 	REMO_INFO("Registered '%s'", a_item->to_string().c_str());
@@ -94,17 +91,15 @@ void LocalEndpoint::unregister_item(Item* a_item)
         return;
     }
 
-    // try to remove item
+    // remove item
     size_t count = m_items.erase(a_item->get_full_name());
-    // removed?
-    if (count == 1) {
-        // yes -> forget us
-        a_item->set_endpoint(nullptr);
-    } else {
-        // no -> item not found
-        REMO_THROW(ErrorCode::ERR_ITEM_NOT_FOUND, "%s not found for unregistration: '%s'",
-            a_item->item_type(), a_item->get_full_name().c_str());
-    }
+    REMO_THROW_IF(count == 0, 
+        ErrorCode::ERR_ITEM_NOT_FOUND, 
+        "%s not found for unregistration: '%s'",
+        a_item->item_type(), a_item->get_full_name().c_str());    
+
+    // forget us
+    a_item->set_endpoint(nullptr);
 
 	// success
 	REMO_INFO("Unregistered '%s'", a_item->to_string().c_str());
@@ -135,10 +130,10 @@ TypedValue LocalEndpoint::call(const std::string& a_func_name, const ArgList& ar
 {
     // get function item
     Item* item = find_item(a_func_name);
-    if (!item) {
-        REMO_THROW(ErrorCode::ERR_RPC_NOT_FOUND, "remote procedure not found: '%s'",
-            a_func_name.c_str());
-    }
+    REMO_THROW_IF(!item,
+        ErrorCode::ERR_RPC_NOT_FOUND, 
+        "remote procedure not found: '%s'",
+        a_func_name.c_str());
 
     // call it
     return item->call(args);	

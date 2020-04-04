@@ -147,10 +147,9 @@ void Transport::alloc_packets()
 packet_ptr Transport::take_packet()
 {
 	packet_ptr packet(m_packet_pool.take());
-	if (!packet) {
-		REMO_THROW(ErrorCode::ERR_OUT_OF_PACKETS, 
-			"out of packets");
-	}
+	REMO_THROW_IF(!packet, 
+		ErrorCode::ERR_OUT_OF_PACKETS, 
+		"out of packets");
 	REMO_ASSERT(packet->get_size() == 0,
 		"a fresh packet must be empty");
 	return packet;

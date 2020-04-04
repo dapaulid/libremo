@@ -78,8 +78,8 @@ enum ErrorCode {
 }
 
 //! throw an exception if condition is fulfilled
-#define REMO_THROW_IF(cond, code, msg, ...) \
-	if REMO_UNLIKELY(cond) { REMO_THROW(code, msg, __VA_ARGS__); }
+#define REMO_THROW_IF(cond, code, /*msg,*/ ...) \
+	if REMO_UNLIKELY(cond) { REMO_THROW(code, /*msg,*/ __VA_ARGS__); }
 
 
 //------------------------------------------------------------------------------
