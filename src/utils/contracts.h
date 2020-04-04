@@ -9,6 +9,8 @@
 //------------------------------------------------------------------------------
 #pragma once
 
+#include "utils/likely.h"
+
 #include <assert.h>
 #include <functional>
 #include <exception>
@@ -22,7 +24,7 @@
 #ifndef NDEBUG
 	// assertions enabled
 	#define REMO_ASSERT(cond, msg)                                             \
-		if (!(cond)) {                                                         \
+		if REMO_UNLIKELY(!(cond)) {                                            \
 			REMO_FATAL("assertion failed: %s", msg);                           \
 			assert(!msg);                                                      \
 		}

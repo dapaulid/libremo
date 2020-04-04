@@ -10,6 +10,7 @@
 #pragma once
 
 #include "utils/utils.h" // basename
+#include "utils/likely.h"
 
 #include <stdexcept>
 
@@ -78,7 +79,7 @@ enum ErrorCode {
 
 //! throw an exception if condition is fulfilled
 #define REMO_THROW_IF(cond, code, msg, ...) \
-	if (cond) { REMO_THROW(code, msg, __VA_ARGS__); }
+	if REMO_UNLIKELY(cond) { REMO_THROW(code, msg, __VA_ARGS__); }
 
 
 //------------------------------------------------------------------------------
