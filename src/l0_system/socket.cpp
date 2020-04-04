@@ -221,7 +221,7 @@ void Socket::open(SockProto a_proto, AddrFamily a_family)
 
 	// create socket descriptor
 	int sockfd = (int)::socket(af, type, proto);
-	if (sockfd < 0) {
+	if REMO_UNLIKELY(sockfd < 0) {
 		int err = get_last_error();
 		REMO_THROW(ErrorCode::ERR_SOCKET_OPEN_FAILED, 
 			"Opening socket failed with error %d: %s", 
@@ -243,7 +243,7 @@ void Socket::close()
 	}
 	int err = ::close(m_sockfd);
 	m_sockfd = INVALID_SOCKFD;
-	if (err) {
+	if REMO_UNLIKELY(err) {
 		err = get_last_error();
 		REMO_THROW(ErrorCode::ERR_SOCKET_CLOSE_FAILED, 
 			"Closing socket failed with error %d: %s", 
@@ -264,7 +264,7 @@ void Socket::connect(const SockAddr& a_addr)
 	// connect it
 	int err = ::connect(m_sockfd, (const sockaddr*)&a_addr.m_addr, 
 		a_addr.m_addrlen);
-	if (err) {
+	if REMO_UNLIKELY(err) {
 		err = get_last_error();
 		REMO_THROW(ErrorCode::ERR_SOCKET_CONNECT_FAILED, 
 			"Connecting socket to '%s' failed with error %d: %s", 
@@ -288,7 +288,7 @@ void Socket::bind(const SockAddr& a_addr)
 	// bind it
 	int err = ::bind(m_sockfd, (const sockaddr*)&a_addr.m_addr, 
 		a_addr.m_addrlen);
-	if (err) {
+	if REMO_UNLIKELY(err) {
 		err = get_last_error();
 		REMO_THROW(ErrorCode::ERR_SOCKET_BIND_FAILED, 
 			"Binding socket to '%s' failed with error %d: %s", 
@@ -310,7 +310,7 @@ void Socket::listen(int a_backlog)
 		a_backlog = SOMAXCONN;
 	}
 	int err = ::listen(m_sockfd, a_backlog);
-	if (err) {
+	if REMO_UNLIKELY(err) {
 		err = get_last_error();
 		REMO_THROW(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
 			"Syscall listen() failed with error %d: %s", 
@@ -330,7 +330,7 @@ Socket Socket::accept()
 	// getpeername() afterwards, see 
 	// https://stackoverflow.com/questions/22904179/difference-in-address-returned-by-getpeername-and-accept-c-socket
 	int sockfd = (int)::accept(m_sockfd, nullptr, nullptr);
-	if (sockfd < 0) {
+	if REMO_UNLIKELY(sockfd < 0) {
 		int err = get_last_error();
 		REMO_THROW(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
 			"Syscall accept() failed with error %d: %s", 
@@ -365,7 +365,7 @@ Socket::IOResult Socket::send(const void* a_buffer, size_t a_bufsize, size_t* o_
 #endif
 
 	int ret = ::send(m_sockfd, (const char*)a_buffer, (int)a_bufsize, flags);
-	if (ret < 0) {
+	if REMO_UNLIKELY(ret < 0) {
 		int err = get_last_error();
 		if (err == OS_ERROR(EWOULDBLOCK)) {
 			REMO_VERB("socket send would block");
@@ -406,7 +406,7 @@ Socket::IOResult Socket::recv(void* a_buffer, size_t a_bufsize, size_t* o_bytes_
 	}
 
 	int ret = ::recv(m_sockfd, (char*)a_buffer, (int)a_bufsize, 0);
-	if (ret < 0) {
+	if REMO_UNLIKELY(ret < 0) {
 		int err = get_last_error();
 		if (err == OS_ERROR(EWOULDBLOCK)) {
 			REMO_VERB("socket receive would block");
@@ -447,7 +447,7 @@ Socket::IOResult Socket::recv(void* a_buffer, size_t a_bufsize, size_t* o_bytes_
 void Socket::shutdown(ShutdownFlag how)
 {
 	int err = ::shutdown(m_sockfd, (int)how);
-	if (err) {
+	if REMO_UNLIKELY(err) {
 		err = get_last_error();
 		REMO_THROW(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
 			"Syscall shutdown() failed with error %d: %s", 
@@ -467,7 +467,7 @@ void Socket::wait_send_ready(int a_timeout_ms)
 	pfd.events = POLLOUT;
 
 	int ret = ::poll(&pfd, 1, a_timeout_ms);
-	if (ret < 0) {
+	if REMO_UNLIKELY(ret < 0) {
 		int err = get_last_error();
 		REMO_THROW(ErrorCode::ERR_SOCKET_POLL_FAILED, 
 			"Polling socket for send ready failed with error %d: %s", 
@@ -482,7 +482,7 @@ void Socket::set_blocking(bool a_blocking)
 #if REMO_SYSTEM & REMO_SYS_WINDOWS
    unsigned long mode = a_blocking ? 0 : 1;
    int ret = ::ioctlsocket(m_sockfd, FIONBIO, &mode);
-   if (ret != 0) {
+   if REMO_UNLIKELY(ret != 0) {
 		int err = get_last_error();
 		REMO_THROW(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
 			"Setting socket blocking mode using ioctlsocket() failed with error %d: %s", 
@@ -490,7 +490,7 @@ void Socket::set_blocking(bool a_blocking)
    }
 #else
    int flags = ::fcntl(m_sockfd, F_GETFL, 0);
-   if (flags == -1) {
+   if REMO_UNLIKELY(flags == -1) {
 		int err = get_last_error();
 		REMO_THROW(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
 			"Getting socket flags using fcntl() failed with error %d: %s", 
@@ -498,7 +498,7 @@ void Socket::set_blocking(bool a_blocking)
    }
    flags = a_blocking ? (flags & ~O_NONBLOCK) : (flags | O_NONBLOCK);
    int ret = ::fcntl(m_sockfd, F_SETFL, flags);
-   if (ret != 0) {
+   if REMO_UNLIKELY(ret != 0) {
 		int err = get_last_error();
 		REMO_THROW(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
 			"Setting socket blocking mode using fcntl() failed with error %d: %s", 
@@ -517,7 +517,7 @@ void Socket::set_reuse_addr(bool a_reuse_addr)
 	const int enable = a_reuse_addr ? 1 : 0;
 	int ret = ::setsockopt(m_sockfd, 
 		SOL_SOCKET, SO_REUSEADDR, (const char*)&enable, sizeof(enable));
-	if (ret < 0) {
+	if REMO_UNLIKELY(ret < 0) {
 		int err = get_last_error();
 		REMO_THROW(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
 			"Syscall setsockopt(SO_REUSEADDR) failed with error %d: %s", 
@@ -535,7 +535,7 @@ SockAddr Socket::get_socket_addr() const
 	SockAddr addr;
 	addr.m_addrlen = sizeof(addr.m_addr);
 	int err = ::getsockname(m_sockfd, (sockaddr*)&addr.m_addr, &addr.m_addrlen);
-	if (err) {
+	if REMO_UNLIKELY(err) {
 		err = get_last_error();
 		REMO_THROW(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
 			"Syscall getsockname() failed with error %d: %s", 
@@ -551,7 +551,7 @@ SockAddr Socket::get_remote_addr() const
 	SockAddr addr;
 	addr.m_addrlen = sizeof(addr.m_addr);
 	int err = ::getpeername(m_sockfd, (sockaddr*)&addr.m_addr, &addr.m_addrlen);
-	if (err) {
+	if REMO_UNLIKELY(err) {
 		err = get_last_error();
 		REMO_THROW(ErrorCode::ERR_SOCKET_SYSCALL_FAILED, 
 			"Syscall getpeername() failed with error %d: %s", 
@@ -691,7 +691,7 @@ size_t SocketSet::poll(int a_timeout_ms)
 	int ret = ::poll(&pimpl->m_pollfds[0], (nfds_t)n, a_timeout_ms);
 	REMO_ASSERT(n == count(),
 		"set size must not change during poll");
-	if (ret < 0) {
+	if REMO_UNLIKELY(ret < 0) {
 		int err = get_last_error();
 		REMO_THROW(ErrorCode::ERR_SOCKET_POLL_FAILED, 
 			"Polling sockets failed with error %d: %s", 
