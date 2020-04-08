@@ -56,6 +56,23 @@ TEST(Timer, multi_shot)
 
 //------------------------------------------------------------------------------
 //
+TEST(Timer, destroy_pending)
+{
+	TimerThread tt;
+
+	int t1_called = 0;
+	{
+		Timer t1(1.0, [&](Timer*){
+			++t1_called;
+		}, &tt);
+	}
+
+	EXPECT_EQ(t1_called, 0);
+}
+
+
+//------------------------------------------------------------------------------
+//
 TEST(Timer, multiple_timers)
 {
 	TimerThread tt;
