@@ -24,8 +24,10 @@ target_sources(
         l0_system/worker.cpp
         utils/async.cpp
         utils/colors.cpp
+        utils/list.cpp
         utils/logger.cpp
         utils/settings.cpp
+        utils/timer.cpp
         utils/utils.cpp
     PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/remo.h

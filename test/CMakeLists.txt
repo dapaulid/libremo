@@ -6,6 +6,8 @@ add_executable(
     l0_system/socket.test.cpp
     l1_transport/url.test.cpp
     l1_transport/transport.test.cpp
+    utils/list.test.cpp
+    utils/timer.test.cpp
 )
 
 target_link_libraries(
