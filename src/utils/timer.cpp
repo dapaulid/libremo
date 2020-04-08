@@ -110,7 +110,7 @@ void Timer::cancel()
 void Timer::notify()
 {
 	REMO_VERB("timer fired");
-	m_callback();
+	m_callback(this);
 }
 
 //------------------------------------------------------------------------------	

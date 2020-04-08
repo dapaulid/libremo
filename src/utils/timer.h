@@ -44,7 +44,7 @@ class Timer: public utils::ListItem
 {
 // public types
 public:
-	typedef std::function<void()> callback;
+	typedef std::function<void(Timer*)> callback;
 	typedef std::chrono::steady_clock clock;
 	typedef clock::time_point time_point;
 	typedef clock::duration duration;

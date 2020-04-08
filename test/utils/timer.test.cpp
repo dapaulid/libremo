@@ -20,9 +20,9 @@ TEST(Timer, single_shot)
 	auto f = p.get_future();
 
 	int t1_called = 0;
-	Timer t1(0.0, [&](){
+	Timer t1(0.0, [&](Timer* t){
 		++t1_called;
-		t1.cancel();
+		t->cancel();
 		p.set_value();
 	}, &tt);
 
@@ -41,10 +41,10 @@ TEST(Timer, multi_shot)
 	auto f = p.get_future();
 
 	int t1_called = 0;
-	Timer t1(0.0, [&](){
+	Timer t1(0.0, [&](Timer* t){
 		++t1_called;
 		if (t1_called >= 3) {
-			t1.cancel();
+			t->cancel();
 			p.set_value();
 		}
 	}, &tt);
@@ -64,15 +64,15 @@ TEST(Timer, multiple_timers)
 	auto f = p.get_future();
 
 	int t1_called = 0;
-	Timer t1(0.0, [&](){
+	Timer t1(0.0, [&](Timer* t){
 		++t1_called;
-		t1.cancel();
+		t->cancel();
 	}, &tt);
 
 	int t2_called = 0;
-	Timer t2(0.0, [&](){
+	Timer t2(0.0, [&](Timer* t){
 		++t2_called;
-		t2.cancel();
+		t->cancel();
 		p.set_value();
 	}, &tt);	
 
