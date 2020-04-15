@@ -22,6 +22,8 @@ TEST(Active, dispatch)
 			ActiveObject(), m_called(a_called) {}
 	public:
 		// outer function (wrapper) to be called by any thread
+		// NOTE in C++17 it is not necessary to specify template parameters,
+		// see http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0091r3.html
 		ActiveFunction<MyActiveObject, void, int, const char*> foo{this, &MyActiveObject::i_foo};
 	protected:
 		// inner function to be called by our own thread
@@ -39,7 +41,8 @@ TEST(Active, dispatch)
 	{
 		MyActiveObject ao(called);
 	
-		ao.foo(1234, "hello");
+		// NOTE cast seems necessary under MSVC 19.25.28610.4
+		ao.foo(1234, (const char*)"hello");
 	}
 	EXPECT_TRUE(called);
 }
