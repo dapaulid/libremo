@@ -8,6 +8,7 @@ add_executable(
     l1_transport/transport.test.cpp
     utils/list.test.cpp
     utils/timer.test.cpp
+    utils/active.test.cpp
 )
 
 target_link_libraries(

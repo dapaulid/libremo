@@ -22,6 +22,7 @@ target_sources(
         l0_system/system.cpp
         l0_system/types.cpp
         l0_system/worker.cpp
+        utils/active.cpp
         utils/async.cpp
         utils/colors.cpp
         utils/list.cpp
